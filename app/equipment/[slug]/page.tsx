@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
-import { Compass, Shield, ChevronLeft, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Compass, Shield, ChevronLeft, ArrowRight, CheckCircle2, Maximize2, X } from "lucide-react";
 import { Button } from "@/components/Button";
 
 interface Product {
@@ -16,6 +16,7 @@ interface Product {
   content: string;
   date: string;
   image: string;
+  gallery?: string[];
   categories: number[];
   brands: number[];
 }
@@ -37,6 +38,8 @@ const ProductDetailPage = () => {
 
   // Detail States
   const [product, setProduct] = useState<Product | null>(null);
+  const [activeImage, setActiveImage] = useState<string>("");
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryTerm[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +75,7 @@ const ProductDetailPage = () => {
           const found = prods.find((p) => p.slug === slug);
           if (found) {
             setProduct(found);
+            setActiveImage(found.gallery?.[0] || found.image);
             
             // Parse content to extract specifications table
             if (typeof window !== "undefined") {
@@ -294,16 +298,52 @@ const ProductDetailPage = () => {
         {/* Left Side (40%): Big Product Image & Specifications */}
         <div className="lg:col-span-5 space-y-8 detail-fade-in">
           {/* Main Product Image */}
-          <div className="relative aspect-square w-full bg-white border border-primary/5 rounded-3xl overflow-hidden shadow-sm">
+          <div className="relative aspect-square w-full bg-white border border-primary/5 rounded-3xl overflow-hidden shadow-sm group">
             <Image
-              src={product.image}
+              src={activeImage || product.image}
               alt={product.title}
               fill
               priority
               sizes="(max-w-768px) 100vw, 500px"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
+            
+            {/* Zoom / Fullscreen Button Overlay */}
+            <button
+              type="button"
+              onClick={() => setLightboxImage(activeImage || product.image)}
+              className="absolute top-4 right-4 bg-black/40 hover:bg-black/70 backdrop-blur-md text-white p-2.5 rounded-full transition-all cursor-pointer shadow-md opacity-80 hover:opacity-100"
+              title="Expand image"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
           </div>
+
+          {/* Gallery Thumbnails Row */}
+          {product.gallery && product.gallery.length > 1 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-[#7d603a] font-serif font-bold px-1">
+                <span>Product Gallery ({product.gallery.length} Photos)</span>
+                <span className="text-primary/40 font-sans normal-case">Click to view</span>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                {product.gallery.map((imgUrl, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActiveImage(imgUrl)}
+                    className={`relative w-20 h-20 bg-white border rounded-2xl overflow-hidden shrink-0 transition-all cursor-pointer ${
+                      (activeImage || product.image) === imgUrl
+                        ? "border-accent ring-2 ring-accent/40 shadow-sm opacity-100 scale-105"
+                        : "border-primary/5 hover:border-accent/40 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={imgUrl} alt={`${product.title} thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Specifications Table Card */}
           {specifications.length > 0 && (
@@ -665,6 +705,29 @@ const ProductDetailPage = () => {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Lightbox Modal for Fullscreen Gallery View */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-6 right-6 text-white p-3 hover:text-accent transition-colors cursor-pointer"
+            aria-label="Close fullscreen view"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <img
+            src={lightboxImage}
+            alt="Fullscreen View"
+            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 
