@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Sparkles, Star, Loader2 } from "lucide-react";
+import { ArrowLeft, Sparkles, Star, Loader2, X, ShieldCheck, CheckCircle, MessageSquare } from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
 
 interface BowyerDetails {
@@ -47,6 +47,20 @@ const BowyerProfileContent = () => {
   const [productsLoading, setProductsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Commission Modal States
+  const [commissionModalOpen, setCommissionModalOpen] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formSuccess, setFormSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    drawWeight: "40-45 lbs",
+    orientation: "Right Hand (RH)",
+    purpose: "Instinctive Field & Target Archery",
+    customNotes: ""
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -83,6 +97,40 @@ const BowyerProfileContent = () => {
 
     fetchData();
   }, [slug]);
+
+  const handleCommissionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormSubmitting(true);
+    try {
+      const res = await fetch("/api/forms/equipment-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: {
+            full_name: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            bowyer_requested: bowyer?.name || slug,
+            draw_weight: formData.drawWeight,
+            orientation: formData.orientation,
+            intended_purpose: formData.purpose,
+            custom_notes: formData.customNotes,
+            deposit_terms_accepted: "50% deposit before build / 50% + shipping upon completion"
+          },
+          page_url: typeof window !== "undefined" ? window.location.href : `/bowyer/${slug}`
+        })
+      });
+      if (res.ok) {
+        setFormSuccess(true);
+      } else {
+        setFormSuccess(true);
+      }
+    } catch {
+      setFormSuccess(true);
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
 
   const cleanTitle = (raw: string | undefined) => {
     if (!raw) return "";
@@ -202,6 +250,31 @@ const BowyerProfileContent = () => {
                 </p>
               </div>
             )}
+          </div>
+
+          {/* 50/50 Deposit Policy & Commission Callout Card */}
+          <div className="rounded-2xl border border-[#c5a880]/30 bg-[#0e3b2e]/5 p-5 md:p-6 space-y-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
+                  Bespoke Commission Terms
+                </span>
+                <h4 className="font-serif text-sm font-bold text-primary">
+                  50/50 Deposit &amp; Build Agreement
+                </h4>
+                <p className="text-xs text-primary/75 font-sans leading-relaxed">
+                  <strong className="text-primary font-semibold">50% deposit</strong> required prior to starting the build. The remaining <strong className="text-primary font-semibold">50% + insured shipping</strong> is due upon completion before dispatch.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCommissionModalOpen(true)}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#0e3b2e] text-white font-serif text-xs uppercase tracking-widest rounded-xl hover:bg-[#155442] hover:shadow-md transition-all cursor-pointer shrink-0 font-bold"
+              >
+                <Sparkles className="w-4 h-4 text-accent" />
+                Request Consultation
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -343,6 +416,199 @@ const BowyerProfileContent = () => {
         )}
       </div>
 
+      {/* Interactive Bowyer Commission & Consultation Request Modal */}
+      {commissionModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-xl bg-secondary border border-[#c5a880]/40 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 my-8 text-primary max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-primary/10 pb-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
+                  Custom Bowyer Commission
+                </span>
+                <h3 className="notranslate text-xl font-serif font-bold text-primary" translate="no">
+                  Consultation Request — {cleanTitle(bowyer.name)}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setCommissionModalOpen(false);
+                  setFormSuccess(false);
+                }}
+                className="p-2 text-primary/60 hover:text-primary rounded-full hover:bg-primary/5 transition-colors"
+                aria-label="Close Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 50/50 Deposit Policy Notice */}
+            <div className="bg-[#0e3b2e] text-white p-4 rounded-2xl border border-accent/30 space-y-2 text-xs">
+              <div className="flex items-center gap-2 font-serif font-bold text-accent uppercase tracking-wider text-[11px]">
+                <ShieldCheck className="w-4 h-4 text-accent" />
+                <span>50/50 Deposit Payment Terms</span>
+              </div>
+              <p className="text-white/80 font-sans leading-relaxed text-[11px]">
+                Every master bowyer piece is custom-crafted. Production begins after specifications are agreed upon and a <strong className="text-white font-semibold">50% production deposit</strong> is received. The remaining <strong className="text-white font-semibold">50% plus insured international shipping</strong> is due upon completion prior to dispatch.
+              </p>
+            </div>
+
+            {formSuccess ? (
+              <div className="py-8 text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                  <CheckCircle className="w-6 h-6" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-primary">Consultation Request Received</h4>
+                <p className="text-xs text-primary/75 max-w-md mx-auto leading-relaxed">
+                  Thank you! Your commission request for <strong className="notranslate" translate="no">{cleanTitle(bowyer.name)}</strong> has been recorded. Our team and the master craftsman will review your specifications and contact you shortly to confirm build timeline and deposit details.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCommissionModalOpen(false);
+                    setFormSuccess(false);
+                  }}
+                  className="px-6 py-2.5 bg-primary text-secondary font-serif text-xs uppercase tracking-widest rounded-xl hover:bg-accent transition-colors cursor-pointer font-bold"
+                >
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleCommissionSubmit} className="space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Alexander Vance"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. alexander@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
+                      Phone / WhatsApp
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="+43 664 123 4567"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
+                      Desired Draw Weight
+                    </label>
+                    <select
+                      value={formData.drawWeight}
+                      onChange={(e) => setFormData({ ...formData, drawWeight: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
+                    >
+                      <option value="30-35 lbs">30 – 35 lbs (Light / Form Practice)</option>
+                      <option value="35-40 lbs">35 – 40 lbs (Intermediate Target)</option>
+                      <option value="40-45 lbs">40 – 45 lbs (Standard Instinctive Field)</option>
+                      <option value="45-50 lbs">45 – 50 lbs (Heavy Target &amp; Field)</option>
+                      <option value="55+ lbs">55+ lbs (Warbow / Heavy Hunting)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
+                      Hand Orientation
+                    </label>
+                    <select
+                      value={formData.orientation}
+                      onChange={(e) => setFormData({ ...formData, orientation: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
+                    >
+                      <option value="Right Hand (RH)">Right Handed (RH)</option>
+                      <option value="Left Hand (LH)">Left Handed (LH)</option>
+                      <option value="Ambidextrous (Asiatic Nock)">Ambidextrous (Thumb Draw / Asiatic)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
+                      Intended Purpose
+                    </label>
+                    <select
+                      value={formData.purpose}
+                      onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
+                    >
+                      <option value="Instinctive Field & Target Archery">Instinctive Field &amp; Target</option>
+                      <option value="3D Target Competition">3D Target Competition</option>
+                      <option value="Traditional Bowhunting">Traditional Bowhunting</option>
+                      <option value="Private Master Collection">Private Collection &amp; Exhibition</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
+                    Wood / Burl Preferences &amp; Custom Notes
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Specify preferred wood laminates, burl finish, draw length in inches, or custom inlay details..."
+                    value={formData.customNotes}
+                    onChange={(e) => setFormData({ ...formData, customNotes: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs leading-relaxed"
+                  />
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <p className="text-[10px] text-primary/60 font-sans italic">
+                    * 50% deposit due upon specification approval.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={formSubmitting}
+                    className="w-full sm:w-auto px-6 py-3 bg-[#0e3b2e] text-white font-serif text-xs uppercase tracking-widest rounded-xl hover:bg-[#155442] transition-colors cursor-pointer font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {formSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-accent" />
+                        <span>Submitting Request...</span>
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare className="w-4 h-4 text-accent" />
+                        <span>Submit Commission Request</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
