@@ -11,6 +11,7 @@ interface BowyerDetails {
   name: string;
   slug: string;
   heading: string;
+  bowyer_name?: string;
   story: string;
   philosophy: string;
   image: string;
@@ -162,6 +163,11 @@ const BowyerProfileContent = () => {
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-primary tracking-tight leading-tight">
               {cleanTitle(bowyer.name)}
             </h1>
+            {bowyer.bowyer_name && (
+              <div className="text-sm md:text-base font-serif font-bold text-[#7d603a] tracking-wider uppercase pt-1">
+                Master Craftsman: <span className="text-primary">{cleanTitle(bowyer.bowyer_name)}</span>
+              </div>
+            )}
             <p className="text-lg md:text-xl font-serif text-accent italic font-medium leading-relaxed">
               "{cleanTitle(bowyer.heading)}"
             </p>

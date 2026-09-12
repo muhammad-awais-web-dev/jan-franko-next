@@ -9,6 +9,7 @@ interface BowyerDetails {
   name: string;
   slug: string;
   heading: string;
+  bowyer_name?: string;
   story: string;
   philosophy: string;
   image: string;
@@ -177,6 +178,11 @@ const PartnersPage = () => {
                       <h3 className="text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1">
                         {cleanTitle(b.name)}
                       </h3>
+                      {b.bowyer_name && (
+                        <div className="text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase">
+                          {cleanTitle(b.bowyer_name)}
+                        </div>
+                      )}
                       <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-3">
                         {b.story}
                       </p>
