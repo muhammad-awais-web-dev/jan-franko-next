@@ -823,8 +823,8 @@ const Navbar = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
-                        <a href="mailto:janfranko@tutanota.com" className="hover:text-accent transition-colors">
-                          janfranko@tutanota.com
+                        <a href="mailto:contact@janfranko.com" className="hover:text-accent transition-colors">
+                          contact@janfranko.com
                         </a>
                       </div>
                       <div className="flex items-center gap-2">

@@ -110,8 +110,8 @@ const ContactPage = () => {
                 </div>
                 <div className="space-y-0.5">
                   <span className="text-[9px] uppercase tracking-widest text-primary/45 font-bold font-sans">Email Address</span>
-                  <a href="mailto:janfranko@tutanota.com" className="text-xs font-sans font-medium text-primary hover:text-accent transition-colors block">
-                    janfranko@tutanota.com
+                  <a href="mailto:contact@janfranko.com" className="text-xs font-sans font-medium text-primary hover:text-accent transition-colors block">
+                    contact@janfranko.com
                   </a>
                 </div>
               </li>

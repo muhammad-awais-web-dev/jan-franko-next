@@ -153,10 +153,10 @@ const Contact = () => {
                   />
                 </svg>
                 <a
-                  href="mailto:janfranko@tutanota.com"
+                  href="mailto:contact@janfranko.com"
                   className="text-base md:text-lg text-white hover:text-accent font-serif tracking-wide transition-colors duration-300"
                 >
-                  Email: janfranko@tutanota.com
+                  Email: contact@janfranko.com
                 </a>
               </div>
 
