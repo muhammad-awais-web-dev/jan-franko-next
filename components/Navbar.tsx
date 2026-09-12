@@ -33,22 +33,22 @@ const Navbar = () => {
   const [openSubgroups, setOpenSubgroups] = useState<Record<string, boolean>>({});
   const DEFAULT_BOWYERS = [
     {
-      name: "Warrick Harvey",
-      slug: "warrick-harvey",
-      heading: "Harvey Archery",
+      name: "Harvey Archery",
+      bowyer_name: "Warrick Harvey",
+      slug: "harvey-archery",
       image: "/images/wp-assets/warrick-harvey.webp"
     },
     {
-      name: "MR Bows",
-      slug: "mr-bows",
-      heading: "Miško Rovčanin",
-      image: "/images/wp-assets/mr-bows.webp"
+      name: "Kadys Bows",
+      bowyer_name: "Sergey Tolochko",
+      slug: "kadys-bows",
+      image: "/images/wp-assets/kadys-bows.webp"
     },
     {
-      name: "Kadys Bows",
-      slug: "kadys-bows",
-      heading: "Sergey Tolochko",
-      image: "/images/wp-assets/kadys-bows.webp"
+      name: "MR Bows",
+      bowyer_name: "Miško Rovčanin",
+      slug: "mr-bows",
+      image: "/images/wp-assets/mr-bows.webp"
     }
   ];
 
@@ -565,7 +565,7 @@ const Navbar = () => {
                                 {cleanTitle(b.name)}
                               </span>
                               <span className="text-[10px] text-white/70 block truncate">
-                                {cleanTitle(b.heading || "Master Craftsman")}
+                                {cleanTitle(b.bowyer_name || b.heading || "Master Craftsman")}
                               </span>
                             </div>
                           </Link>
