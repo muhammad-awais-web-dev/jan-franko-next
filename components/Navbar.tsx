@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, Compass, MapPin, Award, Sliders, BookOpen, Tag, Mail, Phone, Globe } from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
 import { readConsent } from "@/lib/consent";
+import { DEFAULT_PROGRAM_TYPES, DEFAULT_SKILL_LEVELS, DEFAULT_REGIONS } from "@/data/site";
+
 
 interface Term {
   id: number;
@@ -29,9 +31,9 @@ const Navbar = () => {
   const [isEquipmentMobileOpen, setIsEquipmentMobileOpen] = useState(false); // Mobile equipment sub-accordion
   const [isAboutMobileOpen, setIsAboutMobileOpen] = useState(false); // Mobile about sub-accordion
   const [openSubgroups, setOpenSubgroups] = useState<Record<string, boolean>>({});
-  const [types, setTypes] = useState<Term[]>([]);
-  const [skills, setSkills] = useState<Term[]>([]);
-  const [regions, setRegions] = useState<Term[]>([]);
+  const [types, setTypes] = useState<Term[]>(DEFAULT_PROGRAM_TYPES as any);
+  const [skills, setSkills] = useState<Term[]>(DEFAULT_SKILL_LEVELS as any);
+  const [regions, setRegions] = useState<Term[]>(DEFAULT_REGIONS as any);
   const [equipmentCategories, setEquipmentCategories] = useState<CategoryTerm[]>([]);
   const [bowyers, setBowyers] = useState<any[]>([]);
   const [activeBowyerIndex, setActiveBowyerIndex] = useState(0);
@@ -189,9 +191,9 @@ const Navbar = () => {
           clientFetch<any[]>("/api/equipment/bowyers")
         ]);
 
-        setTypes(navData?.types || []);
-        setSkills(navData?.skills || []);
-        setRegions(navData?.regions || []);
+        if (navData?.types?.length > 0) setTypes(navData.types);
+        if (navData?.skills?.length > 0) setSkills(navData.skills);
+        if (navData?.regions?.length > 0) setRegions(navData.regions);
         setEquipmentCategories(eqData || []);
         setBowyers(bowyerData || []);
       } catch (err) {
@@ -406,20 +408,16 @@ const Navbar = () => {
                     Program Types
                   </h4>
                   <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    {types.length === 0 ? (
-                      <li className="text-primary/40 italic">Loading types...</li>
-                    ) : (
-                      types.map((t) => (
-                        <li key={t.id}>
-                          <Link
-                            href={`/programs?program_type=${t.slug}`}
-                            className="hover:text-accent transition-colors block py-0.5"
-                          >
-                            {t.name}
-                          </Link>
-                        </li>
-                      ))
-                    )}
+                    {types.map((t) => (
+                      <li key={t.id}>
+                        <Link
+                          href={`/programs?program_type=${t.slug}`}
+                          className="hover:text-accent transition-colors block py-0.5"
+                        >
+                          {t.name}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </div>
 
@@ -430,20 +428,16 @@ const Navbar = () => {
                     Skill Levels
                   </h4>
                   <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    {skills.length === 0 ? (
-                      <li className="text-primary/40 italic">Loading levels...</li>
-                    ) : (
-                      skills.map((s) => (
-                        <li key={s.id}>
-                          <Link
-                            href={`/programs?skill_level=${s.slug}`}
-                            className="hover:text-accent transition-colors block py-0.5"
-                          >
-                            {s.name}
-                          </Link>
-                        </li>
-                      ))
-                    )}
+                    {skills.map((s) => (
+                      <li key={s.id}>
+                        <Link
+                          href={`/programs?skill_level=${s.slug}`}
+                          className="hover:text-accent transition-colors block py-0.5"
+                        >
+                          {s.name}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </div>
 
@@ -454,20 +448,16 @@ const Navbar = () => {
                     Regions ({regions.length})
                   </h4>
                   <div className="max-h-60 overflow-y-auto pr-2 space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80 scrollbar-thin scrollbar-thumb-primary/20">
-                    {regions.length === 0 ? (
-                      <div className="text-primary/40 italic">Loading regions...</div>
-                    ) : (
-                      regions.map((r) => (
-                        <div key={r.id}>
-                          <Link
-                            href={`/programs?region=${r.slug}`}
-                            className="hover:text-accent transition-colors block py-0.5"
-                          >
-                            {r.name}
-                          </Link>
-                        </div>
-                      ))
-                    )}
+                    {regions.map((r) => (
+                      <div key={r.id}>
+                        <Link
+                          href={`/programs?region=${r.slug}`}
+                          className="hover:text-accent transition-colors block py-0.5"
+                        >
+                          {r.name}
+                        </Link>
+                      </div>
+                    ))}
                   </div>
                 </div>
 

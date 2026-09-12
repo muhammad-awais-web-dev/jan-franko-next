@@ -108,3 +108,31 @@ export const EQUIPMENT_CATEGORIES = [
     description: "Equipment bundles for introductory and retreat-based training.",
   },
 ] as const;
+
+export const DEFAULT_PROGRAM_TYPES = [
+  { id: 189, name: "Cultural Immersion", slug: "cultural-immersion" },
+  { id: 190, name: "Custom Private Program", slug: "custom-private-program" },
+  { id: 191, name: "Expedition", slug: "expedition" },
+  { id: 192, name: "Mounted Archery", slug: "equestrian-archery" },
+  { id: 194, name: "Retreat", slug: "retreat" },
+  { id: 193, name: "Training Program", slug: "training-program" },
+];
+
+export const DEFAULT_SKILL_LEVELS = [
+  { id: 195, name: "Level 1 – Introductory", slug: "introductory" },
+  { id: 196, name: "Level 2 – Training", slug: "training" },
+  { id: 197, name: "Level 3 – Expedition", slug: "expedition" },
+  { id: 198, name: "Level 4 – Advanced Expedition", slug: "advanced-expedition" },
+];
+
+export const DEFAULT_REGIONS = [
+  { id: 211, name: "Alps", slug: "alps" },
+  { id: 249, name: "Americas", slug: "americas" },
+  { id: 247, name: "Asia", slug: "asia" },
+  { id: 214, name: "Austria", slug: "austria" },
+  { id: 215, name: "Brazil", slug: "brazil" },
+  { id: 234, name: "Central Asia", slug: "central-asia" },
+  { id: 227, name: "Central Europe", slug: "central-europe" },
+  { id: 248, name: "Eurasia", slug: "eurasia" },
+];
+
