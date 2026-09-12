@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, Compass, MapPin, Award, Sliders, BookOpen, Tag, Mail, Phone, Globe } from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
+import { readConsent } from "@/lib/consent";
 
 interface Term {
   id: number;
@@ -129,6 +130,18 @@ const Navbar = () => {
   }, [isLangOpen]);
 
   const handleLanguageChange = (langCode: string) => {
+    // Check if functional translation consent is granted
+    const consent = readConsent();
+    if (!consent?.functional && langCode !== "en") {
+      setIsLangOpen(false);
+      window.dispatchEvent(
+        new CustomEvent("jf:open-consent", {
+          detail: { highlightFunctional: true }
+        })
+      );
+      return;
+    }
+
     // Set cookie path and domains to make it stick
     document.cookie = `googtrans=/en/${langCode}; path=/;`;
     document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname};`;

@@ -14,8 +14,13 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
+    // Filter out Herlan Brothers per client mandate (keep only active 3 bowyers)
+    const activeBowyers = bowyers.filter(
+      (b: any) => !b.slug.includes("herlan") && !b.slug.includes("dani")
+    );
+
     // 2. Extract profile image attachment IDs
-    const imageIds = Array.from(new Set(bowyers.map((b: any) => b.acf?.profile_image).filter(Boolean)));
+    const imageIds = Array.from(new Set(activeBowyers.map((b: any) => b.acf?.profile_image).filter(Boolean)));
 
     let imageMap: Record<number, string> = {};
     if (imageIds.length > 0) {
@@ -29,7 +34,7 @@ export async function GET() {
     }
 
     // 3. Map structured bowyer partner list
-    const mapped = bowyers.map((b: any) => ({
+    const mapped = activeBowyers.map((b: any) => ({
       id: b.id,
       name: b.name,
       slug: b.slug,

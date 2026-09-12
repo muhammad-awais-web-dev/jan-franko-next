@@ -9,6 +9,7 @@ export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [functional, setFunctional] = useState(false);
+  const [buzzFunctional, setBuzzFunctional] = useState(false);
 
   useEffect(() => {
     const saved = readConsent();
@@ -18,11 +19,19 @@ export default function CookieConsent() {
       setVisible(true);
     }
 
-    const openPreferences = () => {
+    const openPreferences = (e?: Event) => {
+      const customEvent = e as CustomEvent<{ highlightFunctional?: boolean }> | undefined;
       const current = readConsent();
       setFunctional(current?.functional ?? false);
       setVisible(true);
       setPreferencesOpen(true);
+
+      if (customEvent?.detail?.highlightFunctional) {
+        setBuzzFunctional(true);
+        setTimeout(() => {
+          setBuzzFunctional(false);
+        }, 3000);
+      }
     };
 
     window.addEventListener("jf:open-consent", openPreferences);
@@ -34,6 +43,7 @@ export default function CookieConsent() {
     setFunctional(allowFunctional);
     setVisible(false);
     setPreferencesOpen(false);
+    setBuzzFunctional(false);
   };
 
   if (!visible) return null;
@@ -83,16 +93,29 @@ export default function CookieConsent() {
               <span className="rounded-full bg-[#c5a880]/20 px-3 py-1 text-[10px] font-bold uppercase text-[#c5a880]">Always on</span>
             </div>
 
-            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10">
+            <label
+              className={`flex cursor-pointer items-center justify-between gap-4 rounded-2xl border p-4 transition-all duration-300 ${
+                buzzFunctional
+                  ? "animate-buzz border-[#c5a880] bg-[#c5a880]/20 ring-4 ring-[#c5a880]/60 shadow-[0_0_30px_rgba(197,168,128,0.7)]"
+                  : "border-white/10 bg-white/5 hover:bg-white/10"
+              }`}
+            >
               <div>
-                <span className="text-sm font-bold">Functional Translation</span>
+                <span className="text-sm font-bold flex items-center gap-2">
+                  Functional Translation
+                  {buzzFunctional && (
+                    <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-[#c5a880] text-[#0e3b2e] animate-pulse">
+                      Enable this to translate page
+                    </span>
+                  )}
+                </span>
                 <p className="mt-1 text-[11px] leading-relaxed text-white/65">Loads Google Translate only after permission. Google may set language-related cookies.</p>
               </div>
               <input
                 type="checkbox"
                 checked={functional}
                 onChange={(e) => setFunctional(e.target.checked)}
-                className="h-5 w-5 accent-[#c5a880] cursor-pointer"
+                className="h-5 w-5 accent-[#c5a880] cursor-pointer shrink-0"
               />
             </label>
 
