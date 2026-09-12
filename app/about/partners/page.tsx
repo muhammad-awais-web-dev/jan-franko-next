@@ -175,11 +175,11 @@ const PartnersPage = () => {
                       <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
                         Vetted Partner Bowyer
                       </div>
-                      <h3 className="text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1">
+                      <h3 className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1" translate="no">
                         {cleanTitle(b.name)}
                       </h3>
                       {b.bowyer_name && (
-                        <div className="text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase">
+                        <div className="notranslate text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase" translate="no">
                           {cleanTitle(b.bowyer_name)}
                         </div>
                       )}

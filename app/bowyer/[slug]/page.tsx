@@ -168,11 +168,11 @@ const BowyerProfileContent = () => {
               <Sparkles className="w-3 h-3 text-accent" />
               Partner Bowyer Craft
             </span>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold text-primary tracking-tight leading-tight">
+            <h1 className="notranslate text-4xl md:text-6xl font-serif font-bold text-primary tracking-tight leading-tight" translate="no">
               {cleanTitle(bowyer.name)}
             </h1>
             {bowyer.bowyer_name && (
-              <div className="text-sm md:text-base font-serif font-bold text-[#7d603a] tracking-wider uppercase pt-1">
+              <div className="notranslate text-sm md:text-base font-serif font-bold text-[#7d603a] tracking-wider uppercase pt-1" translate="no">
                 Master Craftsman: <span className="text-primary">{cleanTitle(bowyer.bowyer_name)}</span>
               </div>
             )}
@@ -323,7 +323,7 @@ const BowyerProfileContent = () => {
                       <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
                         {cleanTitle(parentLabel)}
                       </div>
-                      <h3 className="text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1">
+                      <h3 className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1" translate="no">
                         {cleanTitle(product.title)}
                       </h3>
                       <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-3">

@@ -317,7 +317,7 @@ const BowyerProductContent = () => {
                   <span className="text-[10px] uppercase tracking-widest text-[#5c4629] font-serif font-bold">
                     {product.acf?.product_subtitle || "Bespoke Creation"}
                   </span>
-                  <h1 className="text-3xl font-serif font-bold text-primary tracking-tight leading-tight">
+                  <h1 className="notranslate text-3xl font-serif font-bold text-primary tracking-tight leading-tight" translate="no">
                     {cleanTitle(product.title)}
                   </h1>
                 </div>

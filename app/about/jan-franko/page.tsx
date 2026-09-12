@@ -123,7 +123,7 @@ export default function JanFrankoProfilePage() {
               <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-bold block">
                 Lead Instructor
               </span>
-              <h3 className="font-serif text-xl font-bold">Jan Franko</h3>
+              <h3 className="notranslate font-serif text-xl font-bold" translate="no">Jan Franko</h3>
             </div>
           </div>
 
@@ -134,7 +134,7 @@ export default function JanFrankoProfilePage() {
                 <Sparkles className="w-3.5 h-3.5 text-accent" />
                 Founder &amp; Lead Instructor
               </span>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white tracking-tight leading-tight">
+              <h1 className="notranslate text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white tracking-tight leading-tight" translate="no">
                 Jan Franko
               </h1>
               <p className="text-sm md:text-base font-serif text-accent uppercase tracking-wider font-semibold">
