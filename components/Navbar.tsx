@@ -31,12 +31,32 @@ const Navbar = () => {
   const [isEquipmentMobileOpen, setIsEquipmentMobileOpen] = useState(false); // Mobile equipment sub-accordion
   const [isAboutMobileOpen, setIsAboutMobileOpen] = useState(false); // Mobile about sub-accordion
   const [openSubgroups, setOpenSubgroups] = useState<Record<string, boolean>>({});
+  const DEFAULT_BOWYERS = [
+    {
+      name: "Warrick Harvey",
+      slug: "warrick-harvey",
+      heading: "Harvey Archery",
+      image: "/images/wp-assets/warrick-harvey.webp"
+    },
+    {
+      name: "MR Bows",
+      slug: "mr-bows",
+      heading: "Miško Rovčanin",
+      image: "/images/wp-assets/mr-bows.webp"
+    },
+    {
+      name: "Kadys Bows",
+      slug: "kadys-bows",
+      heading: "Sergey Tolochko",
+      image: "/images/wp-assets/kadys-bows.webp"
+    }
+  ];
+
   const [types, setTypes] = useState<Term[]>(DEFAULT_PROGRAM_TYPES as any);
   const [skills, setSkills] = useState<Term[]>(DEFAULT_SKILL_LEVELS as any);
   const [regions, setRegions] = useState<Term[]>(DEFAULT_REGIONS as any);
   const [equipmentCategories, setEquipmentCategories] = useState<CategoryTerm[]>([]);
-  const [bowyers, setBowyers] = useState<any[]>([]);
-  const [activeBowyerIndex, setActiveBowyerIndex] = useState(0);
+  const [bowyers, setBowyers] = useState<any[]>(DEFAULT_BOWYERS);
 
   // Translation states & supported languages (matching the full list of requested languages with flagcdn codes)
   const LANGUAGES = [
@@ -195,7 +215,7 @@ const Navbar = () => {
         if (navData?.skills?.length > 0) setSkills(navData.skills);
         if (navData?.regions?.length > 0) setRegions(navData.regions);
         setEquipmentCategories(eqData || []);
-        setBowyers(bowyerData || []);
+        if (bowyerData?.length > 0) setBowyers(bowyerData);
       } catch (err) {
         console.error("Failed to fetch nav menu taxonomies:", err);
       } finally {
@@ -208,15 +228,6 @@ const Navbar = () => {
 
     fetchTaxonomies();
   }, []);
-
-  // Auto-play timer for the partner bowyers carousel
-  useEffect(() => {
-    if (bowyers.length <= 1) return;
-    const timer = setInterval(() => {
-      setActiveBowyerIndex((prev) => (prev + 1) % bowyers.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [bowyers]);
 
   // Filter top-level categories (parent is 0 or 28, excluding Bowyers 114)
   const topCats = equipmentCategories.filter(
@@ -503,92 +514,53 @@ const Navbar = () => {
                 {gridSlots.map((slot, index) => {
                   if (slot.type === "special") {
                     return (
-                      <div key="special-promo" className="bg-[#0e3b2e] rounded-2xl p-4 text-white flex flex-col justify-between space-y-3.5 shadow-inner col-span-1 row-span-2 h-full min-h-[380px] relative overflow-hidden group/carousel">
-                        {bowyers.length === 0 ? (
-                          <div className="flex items-center justify-center h-full text-white/50 text-[10px] italic font-sans">
-                            Loading partners...
+                      <div key="special-promo" className="bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner col-span-1 row-span-2 h-full min-h-[380px] relative overflow-hidden">
+                        <div className="space-y-3">
+                          <div className="space-y-0.5 border-b border-white/10 pb-2.5">
+                            <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
+                              Vetted Guild
+                            </span>
+                            <h5 className="font-serif text-base font-bold leading-tight">
+                              Master Bowyers
+                            </h5>
                           </div>
-                        ) : (
-                          <div className="relative flex-1 flex flex-col justify-between space-y-3 animate-in fade-in duration-500">
-                            <div className="space-y-2.5 z-10 flex-1">
-                              {/* Header Label and Dots Row */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans">
-                                  Master Bowyer / Partner
-                                </span>
-                                <div className="flex gap-1">
-                                  {bowyers.map((_, i) => (
-                                    <button
-                                      key={i}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setActiveBowyerIndex(i);
-                                      }}
-                                      className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
-                                        i === activeBowyerIndex ? "bg-accent w-3" : "bg-white/30"
-                                      }`}
+
+                          <ul className="space-y-2 font-sans">
+                            {bowyers.slice(0, 3).map((b) => (
+                              <li key={b.slug || b.name}>
+                                <Link
+                                  href={`/bowyer/${b.slug}`}
+                                  className="group/item flex items-center gap-2.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-accent/30"
+                                >
+                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black/30">
+                                    <img
+                                      src={b.image}
+                                      alt={b.name}
+                                      className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
                                     />
-                                  ))}
-                                </div>
-                              </div>
-                              
-                              {/* Full-width Taller Banner Image (4:3 aspect ratio) */}
-                              <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden shadow-md">
-                                <img
-                                  src={bowyers[activeBowyerIndex].image}
-                                  alt={bowyers[activeBowyerIndex].name}
-                                  className="w-full h-full object-cover group-hover/carousel:scale-102 transition-transform duration-500"
-                                />
-                              </div>
+                                  </div>
+                                  <div className="space-y-0.5 min-w-0 flex-1">
+                                    <span className="font-serif text-xs font-bold text-white group-hover/item:text-accent transition-colors block truncate">
+                                      {cleanTitle(b.name)}
+                                    </span>
+                                    <span className="text-[10px] text-white/70 block truncate">
+                                      {cleanTitle(b.heading || "Master Craftsman")}
+                                    </span>
+                                  </div>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
 
-                              {/* Title & Description Details */}
-                              <div className="space-y-0.5">
-                                <h5 className="font-serif text-sm font-bold leading-tight">
-                                  {cleanTitle(bowyers[activeBowyerIndex].name)}
-                                </h5>
-                                <p className="text-[9px] text-accent font-serif italic line-clamp-1">
-                                  "{cleanTitle(bowyers[activeBowyerIndex].heading)}"
-                                </p>
-                                <p className="text-[10px] text-white/75 font-sans leading-relaxed line-clamp-2 pt-1">
-                                  {bowyers[activeBowyerIndex].story}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Button and Controls Row */}
-                            <div className="flex items-center gap-2 z-10 pt-1.5 border-t border-white/10">
-                              <Link
-                                href={`/bowyer/${bowyers[activeBowyerIndex].slug}`}
-                                className="flex-1 text-center py-2 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[9px] tracking-wider uppercase rounded-xl transition-all"
-                              >
-                                View Crafts
-                              </Link>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setActiveBowyerIndex((prev) => (prev - 1 + bowyers.length) % bowyers.length);
-                                  }}
-                                  className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors cursor-pointer"
-                                >
-                                  <ChevronDown className="w-3.5 h-3.5 rotate-90" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    setActiveBowyerIndex((prev) => (prev + 1) % bowyers.length);
-                                  }}
-                                  className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors cursor-pointer"
-                                >
-                                  <ChevronDown className="w-3.5 h-3.5 -rotate-90" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        <div className="pt-2 border-t border-white/10">
+                          <Link
+                            href="/about/partners"
+                            className="block text-center py-2.5 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
+                          >
+                            View All Master Bowyers
+                          </Link>
+                        </div>
                       </div>
                     );
                   }
