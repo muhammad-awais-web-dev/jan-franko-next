@@ -87,10 +87,18 @@ const BowyerProfileContent = () => {
   const cleanTitle = (raw: string | undefined) => {
     if (!raw) return "";
     return raw
+      .replace(/<[^>]*>/g, "")
       .replace(/&#8220;/g, "“")
       .replace(/&#8221;/g, "”")
+      .replace(/&#8216;/g, "‘")
+      .replace(/&#8217;/g, "’")
       .replace(/&#8211;/g, "–")
-      .replace(/&amp;/g, "&");
+      .replace(/&#8212;/g, "—")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      .trim();
   };
 
   const cleanExcerpt = (rawHtml: string) => {
@@ -181,7 +189,7 @@ const BowyerProfileContent = () => {
                 The Artisan Story
               </h3>
               <p className="text-xs text-primary/80 font-sans leading-relaxed">
-                {bowyer.story}
+                {cleanTitle(bowyer.story)}
               </p>
             </div>
             {bowyer.philosophy && (
@@ -190,7 +198,7 @@ const BowyerProfileContent = () => {
                   Crafting Philosophy
                 </h3>
                 <p className="text-xs text-primary/80 font-sans leading-relaxed">
-                  {bowyer.philosophy}
+                  {cleanTitle(bowyer.philosophy)}
                 </p>
               </div>
             )}

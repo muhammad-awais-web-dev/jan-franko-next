@@ -39,6 +39,23 @@ export async function GET() {
       }
     }
 
+    const cleanText = (raw: string) => {
+      if (!raw) return "";
+      return raw
+        .replace(/<[^>]*>/g, "")
+        .replace(/&#8220;/g, "“")
+        .replace(/&#8221;/g, "”")
+        .replace(/&#8216;/g, "‘")
+        .replace(/&#8217;/g, "’")
+        .replace(/&#8211;/g, "–")
+        .replace(/&#8212;/g, "—")
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, " ")
+        .trim();
+    };
+
     // 3. Map structured bowyer partner list
     const mapped = activeBowyers.map((b: any) => {
       let image = "";
@@ -52,16 +69,23 @@ export async function GET() {
         image = "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80";
       }
 
+      const processList = Array.isArray(b.acf?.bowyer_process)
+        ? b.acf.bowyer_process.map((p: any) => ({
+            step_title: cleanText(p.step_title),
+            step_description: cleanText(p.step_description)
+          }))
+        : [];
+
       return {
         id: b.id,
-        name: b.name,
+        name: cleanText(b.name),
         slug: b.slug,
-        heading: b.acf?.heading || "",
-        bowyer_name: b.acf?.bowyer_name || "",
-        story: b.acf?.bowyer_story || b.description || "",
-        philosophy: b.acf?.bowyer_philosophy || "",
+        heading: cleanText(b.acf?.heading || ""),
+        bowyer_name: cleanText(b.acf?.bowyer_name || ""),
+        story: cleanText(b.acf?.bowyer_story || b.description || ""),
+        philosophy: cleanText(b.acf?.bowyer_philosophy || ""),
         image,
-        process: b.acf?.bowyer_process || []
+        process: processList
       };
     });
 
