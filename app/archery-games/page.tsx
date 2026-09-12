@@ -161,6 +161,168 @@ export default function ArcheryGamesPage() {
           </div>
         </div>
 
+        {/* 5. Upcoming Archery Games & Gatherings Schedule (Item 17) */}
+        <div className="space-y-8 pt-8 border-t border-primary/10">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="text-xs font-serif uppercase tracking-[0.2em] text-[#7d603a] font-bold block">
+              Gathering Schedule &amp; Calendar
+            </span>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-primary tracking-tight">
+              Upcoming Archery Games &amp; Events
+            </h2>
+            <p className="text-xs text-primary/75 font-sans max-w-2xl">
+              Official gatherings logged in the Academy registry. Confirmed dates are set below; unconfirmed events display current status badges.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Event Card 1 - Confirmed */}
+            <div className="bg-white border border-primary/10 rounded-3xl p-6 space-y-4 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-serif font-bold uppercase tracking-wider">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  Confirmed: Oct 14–18, 2026
+                </span>
+                <Calendar className="w-4 h-4 text-[#7d603a]" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-[11px] font-serif text-[#7d603a] font-bold uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-accent" />
+                  Zruby Dúbrava, Zemiansky Vrbovok (Slovakia)
+                </div>
+                <h4 className="text-lg font-serif font-bold text-primary">
+                  Corporate Archery &amp; Team Building Challenge
+                </h4>
+                <p className="text-xs text-primary/75 font-sans leading-relaxed">
+                  Instinctive focus, team archery competition, and outdoor target tracking across historic countryside.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-primary/5 flex items-center justify-between text-[10px] font-serif font-bold uppercase text-accent tracking-wider">
+                <span>Status: Confirmed Event</span>
+                <Link href="/programs" className="hover:underline flex items-center gap-1">
+                  View Program <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Event Card 2 - Confirmed */}
+            <div className="bg-white border border-primary/10 rounded-3xl p-6 space-y-4 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-serif font-bold uppercase tracking-wider">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  Confirmed: Jun 12–16, 2026
+                </span>
+                <Calendar className="w-4 h-4 text-[#7d603a]" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-[11px] font-serif text-[#7d603a] font-bold uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-accent" />
+                  Ehrwald, Tirol (Austria)
+                </div>
+                <h4 className="text-lg font-serif font-bold text-primary">
+                  Alpine Slope Distance &amp; Target Gathering
+                </h4>
+                <p className="text-xs text-primary/75 font-sans leading-relaxed">
+                  High-altitude slope target trajectory alignment and 3D terrain flight archery.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-primary/5 flex items-center justify-between text-[10px] font-serif font-bold uppercase text-accent tracking-wider">
+                <span>Status: Confirmed Event</span>
+                <Link href="/contact" className="hover:underline flex items-center gap-1">
+                  Inquire Entry <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Event Card 3 - Date to be confirmed */}
+            <div className="bg-white border border-primary/10 rounded-3xl p-6 space-y-4 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-[10px] font-serif font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  Date to be confirmed
+                </span>
+                <Calendar className="w-4 h-4 text-[#7d603a]" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-[11px] font-serif text-[#7d603a] font-bold uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-accent" />
+                  Muránska Planina (Slovakia)
+                </div>
+                <h4 className="text-lg font-serif font-bold text-primary">
+                  Muráň Wilderness Traditional Range
+                </h4>
+                <p className="text-xs text-primary/75 font-sans leading-relaxed">
+                  Traditional woodland slope trajectory shooting and natural obstacle releases.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-primary/5 flex items-center justify-between text-[10px] font-serif font-bold uppercase text-[#7d603a] tracking-wider">
+                <span>Status: Date to be confirmed</span>
+                <Link href="/contact" className="hover:underline flex items-center gap-1">
+                  Notify Me <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Event Card 4 - Planned for 2027 */}
+            <div className="bg-white border border-primary/10 rounded-3xl p-6 space-y-4 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 border border-blue-300 text-blue-900 text-[10px] font-serif font-bold uppercase tracking-wider">
+                  <Compass className="w-3.5 h-3.5 text-blue-600" />
+                  Planned for 2027
+                </span>
+                <Calendar className="w-4 h-4 text-[#7d603a]" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-[11px] font-serif text-[#7d603a] font-bold uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-accent" />
+                  Kyrgyzstan &amp; Central Asia
+                </div>
+                <h4 className="text-lg font-serif font-bold text-primary">
+                  Eurasian Steppe Nomad Archery Games
+                </h4>
+                <p className="text-xs text-primary/75 font-sans leading-relaxed">
+                  International expedition gathering with local nomadic guides, distance flight, and speed release.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-primary/5 flex items-center justify-between text-[10px] font-serif font-bold uppercase text-blue-800 tracking-wider">
+                <span>Status: Planned for 2027</span>
+                <Link href="/contact" className="hover:underline flex items-center gap-1">
+                  Express Interest <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Event Card 5 - Planned for 2027 */}
+            <div className="bg-white border border-primary/10 rounded-3xl p-6 space-y-4 shadow-sm relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 border border-blue-300 text-blue-900 text-[10px] font-serif font-bold uppercase tracking-wider">
+                  <Compass className="w-3.5 h-3.5 text-blue-600" />
+                  Planned for 2027
+                </span>
+                <Calendar className="w-4 h-4 text-[#7d603a]" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-[11px] font-serif text-[#7d603a] font-bold uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-accent" />
+                  Patagonia (Argentina &amp; Chile)
+                </div>
+                <h4 className="text-lg font-serif font-bold text-primary">
+                  Patagonian Steppe &amp; Mountain Range Challenge
+                </h4>
+                <p className="text-xs text-primary/75 font-sans leading-relaxed">
+                  Exploring historical Tehuelche &amp; Selk'nam archery heritage across high-wind mountain terrain.
+                </p>
+              </div>
+              <div className="pt-2 border-t border-primary/5 flex items-center justify-between text-[10px] font-serif font-bold uppercase text-blue-800 tracking-wider">
+                <span>Status: Planned for 2027</span>
+                <Link href="/contact" className="hover:underline flex items-center gap-1">
+                  Express Interest <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 5. Navigation CTAs */}
         <div className="pt-8 border-t border-primary/10 flex flex-wrap items-center justify-between gap-6">
           <div className="space-y-1">
