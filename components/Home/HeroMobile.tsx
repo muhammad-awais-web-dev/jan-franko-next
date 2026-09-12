@@ -31,7 +31,7 @@ const HeroMobile = () => {
       </span>
 
       {/* Main Serif Heading */}
-      <h1 className="text-4xl md:text-5xl font-bold text-secondary font-serif tracking-tight leading-none mb-3 z-10">
+      <h1 className="notranslate text-4xl md:text-5xl font-bold text-secondary font-serif tracking-tight leading-none mb-3 z-10" translate="no">
         Jan Franko
       </h1>
 

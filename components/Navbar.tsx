@@ -756,7 +756,7 @@ const Navbar = () => {
                     </li>
                     <li>
                       <Link href="/about/jan-franko" className="hover:text-accent transition-colors block py-0.5 font-semibold text-primary">
-                        Jan Franko (Instructor)
+                        <span className="notranslate" translate="no">Jan Franko</span> (Instructor)
                       </Link>
                       <p className="text-[10px] text-primary/55 font-sans font-light mt-0.5">Explore the chronology and martial bow studies of our founder.</p>
                     </li>
@@ -1324,7 +1324,7 @@ const Navbar = () => {
                           </li>
                           <li>
                             <Link href="/about/jan-franko" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Jan Franko (Instructor)
+                              <span className="notranslate" translate="no">Jan Franko</span> (Instructor)
                             </Link>
                           </li>
                           <li>

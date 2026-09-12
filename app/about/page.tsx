@@ -48,11 +48,11 @@ const AboutPage = () => {
             </div>
             <div className="space-y-4 text-base md:text-lg text-primary/80 font-light leading-relaxed font-sans">
               <p>
-                Founded by Jan Franko, the academy operates with a clear purpose: to study and practice traditional archery through real-world environments, disciplined training, and cultural exploration. We are not a conventional sports club or a commercial shooting range. Instead, the academy is a focused initiative for individuals who want to master the bow as both a technical skill and a personal discipline.
+                Founded by <span className="notranslate" translate="no">Jan Franko</span>, the academy operates with a clear purpose: to study and practice traditional archery through real-world environments, disciplined training, and cultural exploration. We are not a conventional sports club or a commercial shooting range. Instead, the academy is a focused initiative for individuals who want to master the bow as both a technical skill and a personal discipline.
               </p>
               <h3 className="font-serif font-bold text-primary text-sm pt-2">Origins &amp; Terrain Mastery</h3>
               <p>
-                Jan’s approach developed through years of independent training and the deep exploration of historical archery traditions. Rather than limiting his practice to static, indoor target ranges, he took his training into forests, mountains, and varied terrains. In these settings, it became clear that attention, movement, and environmental awareness play a direct and critical role in instinctive shooting.
+                <span className="notranslate" translate="no">Jan</span>’s approach developed through years of independent training and the deep exploration of historical archery traditions. Rather than limiting his practice to static, indoor target ranges, he took his training into forests, mountains, and varied terrains. In these settings, it became clear that attention, movement, and environmental awareness play a direct and critical role in instinctive shooting.
               </p>
               <h3 className="font-serif font-bold text-primary text-sm pt-2">Evolution of the Academy</h3>
               <p>
@@ -170,14 +170,14 @@ const AboutPage = () => {
                 "Archery is not only about the bow and the arrow. It is about the relationship between the body, breath, movement, attention and intention."
               </blockquote>
               <p>
-                Jan Franko unites his 1985 archery origin and 2011 Asiatic bow discipline with formal 1st School of TCM therapeutic training in Prague (since 2000) and field instructor certifications under Henry Bodnik and Chris Mozolowski to guide archers to instinctive mastery.
+                <span className="notranslate" translate="no">Jan Franko</span> unites his 1985 archery origin and 2011 Asiatic bow discipline with formal 1st School of TCM therapeutic training in Prague (since 2000) and field instructor certifications under Henry Bodnik and Chris Mozolowski to guide archers to instinctive mastery.
               </p>
               <div className="pt-4 flex flex-wrap gap-4">
                 <Link
                   href="/about/jan-franko"
                   className="px-5 py-2.5 bg-primary text-secondary font-serif text-xs uppercase tracking-wider rounded-xl hover:bg-accent transition-all cursor-pointer shadow-sm"
                 >
-                  Meet Instructor Jan Franko
+                  Meet Instructor <span className="notranslate" translate="no">Jan Franko</span>
                 </Link>
                 <Link
                   href="/contact"

@@ -165,20 +165,19 @@ const FounderBlock = () => {
 
             <h2 
               ref={titleRef}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-primary tracking-tight leading-none"
+              className="notranslate text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-primary tracking-tight leading-none"
+              translate="no"
             >
               {FOUNDER_DATA.name}
             </h2>
 
             <div ref={bioRef} className="space-y-4">
-              {FOUNDER_DATA.biography.map((paragraph, index) => (
-                <p 
-                  key={index}
-                  className="text-base md:text-lg text-primary/80 font-light leading-relaxed max-w-2xl"
-                >
-                  {paragraph}
-                </p>
-              ))}
+              <p className="text-base md:text-lg text-primary/80 font-light leading-relaxed max-w-2xl">
+                Training and expeditions are led by <span className="notranslate" translate="no">Jan Franko</span>, founder of the academy. His archery journey originated in 1985, evolving into deep specialization across Asiatic and Korean traditional bow disciplines starting in 2011.
+              </p>
+              <p className="text-base md:text-lg text-primary/80 font-light leading-relaxed max-w-2xl">
+                Uniting his 1985 archery origin and 2011 Asiatic bow discipline with formal 1st School of TCM therapeutic training in Prague (since 2000), <span className="notranslate" translate="no">Jan</span> is certified in field instructor disciplines under Henry Bodnik and Chris Mozolowski. This synthesis ensures archers develop kinetic alignment, breath regulation, and instinctive mastery in any terrain.
+              </p>
             </div>
 
             {/* Blockquote section - clean layout, no quote overlapping */}
@@ -193,7 +192,7 @@ const FounderBlock = () => {
               <p className="italic text-lg md:text-xl text-primary/95 font-serif leading-relaxed relative z-10">
                 {FOUNDER_DATA.quote}
               </p>
-              <cite className="block mt-4 text-right not-italic font-serif text-lg md:text-xl text-accent font-semibold">
+              <cite className="notranslate block mt-4 text-right not-italic font-serif text-lg md:text-xl text-accent font-semibold" translate="no">
                 — {FOUNDER_DATA.name}
               </cite>
             </blockquote>

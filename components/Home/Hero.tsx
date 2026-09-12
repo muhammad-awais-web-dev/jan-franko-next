@@ -159,15 +159,15 @@ const Hero = () => {
         ref={textWrapperRef}
         className="w-full md:w-3/5 h-full p-8 md:p-16 flex items-center md:items-end justify-center flex-col text-center md:text-right relative z-10 select-text"
       >
-        {/* Split-text elegant heading */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-primary font-serif tracking-tight leading-[0.95] mb-4 flex flex-col md:items-end">
-          <span className="block overflow-hidden relative pb-6 -mb-6">
-            <span ref={titleJanRef} className="inline-block translate-y-full">
+        {/* Split-text elegant heading with Google Translate protection */}
+        <h1 className="notranslate text-5xl md:text-7xl lg:text-8xl font-bold text-primary font-serif tracking-tight leading-[0.95] mb-4 flex flex-col md:items-end" translate="no">
+          <span className="notranslate block overflow-hidden relative pb-6 -mb-6" translate="no">
+            <span ref={titleJanRef} className="notranslate inline-block translate-y-full" translate="no">
               Jan
             </span>
           </span>
-          <span className="block overflow-hidden relative pb-4 -mb-4">
-            <span ref={titleFrankoRef} className="inline-block text-accent translate-y-full">
+          <span className="notranslate block overflow-hidden relative pb-4 -mb-4" translate="no">
+            <span ref={titleFrankoRef} className="notranslate inline-block text-accent translate-y-full" translate="no">
               Franko
             </span>
           </span>
