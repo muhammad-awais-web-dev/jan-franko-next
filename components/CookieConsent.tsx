@@ -1,78 +1,206 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Cookie, X, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Cookie, Settings2, ShieldCheck, X } from "lucide-react";
+import { createConsent, readConsent, storeConsent } from "@/lib/consent";
 
 export default function CookieConsent() {
-  const [showBanner, setShowBanner] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [functional, setFunctional] = useState(false);
 
   useEffect(() => {
-    // Check if user has already made a choice
-    const consentChoice = localStorage.getItem("jf_cookie_consent");
-    if (!consentChoice) {
-      // Delay display slightly for smooth page load
-      const timer = setTimeout(() => setShowBanner(true), 1200);
-      return () => clearTimeout(timer);
+    const saved = readConsent();
+    if (saved) {
+      setFunctional(saved.functional);
+    } else {
+      setVisible(true);
     }
+
+    const openPreferences = () => {
+      const current = readConsent();
+      setFunctional(current?.functional ?? false);
+      setVisible(true);
+      setPreferencesOpen(true);
+    };
+
+    window.addEventListener("jf:open-consent", openPreferences);
+    return () => window.removeEventListener("jf:open-consent", openPreferences);
   }, []);
 
-  const handleAccept = () => {
-    localStorage.setItem("jf_cookie_consent", "accepted");
-    setShowBanner(false);
+  const save = (allowFunctional: boolean) => {
+    storeConsent(createConsent(allowFunctional));
+    setFunctional(allowFunctional);
+    setVisible(false);
+    setPreferencesOpen(false);
   };
 
-  const handleEssential = () => {
-    localStorage.setItem("jf_cookie_consent", "essential");
-    setShowBanner(false);
-  };
+  if (!visible) return null;
 
-  if (!showBanner) return null;
-
-  return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:max-w-md bg-[#0e3b2e] text-white p-5 rounded-3xl shadow-2xl border border-[#c5a880]/30 z-[999] animate-in slide-in-from-bottom-5 duration-300 notranslate">
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-accent">
-              <Cookie className="w-4 h-4" />
+  // Render centered modal dialog when preferences/settings are open
+  if (preferencesOpen) {
+    return (
+      <div
+        className="notranslate fixed inset-0 z-[100] flex items-center justify-center bg-[#051713]/60 backdrop-blur-sm p-4 sm:p-6"
+        translate="no"
+        role="presentation"
+      >
+        <section
+          className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#c5a880]/35 bg-[#0e3b2e] p-6 text-white shadow-2xl sm:p-8 scrollbar-thin scrollbar-thumb-white/20"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cookie-settings-title"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#c5a880]/30 bg-[#c5a880]/15 text-[#c5a880]">
+                <Cookie className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <h2 id="cookie-settings-title" className="font-serif text-xl font-bold">Privacy & Cookie Settings</h2>
+                <p className="mt-1 text-xs leading-relaxed text-white/75">
+                  Essential storage is always active for security and core operation. You can manage optional functional translation and third-party services below.
+                </p>
+              </div>
             </div>
-            <h4 className="font-serif text-sm font-bold text-white uppercase tracking-wider">
-              Cookie &amp; Privacy Notice
-            </h4>
+            <button
+              type="button"
+              onClick={() => save(false)}
+              className="rounded-full p-2 text-white/60 hover:bg-white/10 hover:text-white"
+              aria-label="Close and reject optional cookies"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mt-6 space-y-3" aria-label="Cookie categories">
+            <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div>
+                <p className="text-sm font-bold">Essential Storage</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-white/65">Stores your privacy choices and enables core site security and form submissions.</p>
+              </div>
+              <span className="rounded-full bg-[#c5a880]/20 px-3 py-1 text-[10px] font-bold uppercase text-[#c5a880]">Always on</span>
+            </div>
+
+            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10">
+              <div>
+                <span className="text-sm font-bold">Functional Translation</span>
+                <p className="mt-1 text-[11px] leading-relaxed text-white/65">Loads Google Translate only after permission. Google may set language-related cookies.</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={functional}
+                onChange={(e) => setFunctional(e.target.checked)}
+                className="h-5 w-5 accent-[#c5a880] cursor-pointer"
+              />
+            </label>
+
+            <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 opacity-75">
+              <div>
+                <p className="text-sm font-bold">Analytics</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-white/65">No analytics or tracking platforms are installed.</p>
+              </div>
+              <span className="rounded-full border border-white/15 px-3 py-1 text-[10px] font-bold uppercase text-white/60">Not in use</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 opacity-75">
+              <div>
+                <p className="text-sm font-bold">Marketing</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-white/65">No advertising pixels or cross-site marketing trackers are used.</p>
+              </div>
+              <span className="rounded-full border border-white/15 px-3 py-1 text-[10px] font-bold uppercase text-white/60">Not in use</span>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={() => save(false)}
+              className="min-h-11 rounded-xl border border-white/20 px-4 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
+            >
+              Reject optional
+            </button>
+            <button
+              type="button"
+              onClick={() => save(functional)}
+              className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#c5a880] px-4 text-xs font-bold uppercase tracking-wider text-[#0e3b2e] hover:bg-[#d4ba95]"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Save choices
+            </button>
+          </div>
+
+          <p className="mt-4 text-[10px] leading-relaxed text-white/55">
+            You can reopen these choices anytime from &quot;Cookie settings&quot; in the footer. Read our{" "}
+            <Link href="/privacy-policy" className="text-[#c5a880] underline hover:text-white">
+              Privacy Policy
+            </Link>{" "}
+            for full details.
+          </p>
+        </section>
+      </div>
+    );
+  }
+
+  // Render non-intrusive banner fixed in the bottom-left corner
+  return (
+    <div
+      className="notranslate fixed bottom-4 left-4 z-[100] max-w-md w-[calc(100%-2rem)] sm:w-auto"
+      translate="no"
+    >
+      <section
+        className="rounded-2xl border border-[#c5a880]/35 bg-[#0e3b2e] p-5 text-white shadow-2xl"
+        role="region"
+        aria-label="Cookie consent banner"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#c5a880]/30 bg-[#c5a880]/15 text-[#c5a880]">
+              <Cookie className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <h3 className="font-serif text-sm font-bold text-white">Cookie &amp; Privacy Notice</h3>
           </div>
           <button
-            onClick={handleEssential}
-            className="p-1 text-white/50 hover:text-white transition-colors cursor-pointer"
-            aria-label="Close cookie banner"
+            type="button"
+            onClick={() => save(false)}
+            className="rounded-full p-1 text-white/60 hover:bg-white/10 hover:text-white"
+            aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        <p className="text-xs text-white/80 font-sans leading-relaxed">
-          We use essential functional cookies (such as language preferences via Google Translate) to ensure smooth site operation. No intrusive cross-site advertising trackers are used. Learn more in our{" "}
-          <Link href="/privacy-policy" className="text-accent underline font-semibold hover:text-white transition-colors">
-            Privacy Policy
-          </Link>.
+        <p className="mt-2 text-xs leading-relaxed text-white/80">
+          We use essential storage for security. Translation services load only if permitted. No analytics or marketing trackers are active.
         </p>
 
-        <div className="flex items-center gap-2 pt-1">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <button
-            onClick={handleAccept}
-            className="flex-1 py-2 px-3 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[11px] uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+            type="button"
+            onClick={() => save(true)}
+            className="flex min-h-9 items-center gap-1.5 rounded-lg bg-[#c5a880] px-3 text-xs font-bold uppercase tracking-wider text-[#0e3b2e] hover:bg-[#d4ba95]"
           >
-            <Check className="w-3.5 h-3.5" />
-            Accept Cookies
+            <Check className="h-3.5 w-3.5" />
+            Allow functional
           </button>
           <button
-            onClick={handleEssential}
-            className="py-2 px-3 bg-white/10 hover:bg-white/20 text-white font-serif font-semibold text-[11px] uppercase tracking-wider rounded-xl transition-all border border-white/10 cursor-pointer"
+            type="button"
+            onClick={() => save(false)}
+            className="min-h-9 rounded-lg border border-white/20 px-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
           >
-            Essential Only
+            Reject
+          </button>
+          <button
+            type="button"
+            onClick={() => setPreferencesOpen(true)}
+            className="flex min-h-9 items-center gap-1 rounded-lg border border-white/20 px-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+            Settings
           </button>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
