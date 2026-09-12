@@ -30,7 +30,7 @@ export default function CookieConsent() {
         setBuzzFunctional(true);
         setTimeout(() => {
           setBuzzFunctional(false);
-        }, 3000);
+        }, 900);
       }
     };
 
