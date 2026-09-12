@@ -243,24 +243,7 @@ const Navbar = () => {
     };
   });
 
-  // Align in 4-column grid, skipping the 4th item position (index 3)
-  const gridSlots: Array<{ type: "category"; parent: any; items: any[] } | { type: "special" }> = [];
-  let catIndex = 0;
-  const totalSlots = columns.length + 1;
-  for (let slotIndex = 0; slotIndex < totalSlots; slotIndex++) {
-    if (slotIndex === 3) {
-      gridSlots.push({ type: "special" });
-    } else {
-      if (columns[catIndex]) {
-        gridSlots.push({
-          type: "category",
-          parent: columns[catIndex].parent,
-          items: columns[catIndex].items
-        });
-        catIndex++;
-      }
-    }
-  }
+
 
   // Label HTML cleanup helper
   const cleanTitle = (raw: string) => {
@@ -510,77 +493,32 @@ const Navbar = () => {
 
             {/* MEGA MENU CONTAINER */}
             <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
-              <div className="max-w-7xl mx-auto px-12 py-10 grid grid-cols-4 gap-8">
-                {gridSlots.map((slot, index) => {
-                  if (slot.type === "special") {
-                    return (
-                      <div key="special-promo" className="bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner col-span-1 row-span-2 h-full min-h-[380px] relative overflow-hidden">
-                        <div className="space-y-3">
-                          <div className="space-y-0.5 border-b border-white/10 pb-2.5">
-                            <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
-                              Vetted Guild
-                            </span>
-                            <h5 className="font-serif text-base font-bold leading-tight">
-                              Master Bowyers
-                            </h5>
-                          </div>
-
-                          <ul className="space-y-2 font-sans">
-                            {bowyers.slice(0, 3).map((b) => (
-                              <li key={b.slug || b.name}>
-                                <Link
-                                  href={`/bowyer/${b.slug}`}
-                                  className="group/item flex items-center gap-2.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-accent/30"
-                                >
-                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black/30">
-                                    <img
-                                      src={b.image}
-                                      alt={b.name}
-                                      className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                                    />
-                                  </div>
-                                  <div className="space-y-0.5 min-w-0 flex-1">
-                                    <span className="font-serif text-xs font-bold text-white group-hover/item:text-accent transition-colors block truncate">
-                                      {cleanTitle(b.name)}
-                                    </span>
-                                    <span className="text-[10px] text-white/70 block truncate">
-                                      {cleanTitle(b.heading || "Master Craftsman")}
-                                    </span>
-                                  </div>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <div className="pt-2 border-t border-white/10">
-                          <Link
-                            href="/about/partners"
-                            className="block text-center py-2.5 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
-                          >
-                            View All Master Bowyers
-                          </Link>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div key={slot.parent.id} className="space-y-4">
+              <div className="max-w-7xl mx-auto px-12 py-10 grid grid-cols-4 gap-8 items-start">
+                {/* Left 3 Columns: Masonry Grid for Equipment Categories */}
+                <div className="col-span-3 columns-3 gap-8 space-y-6">
+                  {columns.map(({ parent: parentCat, items: subCats }) => (
+                    <div key={parentCat.id} className="break-inside-avoid space-y-3">
                       <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
                         <Tag className="w-4 h-4 text-accent" />
                         <Link
-                          href={`/equipment?category=${slot.parent.slug}`}
+                          href={`/equipment?category=${parentCat.slug}`}
                           className="hover:text-accent transition-colors cursor-pointer"
                         >
-                          {cleanTitle(slot.parent.name)}
+                          {cleanTitle(parentCat.name)}
                         </Link>
                       </h4>
-                      <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                        {slot.items.length === 0 ? (
-                          <li className="text-primary/40 italic">All {cleanTitle(slot.parent.name)}</li>
+                      <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
+                        {subCats.length === 0 ? (
+                          <li>
+                            <Link
+                              href={`/equipment?category=${parentCat.slug}`}
+                              className="hover:text-accent transition-colors block py-0.5 text-primary/75 hover:font-medium"
+                            >
+                              All {cleanTitle(parentCat.name)}
+                            </Link>
+                          </li>
                         ) : (
-                          slot.items.slice(0, 8).map((sub) => (
+                          subCats.slice(0, 8).map((sub) => (
                             <li key={sub.id}>
                               <Link
                                 href={`/equipment?category=${sub.slug}`}
@@ -593,8 +531,58 @@ const Navbar = () => {
                         )}
                       </ul>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+
+                {/* Right 1 Column: Master Bowyers Card */}
+                <div className="col-span-1 bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner min-h-[380px] relative overflow-hidden">
+                  <div className="space-y-3">
+                    <div className="space-y-0.5 border-b border-white/10 pb-2.5">
+                      <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
+                        Vetted Guild
+                      </span>
+                      <h5 className="font-serif text-base font-bold leading-tight">
+                        Master Bowyers
+                      </h5>
+                    </div>
+
+                    <ul className="space-y-2 font-sans">
+                      {bowyers.slice(0, 3).map((b) => (
+                        <li key={b.slug || b.name}>
+                          <Link
+                            href={`/bowyer/${b.slug}`}
+                            className="group/item flex items-center gap-2.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-accent/30"
+                          >
+                            <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black/30">
+                              <img
+                                src={b.image}
+                                alt={b.name}
+                                className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                              />
+                            </div>
+                            <div className="space-y-0.5 min-w-0 flex-1">
+                              <span className="font-serif text-xs font-bold text-white group-hover/item:text-accent transition-colors block truncate">
+                                {cleanTitle(b.name)}
+                              </span>
+                              <span className="text-[10px] text-white/70 block truncate">
+                                {cleanTitle(b.heading || "Master Craftsman")}
+                              </span>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="pt-2 border-t border-white/10">
+                    <Link
+                      href="/about/partners"
+                      className="block text-center py-2.5 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
+                    >
+                      View All Master Bowyers
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </li>
