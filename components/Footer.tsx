@@ -146,7 +146,7 @@ const Footer = () => {
                 className="group flex min-h-12 items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs transition-all hover:border-accent/50 hover:bg-white/10"
               >
                 <span>
-                  <strong className="text-white font-semibold">{location.name}</strong>
+                  <strong className="text-white font-semibold notranslate" translate="no">{location.name}</strong>
                   <span className="ml-1.5 text-white/60">— {location.country}</span>
                 </span>
                 <ExternalLink className="h-3.5 w-3.5 text-accent transition-transform group-hover:scale-110" aria-hidden="true" />

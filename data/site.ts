@@ -15,6 +15,7 @@ export const PROTECTED_TERMS = [
   "Warrick Harvey",
   "Harvey Archery",
   "MR Bows",
+  "Mr. Bows",
   "Miško Rovčanin",
   "Misko Rovcanin",
   "Kadys Bows",
@@ -23,38 +24,51 @@ export const PROTECTED_TERMS = [
   "Sergiy Tolochko",
   "Sergey Gennadiyovych Tolochko",
   "Explorer Adventures",
+  "Zruby Dúbrava",
+  "Zemiansky Vrbovok",
+  "Muránska Planina",
+  "Podhájska",
+  "Ehrwald",
+  "Bankov",
+  "Eisenbach"
 ] as const;
 
 export const TRAINING_LOCATIONS = [
   {
+    name: "Zemiansky Vrbovok (Zruby Dúbrava)",
+    country: "Slovakia",
+    address: "Zruby Dúbrava, Zemiansky Vrbovok 125, 962 41 Zemiansky Vrbovok",
+    mapUrl: "https://maps.app.goo.gl/qSnTn4Xv527XThck9",
+  },
+  {
     name: "Muránska Planina",
     country: "Slovakia",
-    mapUrl: "https://maps.google.com/?q=Mur%C3%A1nska+Planina",
+    address: "Muránska Planina National Park, Muráň",
+    mapUrl: "https://maps.google.com/?q=Mur%C3%A1nska+Planina+National+Park+Slovakia",
   },
   {
     name: "Podhájska",
     country: "Slovakia",
+    address: "Podhájska",
     mapUrl: "https://maps.google.com/?q=Podh%C3%A1jska+Slovakia",
   },
   {
-    name: "Zemiansky Vrbovok",
-    country: "Slovakia",
-    mapUrl: "https://maps.app.goo.gl/qSnTn4Xv527XThck9",
-  },
-  {
     name: "Ehrwald",
-    country: "Austria",
-    mapUrl: "https://maps.app.goo.gl/UB2Zb1N5aTS42fuA8",
+    country: "Tirol, Austria",
+    address: "Ehrwald, Tirol",
+    mapUrl: "https://maps.google.com/?q=Ehrwald+Tirol+Austria",
   },
   {
     name: "Bankov",
     country: "Košice, Slovakia",
-    mapUrl: "https://maps.google.com/?q=Bankov+Ko%C5%A1ice",
+    address: "Bankov, Košice",
+    mapUrl: "https://maps.google.com/?q=Bankov+Kosice+Slovakia",
   },
   {
     name: "Eisenbach",
-    country: "Germany",
-    mapUrl: "https://maps.app.goo.gl/SMkPXijFfkkPdQmx7",
+    country: "Black Forest, Germany",
+    address: "Eisenbach, Black Forest",
+    mapUrl: "https://maps.google.com/?q=Eisenbach+Black+Forest+Germany",
   },
 ] as const;
 

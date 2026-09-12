@@ -569,10 +569,10 @@ const Navbar = () => {
                               />
                             </div>
                             <div className="space-y-0.5 min-w-0 flex-1">
-                              <span className="font-serif text-xs font-bold text-white group-hover/item:text-accent transition-colors block truncate">
+                              <span className="notranslate font-serif text-xs font-bold text-white group-hover/item:text-accent transition-colors block truncate" translate="no">
                                 {cleanTitle(b.name)}
                               </span>
-                              <span className="text-[10px] text-white/70 block truncate">
+                              <span className="notranslate text-[10px] text-white/70 block truncate" translate="no">
                                 {cleanTitle(b.bowyer_name || b.heading || "Master Craftsman")}
                               </span>
                             </div>
