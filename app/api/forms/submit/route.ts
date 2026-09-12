@@ -21,6 +21,11 @@ export async function POST(req: NextRequest) {
 
     const wpBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://janfranko.com";
     const formSecret = process.env.FORM_SECRET_KEY || "";
+    const wpUsername = process.env.WP_USERNAME || "sabamalik";
+    const wpAppPassword = process.env.WP_APP_PASSWORD || "";
+    const authHeader = wpAppPassword
+      ? `Basic ${Buffer.from(`${wpUsername}:${wpAppPassword}`).toString("base64")}`
+      : undefined;
 
     const endpoint = `${wpBaseUrl.replace(/\/$/, "")}/wp-json/janfranko/v1/submit-form`;
 
@@ -32,13 +37,18 @@ export async function POST(req: NextRequest) {
       fullPageUrl = `${origin.replace(/\/$/, "")}${fullPageUrl.startsWith("/") ? "" : "/"}${fullPageUrl}`;
     }
 
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "X-JF-Form-Secret": formSecret,
+    };
+    if (authHeader) {
+      headers["Authorization"] = authHeader;
+    }
+
     // Forward to WordPress REST API
     const wpRes = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-JF-Form-Secret": formSecret,
-      },
+      headers,
       body: JSON.stringify({
         form_name: form_name || "General Inquiry",
         fields: fields,
