@@ -23,8 +23,45 @@ export function truncateDescription(desc: string, maxLen = 152): string {
   return plainText.substring(0, maxLen).trim() + "...";
 }
 
+export const SUPPORTED_LANGUAGES: Record<string, string> = {
+  en: "en",
+  de: "de",
+  sk: "sk",
+  cs: "cs",
+  es: "es",
+  ru: "ru",
+  fr: "fr",
+  it: "it",
+  ja: "ja",
+  pl: "pl",
+  uk: "uk",
+  hu: "hu",
+  ro: "ro",
+  bg: "bg",
+  el: "el",
+  hy: "hy",
+  ka: "ka",
+  et: "et",
+  lv: "lv",
+  lt: "lt",
+  pt: "pt",
+  mn: "mn",
+  ko: "ko",
+  "zh-CN": "zh-CN",
+  th: "th",
+  vi: "vi",
+  tl: "tl",
+  am: "am",
+  dz: "dz",
+  no: "no",
+  sv: "sv",
+  fi: "fi",
+  da: "da",
+  is: "is",
+};
+
 /**
- * Construct standardized SEO and OpenGraph metadata object
+ * Construct standardized SEO, OpenGraph metadata object, and hreflang alternates
  */
 export function constructMetadata({
   title,
@@ -42,17 +79,29 @@ export function constructMetadata({
   const formattedTitle = truncateTitle(title);
   const formattedDescription = truncateDescription(description);
   const imageUrl = ogImage || "/opengraph-image";
+  const url = canonicalUrl || BASE_URL;
+
+  // Build 34-language hreflang alternates dictionary
+  const languageAlternates: Record<string, string> = {
+    "x-default": url,
+  };
+  Object.keys(SUPPORTED_LANGUAGES).forEach((lang) => {
+    languageAlternates[lang] = `${url}#googtrans(en|${lang})`;
+  });
 
   return {
     metadataBase: new URL(BASE_URL),
     title: formattedTitle,
     description: formattedDescription,
-    alternates: canonicalUrl ? { canonical: canonicalUrl } : undefined,
+    alternates: {
+      canonical: url,
+      languages: languageAlternates,
+    },
     openGraph: {
       siteName: SITE_NAME,
       title: formattedTitle,
       description: formattedDescription,
-      url: canonicalUrl || BASE_URL,
+      url,
       type,
       locale: "en_US",
       images: [

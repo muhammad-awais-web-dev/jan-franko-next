@@ -33,7 +33,73 @@ const ACADEMY_SLUG_MAP: Record<string, string> = {
   "esi": "environmental-stress-index-esi",
   "the-academy": "the-academy",
   "academy": "the-academy",
-  "explorer-path": "explorer-path"
+  "explorer-path": "explorer-path",
+  "raptor-path": "raptor-path",
+  "special-practice-retreats": "special-practice-retreats",
+  "archers-virtues": "archers-virtues",
+  "training-philosophy": "training-philosophy"
+};
+
+const ACADEMY_FALLBACK_PAGES: Record<string, { title: string; excerpt: string; content: string }> = {
+  "raptor-path": {
+    title: "The Raptor Path",
+    excerpt: "Advanced instinctive archery progression combining biomechanical alignment, dynamic slope release, and tactical environmental focus.",
+    content: `
+      <h2>The Raptor Path — Advanced Instinctive Discipline</h2>
+      <p>The Raptor Path represents the advanced biomechanical curriculum of Jan Franko Traditional Archery Academy. Designed for experienced archers and practitioners seeking to transcend mechanical target shooting, this track integrates body mechanics, diaphragmatic breath regulation, and rapid instinctive target acquisition.</p>
+      <h3>Core Pillars of the Raptor Path</h3>
+      <ul>
+        <li><strong>Biomechanical Ground Root:</strong> Establishing unbreakable stance stability on steep alpine slopes and uneven woodland terrain.</li>
+        <li><strong>Fluid Draw &amp; Scapular Release:</strong> Transferring draw weight into back muscle groups without arm strain or posture distortion.</li>
+        <li><strong>Dynamic Aiming &amp; Instinctive Focus:</strong> Releasing on moving or variable-distance targets without static sights or artificial anchors.</li>
+      </ul>
+      <h3>Field Application &amp; Certification</h3>
+      <p>Practitioners on the Raptor Path undergo rigorous field audits across alpine glades, dense forests, and open steppe environments, proving consistent accuracy, physical stamina, and environmental awareness.</p>
+    `
+  },
+  "archers-virtues": {
+    title: "The Archer’s Virtues",
+    excerpt: "The four foundational pillars of traditional archery discipline: Presence, Biomechanical Precision, Breath Control, and Cultural Respect.",
+    content: `
+      <h2>The Archer’s Virtues</h2>
+      <p>Instinctive archery is a mirror of personal discipline, mental stillness, and biomechanical harmony. The Archer’s Virtues govern every shot, practice session, and field expedition conducted under the Jan Franko Academy lineage.</p>
+      <h3>The Four Virtues</h3>
+      <ul>
+        <li><strong>Stillness Beneath Motion:</strong> Maintaining internal calm and steady heart rate regardless of environmental strain or terrain difficulty.</li>
+        <li><strong>Biomechanical Precision:</strong> Aligning shoulder girdle, draw arm, and breath rhythm into a single repeatable motion.</li>
+        <li><strong>Environmental Harmony:</strong> Training with total respect for natural ecosystems, leaving zero trace across mountain pastures and forests.</li>
+        <li><strong>Lineage &amp; Honor:</strong> Honoring historical bowyers and nomadic traditions that preserved the art of the bow for centuries.</li>
+      </ul>
+    `
+  },
+  "special-practice-retreats": {
+    title: "Special Practice Retreats",
+    excerpt: "Intensive 3-to-7 day immersive archery retreats combining Qigong, diaphragmatic breath work, and field target practice.",
+    content: `
+      <h2>Special Practice Retreats</h2>
+      <p>Our Special Practice Retreats offer archers an intensive, distraction-free environment to deepen their physical technique and mental presence in nature. Set in historic mountain sanctuaries across Austria, Slovakia, and Germany, these programs combine daily archery practice with bodywork and Qigong training.</p>
+      <h3>Retreat Modules</h3>
+      <ul>
+        <li><strong>Breath &amp; Alignment Intensive:</strong> Diaphragmatic breathing and structural posture alignment for long-range stamina.</li>
+        <li><strong>Slope &amp; Woodland Range Practice:</strong> Dynamic 3D field targets placed across natural mountain gradients.</li>
+        <li><strong>Evening Restoration:</strong> Regenerative bodywork and movement recovery guided by senior instructors.</li>
+      </ul>
+    `
+  },
+  "training-philosophy": {
+    title: "Training Philosophy",
+    excerpt: "Rooted in Traditional Chinese Medicine, posture alignment, and historical Asiatic composite bow methodologies.",
+    content: `
+      <h2>Training Philosophy</h2>
+      <p>Archery is not merely about the bow and arrow; it is about the living relationship between body, breath, movement, attention, and intention. Founded by Jan Franko, our methodology draws upon decades of therapeutic bodywork, Traditional Chinese Medicine (TCM), and historical archery traditions.</p>
+      <h3>Core Methodology</h3>
+      <ul>
+        <li><strong>Instinctive Aiming:</strong> Training the mind to focus directly on the target point without static sights or artificial pins.</li>
+        <li><strong>Diaphragmatic Breath Anchor:</strong> Inhaling to stabilize core tension and exhaling upon release to lower heart rate.</li>
+        <li><strong>Holistic Body Mechanics:</strong> Preventing repetitive strain injuries by utilizing major back muscle groups and centered posture.</li>
+      </ul>
+    `
+  }
 };
 
 async function fetchWpPageBySlug(slug: string) {
@@ -64,24 +130,29 @@ export async function generateStaticParams() {
     { slug: "environmental-stress-index-esi" },
     { slug: "environmental-stress-index" },
     { slug: "esi" },
-    { slug: "explorer-path" }
+    { slug: "explorer-path" },
+    { slug: "raptor-path" },
+    { slug: "special-practice-retreats" },
+    { slug: "archers-virtues" },
+    { slug: "training-philosophy" }
   ];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const page = await fetchWpPageBySlug(slug);
-  
-  if (!page) {
+  const fallback = ACADEMY_FALLBACK_PAGES[slug];
+
+  if (!page && !fallback) {
     return {
       title: "Academy Section | Traditional Archery Academy",
       description: "Explore the structured curriculum and governance of Jan Franko Traditional Archery Academy."
     };
   }
 
-  const rawTitle = page.title?.rendered || "Academy Section";
+  const rawTitle = page?.title?.rendered || fallback?.title || "Academy Section";
   const cleanTitle = rawTitle.replace(/&#8211;/g, "–").replace(/&amp;/g, "&");
-  const excerpt = page.excerpt?.rendered?.replace(/<[^>]+>/g, "").trim() || 
+  const excerpt = page?.excerpt?.rendered?.replace(/<[^>]+>/g, "").trim() || fallback?.excerpt ||
     "Verified curriculum standards, certification audit frameworks, and environmental stress protocols.";
 
   return constructMetadata({
@@ -95,16 +166,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function AcademyPage({ params }: PageProps) {
   const { slug } = await params;
   const wpPage = await fetchWpPageBySlug(slug);
+  const fallback = ACADEMY_FALLBACK_PAGES[slug];
 
-  if (!wpPage) {
+  if (!wpPage && !fallback) {
     notFound();
   }
 
-  const titleRaw = wpPage.title?.rendered || "Academy Section";
+  const titleRaw = wpPage?.title?.rendered || fallback?.title || "Academy Section";
   const titleClean = titleRaw.replace(/&#8211;/g, "–").replace(/&amp;/g, "&");
 
-  // Clean HTML string & replace WordPress image uploads with local downloaded assets in /images/wp-assets/
-  let htmlContent = wpPage.content?.rendered || "";
+  let htmlContent = wpPage?.content?.rendered || fallback?.content || "";
   htmlContent = htmlContent
     .replace(/https:\/\/janfranko\.com\/wp-content\/uploads\/[0-9]{4}\/[0-9]{2}\//gi, "/images/wp-assets/")
     .replace(/\/wp-content\/uploads\/[0-9]{4}\/[0-9]{2}\//gi, "/images/wp-assets/")
