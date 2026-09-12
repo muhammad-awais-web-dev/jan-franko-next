@@ -8,6 +8,8 @@ import { Menu, X, ChevronDown, Compass, MapPin, Award, Sliders, BookOpen, Tag, M
 import { clientFetch } from "@/data/clientFetch";
 import { readConsent } from "@/lib/consent";
 import { DEFAULT_PROGRAM_TYPES, DEFAULT_SKILL_LEVELS, DEFAULT_REGIONS } from "@/data/site";
+import Masonry from "react-masonry-css";
+
 
 
 interface Term {
@@ -243,21 +245,7 @@ const Navbar = () => {
     };
   });
 
-  // Assign categories to explicit columns:
-  // Column 1: Accessories & Training Kits (stacked below Accessories)
-  // Column 2: Bows
-  // Column 3: Targets & Remaining categories
-  const col1 = columns.filter((c) => {
-    const slug = c.parent.slug.toLowerCase();
-    return slug.includes("accessori") || slug.includes("quiver") || slug.includes("kit") || slug.includes("training");
-  });
 
-  const col2 = columns.filter((c) => {
-    const slug = c.parent.slug.toLowerCase();
-    return (slug === "bows" || (slug.includes("bow") && !slug.includes("accessori"))) && !col1.includes(c);
-  });
-
-  const col3 = columns.filter((c) => !col1.includes(c) && !col2.includes(c));
 
 
 
@@ -510,128 +498,49 @@ const Navbar = () => {
             {/* MEGA MENU CONTAINER */}
             <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
               <div className="max-w-7xl mx-auto px-12 py-10 grid grid-cols-4 gap-8 items-start">
-                {/* Left 3 Columns for Equipment Categories */}
-                <div className="col-span-3 grid grid-cols-3 gap-8 items-start">
-                  {/* Column 1: Accessories & Training Kits */}
-                  <div className="space-y-6">
-                    {col1.map(({ parent: parentCat, items: subCats }) => (
-                      <div key={parentCat.id} className="space-y-3 font-sans">
-                        <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                          <Tag className="w-4 h-4 text-accent" />
-                          <Link
-                            href={`/equipment?category=${parentCat.slug}`}
-                            className="hover:text-accent transition-colors cursor-pointer"
-                          >
-                            {cleanTitle(parentCat.name)}
-                          </Link>
-                        </h4>
-                        <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
-                          {subCats.length === 0 ? (
-                            <li>
+                {/* Left 3 Columns: Dynamic Masonry Grid for Equipment Categories */}
+                <Masonry
+                  breakpointCols={3}
+                  className="col-span-3 flex -ml-8 w-auto"
+                  columnClassName="pl-8 bg-clip-padding space-y-6"
+                >
+                  {columns.map(({ parent: parentCat, items: subCats }) => (
+                    <div key={parentCat.id} className="space-y-3 font-sans">
+                      <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
+                        <Tag className="w-4 h-4 text-accent" />
+                        <Link
+                          href={`/equipment?category=${parentCat.slug}`}
+                          className="hover:text-accent transition-colors cursor-pointer"
+                        >
+                          {cleanTitle(parentCat.name)}
+                        </Link>
+                      </h4>
+                      <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
+                        {subCats.length === 0 ? (
+                          <li>
+                            <Link
+                              href={`/equipment?category=${parentCat.slug}`}
+                              className="hover:text-accent transition-colors block py-0.5 text-primary/75 hover:font-medium"
+                            >
+                              All {cleanTitle(parentCat.name)}
+                            </Link>
+                          </li>
+                        ) : (
+                          subCats.slice(0, 8).map((sub) => (
+                            <li key={sub.id}>
                               <Link
-                                href={`/equipment?category=${parentCat.slug}`}
-                                className="hover:text-accent transition-colors block py-0.5 text-primary/75 hover:font-medium"
+                                href={`/equipment?category=${sub.slug}`}
+                                className="hover:text-accent transition-colors block py-0.5"
                               >
-                                All {cleanTitle(parentCat.name)}
+                                {cleanTitle(sub.name)}
                               </Link>
                             </li>
-                          ) : (
-                            subCats.slice(0, 8).map((sub) => (
-                              <li key={sub.id}>
-                                <Link
-                                  href={`/equipment?category=${sub.slug}`}
-                                  className="hover:text-accent transition-colors block py-0.5"
-                                >
-                                  {cleanTitle(sub.name)}
-                                </Link>
-                              </li>
-                            ))
-                          )}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Column 2: Bows */}
-                  <div className="space-y-6">
-                    {col2.map(({ parent: parentCat, items: subCats }) => (
-                      <div key={parentCat.id} className="space-y-3 font-sans">
-                        <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                          <Tag className="w-4 h-4 text-accent" />
-                          <Link
-                            href={`/equipment?category=${parentCat.slug}`}
-                            className="hover:text-accent transition-colors cursor-pointer"
-                          >
-                            {cleanTitle(parentCat.name)}
-                          </Link>
-                        </h4>
-                        <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
-                          {subCats.length === 0 ? (
-                            <li>
-                              <Link
-                                href={`/equipment?category=${parentCat.slug}`}
-                                className="hover:text-accent transition-colors block py-0.5 text-primary/75 hover:font-medium"
-                              >
-                                All {cleanTitle(parentCat.name)}
-                              </Link>
-                            </li>
-                          ) : (
-                            subCats.slice(0, 8).map((sub) => (
-                              <li key={sub.id}>
-                                <Link
-                                  href={`/equipment?category=${sub.slug}`}
-                                  className="hover:text-accent transition-colors block py-0.5"
-                                >
-                                  {cleanTitle(sub.name)}
-                                </Link>
-                              </li>
-                            ))
-                          )}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Column 3: Targets & Remaining Categories */}
-                  <div className="space-y-6">
-                    {col3.map(({ parent: parentCat, items: subCats }) => (
-                      <div key={parentCat.id} className="space-y-3 font-sans">
-                        <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                          <Tag className="w-4 h-4 text-accent" />
-                          <Link
-                            href={`/equipment?category=${parentCat.slug}`}
-                            className="hover:text-accent transition-colors cursor-pointer"
-                          >
-                            {cleanTitle(parentCat.name)}
-                          </Link>
-                        </h4>
-                        <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
-                          {subCats.length === 0 ? (
-                            <li>
-                              <Link
-                                href={`/equipment?category=${parentCat.slug}`}
-                                className="hover:text-accent transition-colors block py-0.5 text-primary/75 hover:font-medium"
-                              >
-                                All {cleanTitle(parentCat.name)}
-                              </Link>
-                            </li>
-                          ) : (
-                            subCats.slice(0, 8).map((sub) => (
-                              <li key={sub.id}>
-                                <Link
-                                  href={`/equipment?category=${sub.slug}`}
-                                  className="hover:text-accent transition-colors block py-0.5"
-                                >
-                                  {cleanTitle(sub.name)}
-                                </Link>
-                              </li>
-                            ))
-                          )}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                          ))
+                        )}
+                      </ul>
+                    </div>
+                  ))}
+                </Masonry>
 
                 {/* Right 1 Column: Master Bowyers Card */}
                 <div className="col-span-1 bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner min-h-[380px] relative overflow-hidden">
