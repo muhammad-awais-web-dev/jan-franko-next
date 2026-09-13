@@ -645,13 +645,7 @@ const BowyerProfileContent = () => {
 
 export default function BowyerClient() {
   return (
-    <Suspense
-      fallback={
-        <div className="w-full min-h-screen bg-secondary flex items-center justify-center">
-          <span className="font-serif text-sm tracking-widest uppercase text-primary/50 animate-pulse">Loading Profile...</span>
-        </div>
-      }
-    >
+    <Suspense fallback={null}>
       <BowyerProfileContent />
     </Suspense>
   );

@@ -740,13 +740,7 @@ const BowyerProductContent = () => {
 
 export default function MasterBowyerProductClient() {
   return (
-    <Suspense
-      fallback={
-        <div className="w-full min-h-screen bg-secondary flex items-center justify-center">
-          <span className="font-serif text-sm tracking-widest uppercase text-primary/50 animate-pulse">Loading Custom Bow Details...</span>
-        </div>
-      }
-    >
+    <Suspense fallback={null}>
       <BowyerProductContent />
     </Suspense>
   );

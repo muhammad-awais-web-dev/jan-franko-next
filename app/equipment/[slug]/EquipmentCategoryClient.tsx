@@ -175,11 +175,7 @@ const ProductDetailPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="w-full min-h-screen bg-secondary flex items-center justify-center">
-        <span className="font-serif text-sm tracking-widest uppercase text-primary/50 animate-pulse">Loading Product...</span>
-      </div>
-    );
+    return null;
   }
 
   if (!product) {

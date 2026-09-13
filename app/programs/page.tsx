@@ -1918,11 +1918,7 @@ const MACRO_REGIONS = {
 
 const ProgramsPage = () => {
   return (
-    <Suspense fallback={
-      <div className="w-full min-h-screen bg-secondary flex items-center justify-center p-12 text-[#7d603a] font-serif uppercase tracking-widest text-xs">
-        Loading Academy Programs...
-      </div>
-    }>
+    <Suspense fallback={null}>
       <ProgramsContent />
     </Suspense>
   );
