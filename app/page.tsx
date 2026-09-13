@@ -4,6 +4,7 @@ import FounderBlock from "@/components/Home/FounderBlock";
 import Hero from "@/components/Home/Hero";
 import HeroMobile from "@/components/Home/HeroMobile";
 import Contact from "@/components/Home/Contact";
+import FeedbackForm from "@/components/Home/FeedbackForm";
 import type { Metadata } from "next";
 import { constructMetadata } from "@/lib/seo";
 
@@ -25,6 +26,7 @@ export default function Home() {
       <ExpeditionRegions/>
       <Institute />
       <FounderBlock />
+      <FeedbackForm />
       <Contact />
     </main>
   );
