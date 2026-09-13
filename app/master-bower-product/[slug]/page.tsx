@@ -36,6 +36,8 @@ interface ProductDetails {
   date: string;
   image: string;
   gallery: string[];
+  categories?: number[];
+  bowyerIds?: number[];
   acf: {
     product_subtitle?: string;
     product_overview?: string;
@@ -46,6 +48,7 @@ interface ProductDetails {
     specifications?: Specification[];
     base_sku?: string;
     configurator_fields?: ConfiguratorField[];
+    bowyer_name?: string;
   };
 }
 
