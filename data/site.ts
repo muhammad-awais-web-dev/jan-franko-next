@@ -15,7 +15,6 @@ export const PROTECTED_TERMS = [
   "Warrick Harvey",
   "Harvey Archery",
   "MR Bows",
-  "Mr. Bows",
   "Miško Rovčanin",
   "Misko Rovcanin",
   "Kadys Bows",
@@ -24,51 +23,88 @@ export const PROTECTED_TERMS = [
   "Sergiy Tolochko",
   "Sergey Gennadiyovych Tolochko",
   "Explorer Adventures",
-  "Zruby Dúbrava",
-  "Zemiansky Vrbovok",
-  "Muránska Planina",
-  "Podhájska",
-  "Ehrwald",
-  "Bankov",
-  "Eisenbach"
+] as const;
+
+export type SupportedLanguage = {
+  code: string;
+  label: string;
+  group: "Central & Western Europe" | "Eastern Europe & Caucasus" | "Northern Europe & Baltic" | "Asia & Global";
+};
+
+export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = [
+  { code: "en", label: "English", group: "Central & Western Europe" },
+  { code: "de", label: "Deutsch", group: "Central & Western Europe" },
+  { code: "sk", label: "Slovenčina", group: "Central & Western Europe" },
+  { code: "cs", label: "Čeština", group: "Central & Western Europe" },
+  { code: "pl", label: "Polski", group: "Central & Western Europe" },
+  { code: "es", label: "Español", group: "Central & Western Europe" },
+  { code: "fr", label: "Français", group: "Central & Western Europe" },
+  { code: "it", label: "Italiano", group: "Central & Western Europe" },
+  { code: "pt", label: "Português", group: "Central & Western Europe" },
+  { code: "uk", label: "Українська", group: "Eastern Europe & Caucasus" },
+  { code: "ru", label: "Русский", group: "Eastern Europe & Caucasus" },
+  { code: "hu", label: "Magyar", group: "Eastern Europe & Caucasus" },
+  { code: "ro", label: "Română", group: "Eastern Europe & Caucasus" },
+  { code: "bg", label: "Български", group: "Eastern Europe & Caucasus" },
+  { code: "el", label: "Ελληνικά", group: "Eastern Europe & Caucasus" },
+  { code: "hy", label: "Հայերեն", group: "Eastern Europe & Caucasus" },
+  { code: "ka", label: "ქართული", group: "Eastern Europe & Caucasus" },
+  { code: "et", label: "Eesti", group: "Northern Europe & Baltic" },
+  { code: "lv", label: "Latviešu", group: "Northern Europe & Baltic" },
+  { code: "lt", label: "Lietuvių", group: "Northern Europe & Baltic" },
+  { code: "no", label: "Norsk", group: "Northern Europe & Baltic" },
+  { code: "sv", label: "Svenska", group: "Northern Europe & Baltic" },
+  { code: "fi", label: "Suomi", group: "Northern Europe & Baltic" },
+  { code: "da", label: "Dansk", group: "Northern Europe & Baltic" },
+  { code: "is", label: "Íslenska", group: "Northern Europe & Baltic" },
+  { code: "ja", label: "日本語", group: "Asia & Global" },
+  { code: "mn", label: "Монгол", group: "Asia & Global" },
+  { code: "ko", label: "한국어", group: "Asia & Global" },
+  { code: "zh-CN", label: "中文（简体）", group: "Asia & Global" },
+  { code: "th", label: "ไทย", group: "Asia & Global" },
+  { code: "vi", label: "Tiếng Việt", group: "Asia & Global" },
+  { code: "tl", label: "Filipino", group: "Asia & Global" },
+  { code: "am", label: "አማርኛ", group: "Asia & Global" },
+  { code: "dz", label: "རྫོང་ཁ", group: "Asia & Global" },
+] as const;
+
+export const LANGUAGE_GROUPS = [
+  "Central & Western Europe",
+  "Eastern Europe & Caucasus",
+  "Northern Europe & Baltic",
+  "Asia & Global",
 ] as const;
 
 export const TRAINING_LOCATIONS = [
   {
-    name: "Zemiansky Vrbovok (Zruby Dúbrava)",
-    country: "Slovakia",
-    address: "Zruby Dúbrava, Zemiansky Vrbovok 125, 962 41 Zemiansky Vrbovok",
-    mapUrl: "https://maps.app.goo.gl/qSnTn4Xv527XThck9",
-  },
-  {
     name: "Muránska Planina",
     country: "Slovakia",
-    address: "Muránska Planina National Park, Muráň",
-    mapUrl: "https://maps.google.com/?q=Mur%C3%A1nska+Planina+National+Park+Slovakia",
+    mapUrl: "https://maps.google.com/?q=Mur%C3%A1nska+Planina",
   },
   {
     name: "Podhájska",
     country: "Slovakia",
-    address: "Podhájska",
     mapUrl: "https://maps.google.com/?q=Podh%C3%A1jska+Slovakia",
   },
   {
+    name: "Zemiansky Vrbovok",
+    country: "Slovakia",
+    mapUrl: "https://maps.app.goo.gl/qSnTn4Xv527XThck9",
+  },
+  {
     name: "Ehrwald",
-    country: "Tirol, Austria",
-    address: "Ehrwald, Tirol",
-    mapUrl: "https://maps.google.com/?q=Ehrwald+Tirol+Austria",
+    country: "Austria",
+    mapUrl: "https://maps.app.goo.gl/UB2Zb1N5aTS42fuA8",
   },
   {
     name: "Bankov",
     country: "Košice, Slovakia",
-    address: "Bankov, Košice",
-    mapUrl: "https://maps.google.com/?q=Bankov+Kosice+Slovakia",
+    mapUrl: "https://maps.google.com/?q=Bankov+Ko%C5%A1ice",
   },
   {
     name: "Eisenbach",
-    country: "Black Forest, Germany",
-    address: "Eisenbach, Black Forest",
-    mapUrl: "https://maps.google.com/?q=Eisenbach+Black+Forest+Germany",
+    country: "Germany",
+    mapUrl: "https://maps.app.goo.gl/SMkPXijFfkkPdQmx7",
   },
 ] as const;
 
@@ -122,31 +158,3 @@ export const EQUIPMENT_CATEGORIES = [
     description: "Equipment bundles for introductory and retreat-based training.",
   },
 ] as const;
-
-export const DEFAULT_PROGRAM_TYPES = [
-  { id: 189, name: "Cultural Immersion", slug: "cultural-immersion" },
-  { id: 190, name: "Custom Private Program", slug: "custom-private-program" },
-  { id: 191, name: "Expedition", slug: "expedition" },
-  { id: 192, name: "Mounted Archery", slug: "equestrian-archery" },
-  { id: 194, name: "Retreat", slug: "retreat" },
-  { id: 193, name: "Training Program", slug: "training-program" },
-];
-
-export const DEFAULT_SKILL_LEVELS = [
-  { id: 195, name: "Level 1 – Introductory", slug: "introductory" },
-  { id: 196, name: "Level 2 – Training", slug: "training" },
-  { id: 197, name: "Level 3 – Expedition", slug: "expedition" },
-  { id: 198, name: "Level 4 – Advanced Expedition", slug: "advanced-expedition" },
-];
-
-export const DEFAULT_REGIONS = [
-  { id: 211, name: "Alps", slug: "alps" },
-  { id: 249, name: "Americas", slug: "americas" },
-  { id: 247, name: "Asia", slug: "asia" },
-  { id: 214, name: "Austria", slug: "austria" },
-  { id: 215, name: "Brazil", slug: "brazil" },
-  { id: 234, name: "Central Asia", slug: "central-asia" },
-  { id: 227, name: "Central Europe", slug: "central-europe" },
-  { id: 248, name: "Eurasia", slug: "eurasia" },
-];
-

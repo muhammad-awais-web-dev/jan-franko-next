@@ -1,1499 +1,744 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+/* External 40px flag assets intentionally use native img elements. */
+/* eslint-disable @next/next/no-img-element */
+
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, ChevronRight, Compass, MapPin, Award, Sliders, BookOpen, Tag, Mail, Phone, Globe } from "lucide-react";
+import { createPortal } from "react-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Activity,
+  ArrowRight,
+  Award,
+  BookOpen,
+  CalendarDays,
+  ChevronDown,
+  ChevronRight,
+  Compass,
+  ExternalLink,
+  Globe2,
+  GraduationCap,
+  Hammer,
+  Languages,
+  Mail,
+  Map,
+  MapPin,
+  Menu,
+  Mountain,
+  Phone,
+  ScrollText,
+  ShieldCheck,
+  SlidersHorizontal,
+  Target,
+  UserRound,
+  UsersRound,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
-import { readConsent } from "@/lib/consent";
-import { DEFAULT_PROGRAM_TYPES, DEFAULT_SKILL_LEVELS, DEFAULT_REGIONS } from "@/data/site";
-import Masonry from "react-masonry-css";
+import {
+  EQUIPMENT_CATEGORIES,
+  LANGUAGE_GROUPS,
+  SITE,
+  SUPPORTED_LANGUAGES,
+} from "@/data/site";
 
-
-
-interface Term {
-  id: number;
-  name: string;
-  slug: string;
+declare global {
+  interface Window {
+    __MEGAMENU_READY?: boolean;
+  }
 }
 
-interface CategoryTerm {
-  id: number;
-  name: string;
-  slug: string;
-  parent: number;
-}
-
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false); // Mobile drawer toggle
-  const [isAcademyMobileOpen, setIsAcademyMobileOpen] = useState(false); // Mobile academy sub-accordion
-  const [isProgramsMobileOpen, setIsProgramsMobileOpen] = useState(false); // Mobile programs sub-accordion
-  const [isKnowledgeMobileOpen, setIsKnowledgeMobileOpen] = useState(false); // Mobile knowledge sub-accordion
-  const [isEquipmentMobileOpen, setIsEquipmentMobileOpen] = useState(false); // Mobile equipment sub-accordion
-  const [isAboutMobileOpen, setIsAboutMobileOpen] = useState(false); // Mobile about sub-accordion
-  const [openSubgroups, setOpenSubgroups] = useState<Record<string, boolean>>({});
-  const DEFAULT_BOWYERS = [
-    {
-      name: "Harvey Archery",
-      bowyer_name: "Warrick Harvey",
-      slug: "harvey-archery",
-      image: "/images/wp-assets/warrick-harvey.webp"
-    },
-    {
-      name: "Kadys Bows",
-      bowyer_name: "Sergey Tolochko",
-      slug: "kadys-bows",
-      image: "/images/wp-assets/kadys-bows.webp"
-    },
-    {
-      name: "MR Bows",
-      bowyer_name: "Miško Rovčanin",
-      slug: "mr-bows",
-      image: "/images/wp-assets/mr-bows.webp"
-    }
-  ];
-
-  const [types, setTypes] = useState<Term[]>(DEFAULT_PROGRAM_TYPES as any);
-  const [skills, setSkills] = useState<Term[]>(DEFAULT_SKILL_LEVELS as any);
-  const [regions, setRegions] = useState<Term[]>(DEFAULT_REGIONS as any);
-  const [equipmentCategories, setEquipmentCategories] = useState<CategoryTerm[]>([]);
-  const [bowyers, setBowyers] = useState<any[]>(DEFAULT_BOWYERS);
-
-  // Translation states & supported languages (matching the full list of requested languages with flagcdn codes)
-  const LANGUAGES = [
-    { code: "en", name: "English", flagCode: "gb" },
-    { code: "de", name: "Deutsch", flagCode: "de" },
-    { code: "sk", name: "Slovenčina", flagCode: "sk" },
-    { code: "cs", name: "Čeština", flagCode: "cz" },
-    { code: "pl", name: "Polski", flagCode: "pl" },
-    { code: "uk", name: "Українська", flagCode: "ua" },
-    { code: "ru", name: "Русский", flagCode: "ru" },
-    { code: "hu", name: "Magyar", flagCode: "hu" },
-    { code: "ro", name: "Română", flagCode: "ro" },
-    { code: "bg", name: "Български", flagCode: "bg" },
-    { code: "el", name: "Ελληνικά", flagCode: "gr" },
-    { code: "hy", name: "Հայերեն", flagCode: "am" },
-    { code: "ka", name: "ქართული", flagCode: "ge" },
-    { code: "et", name: "Eesti", flagCode: "ee" },
-    { code: "lv", name: "Latviešu", flagCode: "lv" },
-    { code: "lt", name: "Lietuvių", flagCode: "lt" },
-    { code: "es", name: "Español", flagCode: "es" },
-    { code: "it", name: "Italiano", flagCode: "it" },
-    { code: "pt", name: "Português", flagCode: "pt" },
-    { code: "ja", name: "日本語", flagCode: "jp" },
-    { code: "mn", name: "Монгол", flagCode: "mn" },
-    { code: "ko", name: "한국어", flagCode: "kr" },
-    { code: "zh-CN", name: "中文 (简体)", flagCode: "cn" },
-    { code: "th", name: "ไทย", flagCode: "th" },
-    { code: "vi", name: "Tiếng Việt", flagCode: "vn" },
-    { code: "tl", name: "Filipino", flagCode: "ph" },
-    { code: "am", name: "አማርኛ", flagCode: "et" },
-    { code: "dz", name: "རྫོང་ཁ", flagCode: "bt" },
-    { code: "no", name: "Norsk", flagCode: "no" },
-    { code: "sv", name: "Svenska", flagCode: "se" },
-    { code: "fi", name: "Suomi", flagCode: "fi" },
-    { code: "da", name: "Dansk", flagCode: "dk" },
-    { code: "is", name: "Íslenska", flagCode: "is" }
-  ];
-
-  const LANGUAGE_COLUMNS = [
-    {
-      title: "Central & Western Europe",
-      codes: ["en", "de", "sk", "cs", "pl", "es", "it", "pt"]
-    },
-    {
-      title: "Eastern Europe & Caucasus",
-      codes: ["uk", "ru", "hu", "ro", "bg", "el", "hy", "ka"]
-    },
-    {
-      title: "Northern Europe & Baltic",
-      codes: ["et", "lv", "lt", "no", "sv", "fi", "da", "is"]
-    },
-    {
-      title: "Asia & Global",
-      codes: ["ja", "mn", "ko", "zh-CN", "th", "vi", "tl", "am", "dz"]
-    }
-  ];
-
-  const [currentLang, setCurrentLang] = useState("en");
-  const [isLangOpen, setIsLangOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  // Read the active translation language from Google's standard cookie on mount
-  useEffect(() => {
-    setMounted(true);
-    const checkCookie = () => {
-      const cookies = document.cookie.split("; ");
-      const transCookie = cookies.find((row) => row.startsWith("googtrans="));
-      if (transCookie) {
-        const parts = transCookie.split("=");
-        if (parts.length > 1) {
-          const val = decodeURIComponent(parts[1]);
-          const lang = val.split("/").pop();
-          if (lang) {
-            setCurrentLang(lang);
-            return;
-          }
-        }
-      }
-      setCurrentLang("en");
-    };
-    checkCookie();
-
-    const interval = setInterval(checkCookie, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    if (!isLangOpen) return;
-    const handleOutsideClick = () => setIsLangOpen(false);
-    window.addEventListener("click", handleOutsideClick);
-    return () => window.removeEventListener("click", handleOutsideClick);
-  }, [isLangOpen]);
-
-  const handleLanguageChange = (langCode: string) => {
-    // Check if functional translation consent is granted
-    const consent = readConsent();
-    if (!consent?.functional && langCode !== "en") {
-      setIsLangOpen(false);
-      window.dispatchEvent(
-        new CustomEvent("jf:open-consent", {
-          detail: { highlightFunctional: true }
-        })
-      );
-      return;
-    }
-
-    // Set cookie path and domains to make it stick
-    document.cookie = `googtrans=/en/${langCode}; path=/;`;
-    document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname};`;
-    
-    setCurrentLang(langCode);
-    setIsLangOpen(false);
-
-    // Apply value to Google Translate combo box and dispatch trigger
-    const select = document.querySelector("select.goog-te-combo") as HTMLSelectElement | null;
-    if (select) {
-      select.value = langCode;
-      select.dispatchEvent(new Event("change"));
-    } else {
-      // If scripts are still loading, fallback to simple page refresh
-      window.location.reload();
-    }
-  };
-  
-  const pathname = usePathname();
-
-  const toggleSubgroup = (key: string) => {
-    setOpenSubgroups((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsOpen(false);
-    setIsProgramsMobileOpen(false);
-    setIsKnowledgeMobileOpen(false);
-    setIsEquipmentMobileOpen(false);
-    setIsAboutMobileOpen(false);
-    setOpenSubgroups({});
-  }, [pathname]);
-
-  // Fetch all taxonomies and bowyer partners on mount to populate Mega Menu columns dynamically
-  useEffect(() => {
-    const fetchTaxonomies = async () => {
-      try {
-        const [navData, eqData, bowyerData] = await Promise.all([
-          clientFetch<any>("/api/nav-taxonomies"),
-          clientFetch<CategoryTerm[]>("/api/equipment/categories"),
-          clientFetch<any[]>("/api/equipment/bowyers")
-        ]);
-
-        if (navData?.types?.length > 0) setTypes(navData.types);
-        if (navData?.skills?.length > 0) setSkills(navData.skills);
-        if (navData?.regions?.length > 0) setRegions(navData.regions);
-        setEquipmentCategories(eqData || []);
-        if (bowyerData?.length > 0) setBowyers(bowyerData);
-      } catch (err) {
-        console.error("Failed to fetch nav menu taxonomies:", err);
-      } finally {
-        if (typeof window !== "undefined") {
-          (window as any).__MEGAMENU_READY = true;
-          window.dispatchEvent(new Event("megamenu-ready"));
-        }
-      }
-    };
-
-    fetchTaxonomies();
-  }, []);
-
-  // Filter top-level categories (parent is 0 or 28, excluding Bowyers 114)
-  const topCats = equipmentCategories.filter(
-    (c) => (c.parent === 0 || c.parent === 28) && c.slug !== "equipment"
-  );
-
-  // Group subcategories under parents
-  const columns = topCats.map((parentCat) => {
-    const subCats = equipmentCategories.filter((c) => c.parent === parentCat.id);
-    return {
-      parent: parentCat,
-      items: subCats
-    };
-  });
-
-
-
-
-
-  // Label HTML cleanup helper
-  const cleanTitle = (raw: string) => {
-    return raw
-      .replace(/&#8220;/g, "“")
-      .replace(/&#8221;/g, "”")
-      .replace(/&#8211;/g, "–")
-      .replace(/&amp;/g, "&");
-  };
-
-  return (
-    <header className="sticky top-0 z-50 w-full bg-secondary/90 backdrop-blur-md border-b border-primary/10 select-none">
-      <nav className="max-w-7xl mx-auto h-20 px-6 md:px-12 flex justify-between items-center relative">
-        {/* Logo Branding */}
-        <Link href="/" className="flex items-center">
-          <img
-            src="/images/wp-assets/logo.png"
-            alt="JanFranko Logo"
-            className="h-12 object-contain hover:opacity-90 transition-opacity"
-          />
-        </Link>
-
-        {/* 1. DESKTOP NAVIGATION */}
-        <ul className="hidden lg:flex items-center space-x-8 font-serif text-xs tracking-widest uppercase h-full">
-          {/* Home Link */}
-          <li className="h-full flex items-center">
-            <Link
-              href="/"
-              className={`hover:text-accent transition-colors py-2 border-b-2 ${
-                pathname === "/" ? "border-accent text-accent font-semibold" : "border-transparent text-primary/90"
-              }`}
-            >
-              Home
-            </Link>
-          </li>
-
-          {/* Academy Mega Menu Trigger (Hover active) */}
-          <li className="group h-full flex items-center static">
-            <Link
-              href="/academy"
-              className={`hover:text-accent transition-colors py-2 border-b-2 flex items-center gap-1 cursor-pointer ${
-                pathname.startsWith("/academy") || pathname === "/archery-games" ? "border-accent text-accent font-semibold" : "border-transparent text-primary/90"
-              }`}
-            >
-              Academy
-              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180" />
-            </Link>
-
-            {/* ACADEMY MEGA MENU CONTAINER */}
-            <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
-              <div className="max-w-7xl mx-auto px-12 py-8 grid grid-cols-4 gap-8">
-                <div className="space-y-3">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 font-sans flex items-center gap-1.5">
-                    <Compass className="w-4 h-4 text-accent" />
-                    Overview &amp; Audit
-                  </h4>
-                  <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80 font-medium">
-                    <li>
-                      <Link href="/academy" className="hover:text-accent transition-colors block py-0.5 font-bold text-primary">
-                        The Academy Hub
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/academy/certification" className="hover:text-accent transition-colors block py-0.5">
-                        Certification &amp; Audit
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 font-sans flex items-center gap-1.5">
-                    <Award className="w-4 h-4 text-accent" />
-                    Progression &amp; Metrics
-                  </h4>
-                  <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80 font-medium">
-                    <li>
-                      <Link href="/academy/explorer-rank-system" className="hover:text-accent transition-colors block py-0.5">
-                        Explorer Rank System
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/academy/environmental-stress-index-esi" className="hover:text-accent transition-colors block py-0.5">
-                        Environmental Stress Index (ESI)
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 font-sans flex items-center gap-1.5">
-                    <BookOpen className="w-4 h-4 text-accent" />
-                    Governance &amp; Gatherings
-                  </h4>
-                  <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80 font-medium">
-                    <li>
-                      <Link href="/academy/summit-protocol" className="hover:text-accent transition-colors block py-0.5">
-                        Summit Protocol (Tier III)
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/academy/code-of-conduct" className="hover:text-accent transition-colors block py-0.5">
-                        Code of Conduct &amp; Neutrality
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/archery-games" className="hover:text-accent transition-colors block py-0.5 font-bold text-[#7d603a]">
-                        Archery Games &amp; Events
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-3 shadow-inner">
-                  <div className="space-y-1.5">
-                    <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans">
-                      Academy Standard
-                    </span>
-                    <h5 className="font-serif text-base font-bold leading-snug">
-                      Operational Verification
-                    </h5>
-                    <p className="text-[10px] text-white/75 font-sans leading-relaxed">
-                      Mandatory safety audits and ESI environmental exposure metrics for all archers.
-                    </p>
-                  </div>
-                  <Link
-                    href="/academy/certification"
-                    className="inline-block text-center py-2 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
-                  >
-                    View Certification
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          {/* Programs Mega Menu Trigger (Hover active) */}
-          <li className="group h-full flex items-center static">
-            <Link
-              href="/programs"
-              className={`hover:text-accent transition-colors py-2 border-b-2 flex items-center gap-1 cursor-pointer ${
-                pathname === "/programs" ? "border-accent text-accent font-semibold" : "border-transparent text-primary/90"
-              }`}
-            >
-              Programs
-              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180" />
-            </Link>
-
-            {/* MEGA MENU CONTAINER */}
-            <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
-              <div className="max-w-7xl mx-auto px-12 py-10 grid grid-cols-4 gap-8">
-                {/* Column 1: Types */}
-                <div className="space-y-4">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                    <Compass className="w-4 h-4 text-accent" />
-                    Program Types
-                  </h4>
-                  <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    {types.map((t) => (
-                      <li key={t.id}>
-                        <Link
-                          href={`/programs?program_type=${t.slug}`}
-                          className="hover:text-accent transition-colors block py-0.5"
-                        >
-                          {t.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Column 2: Skill Levels */}
-                <div className="space-y-4">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                    <Award className="w-4 h-4 text-accent" />
-                    Skill Levels
-                  </h4>
-                  <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    {skills.map((s) => (
-                      <li key={s.id}>
-                        <Link
-                          href={`/programs?skill_level=${s.slug}`}
-                          className="hover:text-accent transition-colors block py-0.5"
-                        >
-                          {s.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Column 3: Regions (Scrollable) */}
-                <div className="space-y-4">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                    <MapPin className="w-4 h-4 text-accent" />
-                    Regions ({regions.length})
-                  </h4>
-                  <div className="max-h-60 overflow-y-auto pr-2 space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80 scrollbar-thin scrollbar-thumb-primary/20">
-                    {regions.map((r) => (
-                      <div key={r.id}>
-                        <Link
-                          href={`/programs?region=${r.slug}`}
-                          className="hover:text-accent transition-colors block py-0.5"
-                        >
-                          {r.name}
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Column 4: Featured Promo Card */}
-                <div className="bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner">
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] uppercase tracking-widest text-accent font-bold font-sans">
-                      Featured Expedition
-                    </span>
-                    <h5 className="font-serif text-lg font-bold leading-snug">
-                      Inner Mongolia Steppe Camp
-                    </h5>
-                    <p className="text-[11px] text-white/70 font-sans leading-relaxed">
-                      Immersive horse archery and traditional archery training in the grasslands of China.
-                    </p>
-                  </div>
-                  <Link
-                    href="/programs?open=inner-mongolia-steppe-horse-archery-camp"
-                    className="inline-block text-center py-2.5 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
-                  >
-                    View Expedition
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          {/* Equipment Mega Menu Trigger (Hover active) */}
-          <li className="group h-full flex items-center static">
-            <Link
-              href="/equipment"
-              className={`hover:text-accent transition-colors py-2 border-b-2 flex items-center gap-1 cursor-pointer ${
-                pathname.startsWith("/equipment") ? "border-accent text-accent font-semibold" : "border-transparent text-primary/90"
-              }`}
-            >
-              Equipment
-              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180" />
-            </Link>
-
-            {/* MEGA MENU CONTAINER */}
-            <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
-              <div className="max-w-7xl mx-auto px-12 py-10 grid grid-cols-4 gap-8 items-start">
-                {/* Left 3 Columns: Dynamic Masonry Grid for Equipment Categories */}
-                <Masonry
-                  breakpointCols={3}
-                  className="col-span-3 flex -ml-8 w-auto"
-                  columnClassName="pl-8 bg-clip-padding space-y-6"
-                >
-                  {columns.map(({ parent: parentCat, items: subCats }) => (
-                    <div key={parentCat.id} className="space-y-3 font-sans">
-                      <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                        <Tag className="w-4 h-4 text-accent" />
-                        <Link
-                          href={`/equipment?category=${parentCat.slug}`}
-                          className="hover:text-accent transition-colors cursor-pointer"
-                        >
-                          {cleanTitle(parentCat.name)}
-                        </Link>
-                      </h4>
-                      <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
-                        {subCats.length === 0 ? (
-                          <li>
-                            <Link
-                              href={`/equipment?category=${parentCat.slug}`}
-                              className="hover:text-accent transition-colors block py-0.5 text-primary/75 hover:font-medium"
-                            >
-                              All {cleanTitle(parentCat.name)}
-                            </Link>
-                          </li>
-                        ) : (
-                          subCats.slice(0, 8).map((sub) => (
-                            <li key={sub.id}>
-                              <Link
-                                href={`/equipment?category=${sub.slug}`}
-                                className="hover:text-accent transition-colors block py-0.5"
-                              >
-                                {cleanTitle(sub.name)}
-                              </Link>
-                            </li>
-                          ))
-                        )}
-                      </ul>
-                    </div>
-                  ))}
-
-                  {/* Interactive Tools Category Block (After all other categories) */}
-                  <div className="space-y-3 font-sans">
-                    <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                      <Sliders className="w-4 h-4 text-accent" />
-                      <span>Interactive Tools</span>
-                    </h4>
-                    <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
-                      <li>
-                        <Link
-                          href="/equipment/arrow-configurator"
-                          className="hover:text-accent transition-colors block py-0.5"
-                        >
-                          Custom Arrow Builder
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </Masonry>
-
-                {/* Right 1 Column: Master Bowyers Card */}
-                <div className="col-span-1 bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner min-h-[380px] relative overflow-hidden">
-                  <div className="space-y-3">
-                    <div className="space-y-0.5 border-b border-white/10 pb-2.5">
-                      <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
-                        Vetted Guild
-                      </span>
-                      <h5 className="font-serif text-base font-bold leading-tight">
-                        Master Bowyers
-                      </h5>
-                    </div>
-
-                    <ul className="space-y-2 font-sans">
-                      {bowyers.slice(0, 3).map((b) => (
-                        <li key={b.slug || b.name}>
-                          <Link
-                            href={`/bowyer/${b.slug}`}
-                            className="group/item flex items-center gap-2.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-accent/30"
-                          >
-                            <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black/30">
-                              <img
-                                src={b.image}
-                                alt={b.name}
-                                className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                              />
-                            </div>
-                            <div className="space-y-0.5 min-w-0 flex-1">
-                              <span className="notranslate font-serif text-xs font-bold text-white group-hover/item:text-accent transition-colors block truncate" translate="no">
-                                {cleanTitle(b.name)}
-                              </span>
-                              <span className="notranslate text-[10px] text-white/70 block truncate" translate="no">
-                                {cleanTitle(b.bowyer_name || b.heading || "Master Craftsman")}
-                              </span>
-                            </div>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-2 border-t border-white/10">
-                    <Link
-                      href="/about/partners"
-                      className="block text-center py-2.5 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
-                    >
-                      View All Master Bowyers
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          {/* Knowledge Mega Menu Trigger (Hover active) */}
-          <li className="group h-full flex items-center static">
-            <Link
-              href="/knowledge"
-              className={`hover:text-accent transition-colors py-2 border-b-2 flex items-center gap-1 cursor-pointer ${
-                pathname.startsWith("/knowledge") ? "border-accent text-accent font-semibold" : "border-transparent text-primary/90"
-              }`}
-            >
-              Knowledge
-              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180" />
-            </Link>
-
-            {/* MEGA MENU CONTAINER */}
-            <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
-              <div className="max-w-7xl mx-auto px-12 py-10 grid grid-cols-4 gap-8">
-                {/* Column 1: Major Lineages */}
-                <div className="space-y-4">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                    <Compass className="w-4 h-4 text-accent" />
-                    Major Lineages (Level 1)
-                  </h4>
-                  <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    <li>
-                      <Link href="/knowledge/east-archery" className="hover:text-[#7d603a] hover:underline block py-0.5 font-semibold">
-                        Eastern Archery Lineages
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/composite-archery" className="hover:text-[#7d603a] hover:underline block py-0.5 font-semibold">
-                        Composite Archery
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/mongolia-expedition" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Mongolia Expedition
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/cultural-legacy" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Cultural Archery Legacy
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Column 2: Expedition Volumes */}
-                <div className="space-y-4">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                    <MapPin className="w-4 h-4 text-accent" />
-                    Expedition Volumes
-                  </h4>
-                  <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    <li>
-                      <Link href="/knowledge/yukon-expedition" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Yukon: Sub-Arctic Corridor
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/bhutan-expedition" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Bhutanese Mountain Mastery
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/patagonia-expedition" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Patagonia Steppe Vanguard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/nomad-games" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        World Nomad Games
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Column 3: Tactical Studies */}
-                <div className="space-y-4">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                    <BookOpen className="w-4 h-4 text-accent" />
-                    Tactical Monographs (Level 2)
-                  </h4>
-                  <ul className="space-y-2.5 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    <li>
-                      <Link href="/knowledge/yukon-expedition/navigation" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Northern Navigation &amp; Maps
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/yukon-expedition/sub-zero" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Sub-Zero Survival Archery
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/yukon-expedition/outpost" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Wilderness Outpost Isolation
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/knowledge/east-archery/kyudo" className="hover:text-[#7d603a] hover:underline block py-0.5">
-                        Kyudo: Mindful Path of the Bow
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Column 4: Promo Card */}
-                <div className="relative bg-[#0e3b2e] text-secondary rounded-2xl p-6 overflow-hidden flex flex-col justify-between shadow-inner h-[220px]">
-                  <div className="absolute inset-0 bg-cover bg-center opacity-30 z-0" style={{ backgroundImage: "url('https://images.pexels.com/photos/36919857/pexels-photo-36919857.jpeg')" }}></div>
-                  <div className="relative z-10 space-y-2">
-                    <span className="text-[9px] text-accent font-serif font-bold tracking-widest uppercase block">
-                      Featured Monograph
-                    </span>
-                    <h5 className="text-sm font-serif font-bold text-white leading-snug line-clamp-2">
-                      Eastern Archery Lineages
-                    </h5>
-                    <p className="text-[10px] text-white/70 font-sans leading-relaxed line-clamp-2">
-                      Comprehensive immersion into the meditative and martial archery traditions of Asia.
-                    </p>
-                  </div>
-                  <Link
-                    href="/knowledge/east-archery"
-                    className="relative z-10 inline-block text-center py-2.5 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
-                  >
-                    Read Monograph
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          {/* About Mega Menu Trigger (Hover active) */}
-          <li className="group h-full flex items-center static">
-            <Link
-              href="/about"
-              className={`hover:text-accent transition-colors py-2 border-b-2 flex items-center gap-1 cursor-pointer ${
-                pathname.startsWith("/about") ? "border-accent text-accent font-semibold" : "border-transparent text-primary/90"
-              }`}
-            >
-              About
-              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180" />
-            </Link>
-
-            {/* ABOUT MEGA MENU CONTAINER */}
-            <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
-              <div className="max-w-7xl mx-auto px-12 py-10 grid grid-cols-12 gap-8 items-stretch">
-                
-                {/* Column 1: Navigation Links (span 4) */}
-                <div className="col-span-4 space-y-4">
-                  <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
-                    <BookOpen className="w-4 h-4" />
-                    Academy Overview
-                  </h4>
-                  <ul className="space-y-3 font-sans text-xs tracking-wider normal-case text-primary/80">
-                    <li>
-                      <Link href="/about" className="hover:text-accent transition-colors block py-0.5 font-semibold text-primary">
-                        Academy Profile
-                      </Link>
-                      <p className="text-[10px] text-primary/55 font-sans font-light mt-0.5">Learn about our mission, focus, and training landscapes.</p>
-                    </li>
-                    <li>
-                      <Link href="/about/jan-franko" className="hover:text-accent transition-colors block py-0.5 font-semibold text-primary">
-                        <span className="notranslate" translate="no">Jan Franko</span> (Instructor)
-                      </Link>
-                      <p className="text-[10px] text-primary/55 font-sans font-light mt-0.5">Explore the chronology and martial bow studies of our founder.</p>
-                    </li>
-                    <li>
-                      <Link href="/about/partners" className="hover:text-accent transition-colors block py-0.5 font-semibold text-primary">
-                        Partners &amp; Bowyers
-                      </Link>
-                      <p className="text-[10px] text-primary/55 font-sans font-light mt-0.5">Vetted partners who supply custom gear to the academy.</p>
-                    </li>
-                    <li>
-                      <Link href="/contact" className="hover:text-accent transition-colors block py-0.5 font-semibold text-primary">
-                        Inquiries &amp; Contacts
-                      </Link>
-                      <p className="text-[10px] text-primary/55 font-sans font-light mt-0.5">Get in touch to register for upcoming courses.</p>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Column 2: Designed Contact Info Card (span 4) */}
-                <div className="col-span-4 bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner">
-                  <div className="space-y-3">
-                    <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans">
-                      Academy Base
-                    </span>
-                    <h5 className="font-serif text-lg font-bold leading-snug">
-                      Get in Touch
-                    </h5>
-                    <div className="space-y-2.5 text-xs text-white/80 font-sans">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-accent shrink-0" />
-                        <span>Tirol, Austria &amp; Košice, Slovakia</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
-                        <a href="mailto:contact@janfranko.com" className="hover:text-accent transition-colors">
-                          contact@janfranko.com
-                        </a>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-3.5 h-3.5 text-accent shrink-0" />
-                        <a href="https://wa.me/436641645360" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
-                          +43 664 164 53 60
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                  <Link
-                    href="/contact"
-                    className="inline-block text-center py-2 bg-accent hover:bg-accent/90 text-primary font-serif font-bold text-[10px] tracking-wider uppercase rounded-xl transition-all"
-                  >
-                    Direct Inquiries
-                  </Link>
-                </div>
-
-                {/* Column 3: Social Links Card with Brandfetch Icons (span 4) */}
-                <div className="col-span-4 bg-white border border-primary/5 rounded-2xl p-5 flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <span className="text-[9px] uppercase tracking-widest text-[#7d603a] font-bold font-sans">
-                      Social Channels
-                    </span>
-                    <h5 className="font-serif text-base font-bold text-primary leading-snug">
-                      Connect Globally
-                    </h5>
-                    <div className="grid grid-cols-2 gap-3 pt-1">
-                      <a
-                        href="https://www.facebook.com/share/16uZNxRu4R/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-[#f4f1e8] hover:bg-[#ebd9bd]/25 px-3 py-2 rounded-xl text-[10px] font-sans font-medium text-primary hover:text-accent transition-colors group"
-                      >
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0 transition-colors">
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                        </svg>
-                        Facebook
-                      </a>
-                      <a
-                        href="https://www.linkedin.com/in/jan-franko/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-[#f4f1e8] hover:bg-[#ebd9bd]/25 px-3 py-2 rounded-xl text-[10px] font-sans font-medium text-primary hover:text-accent transition-colors group"
-                      >
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0 transition-colors">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/>
-                        </svg>
-                        LinkedIn
-                      </a>
-                      <a
-                        href="https://wa.me/436641645360"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-[#f4f1e8] hover:bg-[#ebd9bd]/25 px-3 py-2 rounded-xl text-[10px] font-sans font-medium text-primary hover:text-accent transition-colors group"
-                      >
-                        <svg viewBox="0 0 345.24 345.24" fill="currentColor" className="w-4 h-4 shrink-0 transition-colors">
-                          <path d="M172.51,0C78.22,0,1.47,76.74,1.43,171.06c-.01,30.15,7.87,59.58,22.84,85.52L0,345.24l90.69-23.79c24.99,13.63,53.12,20.81,81.75,20.82h.07c94.28,0,171.03-76.75,171.07-171.07,.02-45.71-17.76-88.69-50.06-121.02C261.22,17.84,218.27,.02,172.51,0Zm0,313.38h-.06c-25.51,0-50.54-6.87-72.37-19.82l-5.19-3.08-53.81,14.12,14.36-52.47-3.38-5.38c-14.23-22.64-21.75-48.81-21.74-75.67,.03-78.4,63.82-142.18,142.25-142.18,37.98,.01,73.68,14.82,100.52,41.7,26.85,26.87,41.62,62.6,41.61,100.59-.03,78.4-63.82,142.19-142.19,142.19Zm77.99-106.49c-4.27-2.14-25.29-12.48-29.21-13.91-3.92-1.43-6.77-2.14-9.62,2.14-2.85,4.28-11.04,13.91-13.53,16.76-2.49,2.86-4.99,3.21-9.26,1.07-4.27-2.14-18.05-6.66-34.37-21.22-12.71-11.33-21.29-25.33-23.78-29.61-2.49-4.28-.27-6.59,1.88-8.72,1.92-1.91,4.27-4.99,6.41-7.49,2.14-2.5,2.85-4.28,4.27-7.14,1.42-2.85,.71-5.35-.36-7.49-1.07-2.14-9.62-23.18-13.18-31.74-3.47-8.33-6.99-7.21-9.62-7.34-2.49-.13-5.34-.15-8.19-.15s-7.48,1.07-11.4,5.35c-3.92,4.28-14.96,14.62-14.96,35.66s15.32,41.37,17.45,44.22c2.14,2.85,30.14,46.03,73.02,64.54,10.2,4.4,18.16,7.03,24.37,9,10.24,3.25,19.56,2.79,26.92,1.69,8.21-1.23,25.29-10.34,28.85-20.33,3.56-9.98,3.56-18.54,2.49-20.33-1.07-1.78-3.92-2.85-8.19-4.99Z"/>
-                        </svg>
-                        WhatsApp
-                      </a>
-                      <a
-                        href="https://t.me/ExplorerAdventuresJF"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-[#f4f1e8] hover:bg-[#ebd9bd]/25 px-3 py-2 rounded-xl text-[10px] font-sans font-medium text-primary hover:text-accent transition-colors group"
-                      >
-                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0 transition-colors">
-                          <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.16-.22 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.577.192l-8.533 7.703-.33 4.953c.485 0 .7-.223.97-.485l2.33-2.266 4.85 3.582c.893.492 1.535.24 1.758-.823l3.18-15c.325-1.305-.5-1.9-.136-1.5z"/>
-                        </svg>
-                        Telegram
-                      </a>
-                    </div>
-                  </div>
-                  <p className="text-[9px] text-[#7d603a] font-serif italic leading-relaxed">
-                    * Follow our expeditions and traditional bow reviews live from the field.
-                  </p>
-                </div>
-
-              </div>
-            </div>
-          </li>
-
-          {/* Desktop Language Selector Mega Menu */}
-          <li className="group h-full flex items-center static notranslate">
-            <div
-              className={`hover:text-accent transition-colors py-2 border-b-2 flex items-center gap-1.5 cursor-pointer ${
-                currentLang !== "en" ? "border-accent text-accent font-semibold" : "border-transparent text-primary/90"
-              }`}
-            >
-              <img
-                src={`https://flagcdn.com/w40/${LANGUAGES.find((l) => l.code === currentLang)?.flagCode || "gb"}.png`}
-                width="27"
-                height="18"
-                alt=""
-                className="object-contain shrink-0 rounded-sm"
-              />
-              <span>{currentLang.toUpperCase()}</span>
-              <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-180 text-accent" />
-            </div>
-
-            {/* LANGUAGES MEGA MENU CONTAINER */}
-            <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl border-t border-primary/5 border-b border-primary/10 rounded-b-3xl shadow-2xl opacity-0 translate-y-2 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 z-40">
-              <div className="max-w-7xl mx-auto px-12 py-8 grid grid-cols-4 gap-6 items-stretch">
-                {LANGUAGE_COLUMNS.map((col, idx) => (
-                  <div key={idx} className="space-y-3">
-                    <h4 className="text-[10px] uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 font-sans">
-                      {col.title}
-                    </h4>
-                    <ul className="space-y-1 font-sans text-xs tracking-wider normal-case text-primary/80">
-                      {col.codes.map((code) => {
-                        const lang = LANGUAGES.find((l) => l.code === code);
-                        if (!lang) return null;
-                        return (
-                          <li key={code}>
-                            <button
-                              onClick={() => handleLanguageChange(code)}
-                              className={`w-full text-left py-1.5 px-2 rounded-xl hover:bg-secondary/40 transition-colors flex items-center gap-2 ${
-                                currentLang === code ? "text-accent font-semibold bg-secondary/35" : "text-primary/70"
-                              }`}
-                            >
-                              <img
-                                src={`https://flagcdn.com/w40/${lang.flagCode}.png`}
-                                width="27"
-                                height="18"
-                                alt=""
-                                className="object-contain shrink-0 rounded-sm"
-                              />
-                              <span>{lang.name}</span>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </li>
-        </ul>
-
-        {/* Hamburger Menu Icon (Mobile/Tablet Viewports) */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="lg:hidden p-2 rounded-full border border-primary/10 hover:border-primary/30 text-primary cursor-pointer transition-colors"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-
-        {/* 2. MOBILE NAVIGATION SLIDING DRAWER */}
-        <div
-          className={`fixed top-20 right-0 h-[calc(100vh-80px)] w-full sm:w-[350px] bg-secondary border-l border-primary/10 shadow-2xl z-50 transform transition-all duration-300 ease-in-out lg:hidden flex flex-col justify-between overflow-y-auto ${
-            isOpen ? "translate-x-0 opacity-100 visible pointer-events-auto" : "translate-x-full opacity-0 invisible pointer-events-none"
-          }`}
-        >
-          {/* Navigation Links */}
-          <div className="p-6 space-y-6">
-            <ul className="space-y-5 font-serif text-sm tracking-widest uppercase">
-              <li>
-                <Link
-                  href="/"
-                  className={`block py-1 font-bold ${pathname === "/" ? "text-[#7d603a]" : "text-primary/90 hover:text-[#7d603a] transition-colors"}`}
-                >
-                  Home
-                </Link>
-              </li>
-
-              {/* Collapsible Academy Accordion */}
-              <li className="space-y-3">
-                <div className="flex items-center justify-between py-1 group">
-                  <Link
-                    href="/academy"
-                    className={`flex-1 uppercase tracking-widest font-bold ${pathname.startsWith("/academy") || pathname === "/archery-games" ? "text-[#7d603a]" : "text-primary/90 hover:text-[#7d603a] transition-colors"}`}
-                  >
-                    Academy
-                  </Link>
-                  <button
-                    onClick={() => setIsAcademyMobileOpen(!isAcademyMobileOpen)}
-                    className="p-1.5 -mr-1 text-primary/70 bg-primary/5 hover:bg-[#ebd9bd]/50 group-hover:bg-[#ebd9bd]/30 rounded-lg cursor-pointer transition-all duration-200"
-                  >
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-300 ${isAcademyMobileOpen ? "rotate-180 text-[#7d603a]" : ""}`}
-                    />
-                  </button>
-                </div>
-
-                {isAcademyMobileOpen && (
-                  <div className="pl-4 border-l border-primary/10 space-y-2 pt-1 pb-3 font-sans text-xs tracking-wide normal-case animate-in slide-in-from-top-2 duration-200">
-                    <Link href="/academy" className="hover:text-[#7d603a] block py-1 font-bold">
-                      The Academy Hub
-                    </Link>
-                    <Link href="/academy/certification" className="hover:text-[#7d603a] block py-1">
-                      Certification &amp; Audit
-                    </Link>
-                    <Link href="/academy/explorer-rank-system" className="hover:text-[#7d603a] block py-1">
-                      Explorer Rank System
-                    </Link>
-                    <Link href="/academy/summit-protocol" className="hover:text-[#7d603a] block py-1">
-                      Summit Protocol (Tier III)
-                    </Link>
-                    <Link href="/academy/environmental-stress-index-esi" className="hover:text-[#7d603a] block py-1">
-                      Environmental Stress Index (ESI)
-                    </Link>
-                    <Link href="/academy/code-of-conduct" className="hover:text-[#7d603a] block py-1">
-                      Code of Conduct &amp; Neutrality
-                    </Link>
-                    <Link href="/archery-games" className="hover:text-[#7d603a] block py-1 font-bold text-[#7d603a]">
-                      Archery Games &amp; Events
-                    </Link>
-                  </div>
-                )}
-              </li>
-
-              {/* Collapsible Programs Accordion */}
-              <li className="space-y-3">
-                <div className="flex items-center justify-between py-1 group">
-                  <Link
-                    href="/programs"
-                    className={`flex-1 uppercase tracking-widest font-bold ${pathname === "/programs" ? "text-[#7d603a]" : "text-primary/90 hover:text-[#7d603a] transition-colors"}`}
-                  >
-                    Programs
-                  </Link>
-                  <button
-                    onClick={() => setIsProgramsMobileOpen(!isProgramsMobileOpen)}
-                    className="p-1.5 -mr-1 text-primary/70 bg-primary/5 hover:bg-[#ebd9bd]/50 group-hover:bg-[#ebd9bd]/30 rounded-lg cursor-pointer transition-all duration-200"
-                  >
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-300 ${isProgramsMobileOpen ? "rotate-180 text-[#7d603a]" : ""}`}
-                    />
-                  </button>
-                </div>
-
-                {isProgramsMobileOpen && (
-                  <div className="pl-4 border-l border-primary/10 space-y-4 pt-1 pb-3 animate-in slide-in-from-top-2 duration-200">
-                    
-                    {/* Types Subgroup */}
-                    <div className="space-y-1.5">
-                      <button
-                        onClick={() => toggleSubgroup("prog-types")}
-                        className="w-full flex justify-between items-center text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase py-1 hover:opacity-85 text-left cursor-pointer group"
-                      >
-                        <span>Types</span>
-                        <ChevronDown
-                          className={`w-5 h-5 p-0.5 text-primary/50 bg-primary/5 group-hover:bg-[#ebd9bd]/50 rounded-md transition-all duration-200 ${openSubgroups["prog-types"] ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {openSubgroups["prog-types"] && (
-                        <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case animate-in slide-in-from-top-1 duration-150">
-                          {types.map((t) => (
-                            <li key={t.id}>
-                              <Link href={`/programs?program_type=${t.slug}`} className="hover:text-[#7d603a] block py-1 transition-colors">
-                                {t.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-
-                    {/* Skill Levels Subgroup */}
-                    <div className="space-y-1.5">
-                      <button
-                        onClick={() => toggleSubgroup("prog-skills")}
-                        className="w-full flex justify-between items-center text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase py-1 hover:opacity-85 text-left cursor-pointer group"
-                      >
-                        <span>Skill Levels</span>
-                        <ChevronDown
-                          className={`w-5 h-5 p-0.5 text-primary/50 bg-primary/5 group-hover:bg-[#ebd9bd]/50 rounded-md transition-all duration-200 ${openSubgroups["prog-skills"] ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {openSubgroups["prog-skills"] && (
-                        <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case animate-in slide-in-from-top-1 duration-150">
-                          {skills.map((s) => (
-                            <li key={s.id}>
-                              <Link href={`/programs?skill_level=${s.slug}`} className="hover:text-[#7d603a] block py-1 transition-colors">
-                                {s.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-
-                    {/* Regions Subgroup */}
-                    <div className="space-y-1.5">
-                      <button
-                        onClick={() => toggleSubgroup("prog-regions")}
-                        className="w-full flex justify-between items-center text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase py-1 hover:opacity-85 text-left cursor-pointer group"
-                      >
-                        <span>Regions</span>
-                        <ChevronDown
-                          className={`w-5 h-5 p-0.5 text-primary/50 bg-primary/5 group-hover:bg-[#ebd9bd]/50 rounded-md transition-all duration-200 ${openSubgroups["prog-regions"] ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {openSubgroups["prog-regions"] && (
-                        <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case animate-in slide-in-from-top-1 duration-150">
-                          {regions.map((r) => (
-                            <li key={r.id}>
-                              <Link href={`/programs?region=${r.slug}`} className="hover:text-[#7d603a] block py-1 transition-colors">
-                                {r.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-
-                  </div>
-                )}
-              </li>
-
-              {/* Collapsible Equipment Accordion */}
-              <li className="space-y-3">
-                <div className="flex items-center justify-between py-1 group">
-                  <Link
-                    href="/equipment"
-                    className={`flex-1 uppercase tracking-widest font-bold ${pathname.startsWith("/equipment") ? "text-[#7d603a]" : "text-primary/90 hover:text-[#7d603a] transition-colors"}`}
-                  >
-                    Equipment
-                  </Link>
-                  <button
-                    onClick={() => setIsEquipmentMobileOpen(!isEquipmentMobileOpen)}
-                    className="p-1.5 -mr-1 text-primary/70 bg-primary/5 hover:bg-[#ebd9bd]/50 group-hover:bg-[#ebd9bd]/30 rounded-lg cursor-pointer transition-all duration-200"
-                  >
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-300 ${isEquipmentMobileOpen ? "rotate-180 text-[#7d603a]" : ""}`}
-                    />
-                  </button>
-                </div>
-
-                {isEquipmentMobileOpen && (
-                  <div className="pl-4 border-l border-primary/10 space-y-4 pt-1 pb-3 animate-in slide-in-from-top-2 duration-200">
-                    {topCats.map((parentCat) => {
-                      const subs = equipmentCategories.filter((c) => c.parent === parentCat.id);
-                      const key = `eq-cat-${parentCat.id}`;
-                      
-                      if (subs.length > 0) {
-                        return (
-                          <div key={parentCat.id} className="space-y-2">
-                            <div className="flex items-center justify-between group">
-                              <Link
-                                href={`/equipment?category=${parentCat.slug}`}
-                                className="flex-1 text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase hover:opacity-80 block"
-                              >
-                                {cleanTitle(parentCat.name)}
-                              </Link>
-                              <button
-                                onClick={() => toggleSubgroup(key)}
-                                className="p-1 -mr-0.5 text-primary/50 bg-primary/5 hover:bg-[#ebd9bd]/50 group-hover:bg-[#ebd9bd]/30 rounded-md cursor-pointer transition-all duration-200"
-                              >
-                                <ChevronDown
-                                  className={`w-3.5 h-3.5 transition-transform duration-300 ${openSubgroups[key] ? "rotate-180" : ""}`}
-                                />
-                              </button>
-                            </div>
-                            {openSubgroups[key] && (
-                              <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case animate-in slide-in-from-top-1 duration-150">
-                                <li>
-                                  <Link href={`/equipment?category=${parentCat.slug}`} className="hover:text-[#7d603a] block py-1 transition-colors font-semibold">
-                                    All {cleanTitle(parentCat.name)}
-                                  </Link>
-                                </li>
-                                {subs.slice(0, 5).map((sub) => (
-                                  <li key={sub.id}>
-                                    <Link href={`/equipment?category=${sub.slug}`} className="hover:text-[#7d603a] block py-1 transition-colors">
-                                      {cleanTitle(sub.name)}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        );
-                      } else {
-                        // Categories with no sub-categories render as single direct redirect links
-                        return (
-                          <div key={parentCat.id} className="py-1">
-                            <Link
-                              href={`/equipment?category=${parentCat.slug}`}
-                              className="text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase hover:opacity-85 block"
-                            >
-                              {cleanTitle(parentCat.name)}
-                            </Link>
-                          </div>
-                        );
-                      }
-                    })}
-
-                    {/* Interactive Tools Group after all other categories */}
-                    <div className="space-y-2 pt-2 border-t border-primary/10">
-                      <div className="text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase flex items-center gap-1.5">
-                        <Sliders className="w-3.5 h-3.5 text-[#7d603a]" />
-                        <span>Interactive Tools</span>
-                      </div>
-                      <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case">
-                        <li>
-                          <Link href="/equipment/arrow-configurator" className="hover:text-[#7d603a] block py-1 transition-colors">
-                            Custom Arrow Builder
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </li>
-
-              {/* Knowledge Accordion (Mobile) */}
-              <li className="space-y-3">
-                <div className="flex items-center justify-between py-1 group">
-                  <Link
-                    href="/knowledge"
-                    className={`flex-1 uppercase tracking-widest font-bold ${pathname.startsWith("/knowledge") ? "text-[#7d603a]" : "text-primary/90 hover:text-[#7d603a] transition-colors"}`}
-                  >
-                    Knowledge
-                  </Link>
-                  <button
-                    onClick={() => setIsKnowledgeMobileOpen(!isKnowledgeMobileOpen)}
-                    className="p-1.5 -mr-1 text-primary/70 bg-primary/5 hover:bg-[#ebd9bd]/50 group-hover:bg-[#ebd9bd]/30 rounded-lg cursor-pointer transition-all duration-200"
-                  >
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-300 ${isKnowledgeMobileOpen ? "rotate-180 text-[#7d603a]" : ""}`}
-                    />
-                  </button>
-                </div>
-
-                {isKnowledgeMobileOpen && (
-                  <div className="pl-4 border-l border-primary/10 space-y-4 pt-1 pb-3 animate-in slide-in-from-top-2 duration-200">
-                    
-                    {/* Major Lineages Subgroup */}
-                    <div className="space-y-1.5">
-                      <button
-                        onClick={() => toggleSubgroup("know-lineages")}
-                        className="w-full flex justify-between items-center text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase py-1 hover:opacity-85 text-left cursor-pointer group"
-                      >
-                        <span>Major Lineages</span>
-                        <ChevronDown
-                          className={`w-5 h-5 p-0.5 text-primary/50 bg-primary/5 group-hover:bg-[#ebd9bd]/50 rounded-md transition-all duration-200 ${openSubgroups["know-lineages"] ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {openSubgroups["know-lineages"] && (
-                        <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case animate-in slide-in-from-top-1 duration-150">
-                          <li>
-                            <Link href="/knowledge/east-archery" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Eastern Archery Lineages
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/knowledge/composite-archery" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Composite Archery
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/knowledge/mongolia-expedition" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Mongolia Expedition
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/knowledge/cultural-legacy" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Cultural Archery Legacy
-                            </Link>
-                          </li>
-                        </ul>
-                      )}
-                    </div>
-
-                    {/* Expedition Volumes Subgroup */}
-                    <div className="space-y-1.5">
-                      <button
-                        onClick={() => toggleSubgroup("know-volumes")}
-                        className="w-full flex justify-between items-center text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase py-1 hover:opacity-85 text-left cursor-pointer group"
-                      >
-                        <span>Expedition Volumes</span>
-                        <ChevronDown
-                          className={`w-5 h-5 p-0.5 text-primary/50 bg-primary/5 group-hover:bg-[#ebd9bd]/50 rounded-md transition-all duration-200 ${openSubgroups["know-volumes"] ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {openSubgroups["know-volumes"] && (
-                        <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case animate-in slide-in-from-top-1 duration-150">
-                          <li>
-                            <Link href="/knowledge/yukon-expedition" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Yukon: Sub-Arctic Corridor
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/knowledge/bhutan-expedition" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Bhutanese Mountain Mastery
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/knowledge/patagonia-expedition" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Patagonia Steppe Vanguard
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/knowledge/nomad-games" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              World Nomad Games
-                            </Link>
-                          </li>
-                        </ul>
-                      )}
-                    </div>
-
-                  </div>
-                )}
-              </li>
-
-              {/* Collapsible About Accordion (Mobile) */}
-              <li className="space-y-3">
-                <div className="flex items-center justify-between py-1 group">
-                  <Link
-                    href="/about"
-                    className={`flex-1 uppercase tracking-widest font-bold ${pathname.startsWith("/about") || pathname === "/contact" ? "text-[#7d603a]" : "text-primary/90 hover:text-[#7d603a] transition-colors"}`}
-                  >
-                    About
-                  </Link>
-                  <button
-                    onClick={() => setIsAboutMobileOpen(!isAboutMobileOpen)}
-                    className="p-1.5 -mr-1 text-primary/70 bg-primary/5 hover:bg-[#ebd9bd]/50 group-hover:bg-[#ebd9bd]/30 rounded-lg cursor-pointer transition-all duration-200"
-                  >
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-300 ${isAboutMobileOpen ? "rotate-180 text-[#7d603a]" : ""}`}
-                    />
-                  </button>
-                </div>
-
-                {isAboutMobileOpen && (
-                  <div className="pl-4 border-l border-primary/10 space-y-4 pt-1 pb-3 animate-in slide-in-from-top-2 duration-200">
-                    <div className="space-y-1.5">
-                      <button
-                        onClick={() => toggleSubgroup("about-academy")}
-                        className="w-full flex justify-between items-center text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase py-1 hover:opacity-85 text-left cursor-pointer group"
-                      >
-                        <span>Academy</span>
-                        <ChevronDown
-                          className={`w-5 h-5 p-0.5 text-primary/50 bg-primary/5 group-hover:bg-[#ebd9bd]/50 rounded-md transition-all duration-200 ${openSubgroups["about-academy"] ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {openSubgroups["about-academy"] && (
-                        <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case animate-in slide-in-from-top-1 duration-150">
-                          <li>
-                            <Link href="/about" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Academy Profile
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/about/jan-franko" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              <span className="notranslate" translate="no">Jan Franko</span> (Instructor)
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/about/partners" className="hover:text-[#7d603a] block py-1 transition-colors">
-                              Partners &amp; Bowyers
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/contact" className="hover:text-[#7d603a] block py-1 transition-colors font-semibold">
-                              Contact &amp; Inquiries
-                            </Link>
-                          </li>
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </li>
-
-
-            </ul>
-          </div>
-
-          {/* Quick Footer Promo */}
-          <div className="p-6 bg-[#0e3b2e] text-white space-y-3">
-            <span className="text-xs uppercase tracking-widest text-accent font-bold font-sans">
-              Admission Office
-            </span>
-            <p className="text-xs text-white/80 font-sans leading-relaxed">
-              Applications are reviewed on a rolling basis. Suitable fitness levels are required for Level 3/4.
-            </p>
-            <Link
-              href="/programs"
-              className="block text-center py-2.5 bg-accent text-primary font-serif font-bold text-xs tracking-wider uppercase rounded-lg transition-all"
-            >
-              All Directory Listings
-            </Link>
-          </div>
-        </div>
-
-      </nav>
-
-      {/* After-Header Language Bar (Visible only on Mobile, placed below the main header line) */}
-      <div className="lg:hidden w-full bg-[#ebd9bd]/15 border-t border-primary/10 py-2.5 px-6 flex justify-between items-center notranslate relative z-40">
-        <span className="text-[10px] uppercase tracking-widest text-[#7d603a] font-bold font-sans">
-          Select Language
-        </span>
-        <div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsLangOpen(true);
-            }}
-            className="flex items-center gap-1.5 text-xs text-primary/95 font-serif font-bold tracking-wider hover:text-accent focus:outline-none"
-          >
-            <img
-              src={`https://flagcdn.com/w40/${LANGUAGES.find((l) => l.code === currentLang)?.flagCode || "gb"}.png`}
-              width="27"
-              height="18"
-              alt=""
-              className="object-contain shrink-0 rounded-sm"
-            />
-            <span>{currentLang.toUpperCase()}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-accent" />
-          </button>
-
-          {/* Full Screen Pop-up Overlay / Modal (visible when isLangOpen is true, portal-mounted to prevent offset constraints) */}
-          {isLangOpen && mounted && createPortal(
-            <div 
-              onClick={() => setIsLangOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 notranslate"
-            >
-              <div 
-                onClick={(e) => e.stopPropagation()} 
-                className="bg-white rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
-              >
-                {/* Modal Header */}
-                <div className="p-5 border-b border-primary/5 flex justify-between items-center bg-[#f4f1e8]/50">
-                  <h3 className="font-serif text-sm font-bold tracking-wider uppercase text-primary">
-                    Select Language
-                  </h3>
-                  <button 
-                    onClick={() => setIsLangOpen(false)}
-                    className="p-1.5 rounded-full hover:bg-secondary/60 text-primary transition-colors focus:outline-none"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Modal Body (Scrollable regions grid) */}
-                <div className="p-5 overflow-y-auto space-y-6 max-h-[calc(80vh-80px)]">
-                  {LANGUAGE_COLUMNS.map((col, idx) => (
-                    <div key={idx} className="space-y-2.5">
-                      <h4 className="text-[10px] uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-1 font-sans">
-                        {col.title}
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {col.codes.map((code) => {
-                          const lang = LANGUAGES.find((l) => l.code === code);
-                          if (!lang) return null;
-                          return (
-                            <button
-                              key={code}
-                              onClick={() => {
-                                handleLanguageChange(code);
-                                setIsLangOpen(false);
-                              }}
-                              className={`text-left py-2 px-3 rounded-xl text-xs font-sans font-medium transition-all flex items-center gap-2.5 border ${
-                                currentLang === code 
-                                  ? "bg-[#0e3b2e] text-white font-bold border-[#0e3b2e]" 
-                                  : "bg-[#f4f1e8] border-transparent text-primary/80 hover:bg-[#ebd9bd]/25"
-                              }`}
-                            >
-                              <img
-                                src={`https://flagcdn.com/w40/${lang.flagCode}.png`}
-                                width="27"
-                                height="18"
-                                alt=""
-                                className="object-contain shrink-0 rounded-sm"
-                              />
-                              <span>{lang.name}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>,
-            document.body
-          )}
-        </div>
-      </div>
-    </header>
-  );
+type MenuName = "academy" | "programs" | "equipment" | "knowledge" | "about" | "language" | null;
+type MobileSectionName = Exclude<MenuName, "language" | null> | null;
+type TaxonomyTerm = { id: number; name: string; slug: string };
+
+type MenuLink = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  protectedName?: boolean;
 };
 
-export default Navbar;
+const DEFAULT_PROGRAM_TYPES: TaxonomyTerm[] = [
+  { id: 189, name: "Cultural Immersion", slug: "cultural-immersion" },
+  { id: 190, name: "Custom Private Program", slug: "custom-private-program" },
+  { id: 191, name: "Expedition", slug: "expedition" },
+  { id: 192, name: "Mounted Archery", slug: "equestrian-archery" },
+  { id: 194, name: "Retreat", slug: "retreat" },
+  { id: 193, name: "Training Program", slug: "training-program" },
+];
+
+const DEFAULT_SKILL_LEVELS: TaxonomyTerm[] = [
+  { id: 195, name: "Level 1 – Introductory", slug: "introductory" },
+  { id: 196, name: "Level 2 – Training", slug: "training" },
+  { id: 197, name: "Level 3 – Expedition", slug: "expedition" },
+  { id: 198, name: "Level 4 – Advanced Expedition", slug: "advanced-expedition" },
+];
+
+const DEFAULT_REGIONS: TaxonomyTerm[] = [
+  { id: 211, name: "Alps", slug: "alps" },
+  { id: 249, name: "Americas", slug: "americas" },
+  { id: 247, name: "Asia", slug: "asia" },
+  { id: 214, name: "Austria", slug: "austria" },
+  { id: 215, name: "Brazil", slug: "brazil" },
+  { id: 234, name: "Central Asia", slug: "central-asia" },
+  { id: 227, name: "Central Europe", slug: "central-europe" },
+  { id: 248, name: "Eurasia", slug: "eurasia" },
+];
+
+const ACADEMY_GROUPS: { title: string; icon: LucideIcon; links: MenuLink[] }[] = [
+  {
+    title: "Overview & Audit",
+    icon: Compass,
+    links: [
+      { label: "The Academy Hub", href: "/academy", icon: GraduationCap },
+      { label: "Certification & Audit", href: "/academy/certification", icon: ShieldCheck },
+    ],
+  },
+  {
+    title: "Progression & Metrics",
+    icon: Award,
+    links: [
+      { label: "Explorer Rank System", href: "/academy/explorer-rank-system", icon: Award },
+      { label: "Environmental Stress Index (ESI)", href: "/academy/environmental-stress-index-esi", icon: Activity },
+    ],
+  },
+  {
+    title: "Governance & Gatherings",
+    icon: BookOpen,
+    links: [
+      { label: "Summit Protocol (Tier III)", href: "/academy/summit-protocol", icon: Mountain },
+      { label: "Code of Conduct & Neutrality", href: "/academy/code-of-conduct", icon: ScrollText },
+      { label: "Archery Games & Events", href: "/archery-games", icon: CalendarDays },
+    ],
+  },
+];
+
+const KNOWLEDGE_GROUPS: { title: string; icon: LucideIcon; links: MenuLink[] }[] = [
+  {
+    title: "Major Lineages (Level 1)",
+    icon: Compass,
+    links: [
+      { label: "Eastern Archery Lineages", href: "/knowledge/east-archery", icon: Compass },
+      { label: "Composite Archery", href: "/knowledge/composite-archery", icon: Target },
+      { label: "Mongolia Expedition", href: "/knowledge/mongolia-expedition", icon: MapPin },
+      { label: "Cultural Archery Legacy", href: "/knowledge/cultural-legacy", icon: BookOpen },
+    ],
+  },
+  {
+    title: "Expedition Volumes",
+    icon: MapPin,
+    links: [
+      { label: "Yukon: Sub-Arctic Corridor", href: "/knowledge/yukon-expedition", icon: Mountain },
+      { label: "Bhutanese Mountain Mastery", href: "/knowledge/bhutan-expedition", icon: Mountain },
+      { label: "Patagonia Steppe Vanguard", href: "/knowledge/patagonia-expedition", icon: Map },
+      { label: "World Nomad Games", href: "/knowledge/nomad-games", icon: Award },
+    ],
+  },
+  {
+    title: "Tactical Monographs (Level 2)",
+    icon: BookOpen,
+    links: [
+      { label: "Northern Navigation & Maps", href: "/knowledge/yukon-expedition/navigation", icon: Map },
+      { label: "Sub-Zero Survival Archery", href: "/knowledge/yukon-expedition/sub-zero", icon: Target },
+      { label: "Wilderness Outpost Isolation", href: "/knowledge/yukon-expedition/outpost", icon: Mountain },
+      { label: "Kyudo: Mindful Path of the Bow", href: "/knowledge/east-archery/kyudo", icon: Target },
+    ],
+  },
+];
+
+const BOWYER_LINKS: MenuLink[] = [
+  { label: "Harvey Archery — Warrick Harvey", href: "/bowyer/warrick-harvey", icon: Hammer, protectedName: true },
+  { label: "Kadys Bows — Sergey Tolochko", href: "/bowyer/kadys-bows", icon: Hammer, protectedName: true },
+  { label: "MR Bows — Miško Rovčanin", href: "/bowyer/mr-bows", icon: Hammer, protectedName: true },
+];
+
+const FLAG_CODES: Record<string, string> = {
+  en: "gb",
+  de: "de",
+  sk: "sk",
+  cs: "cz",
+  pl: "pl",
+  es: "es",
+  fr: "fr",
+  it: "it",
+  pt: "pt",
+  uk: "ua",
+  ru: "ru",
+  hu: "hu",
+  ro: "ro",
+  bg: "bg",
+  el: "gr",
+  hy: "am",
+  ka: "ge",
+  et: "ee",
+  lv: "lv",
+  lt: "lt",
+  no: "no",
+  sv: "se",
+  fi: "fi",
+  da: "dk",
+  is: "is",
+  ja: "jp",
+  mn: "mn",
+  ko: "kr",
+  "zh-CN": "cn",
+  th: "th",
+  vi: "vn",
+  tl: "ph",
+  am: "et",
+  dz: "bt",
+};
+
+function languageCodeLabel(code: string) {
+  return code === "zh-CN" ? "ZH" : code.toUpperCase();
+}
+
+function LanguageFlag({ code, className = "" }: { code: string; className?: string }) {
+  return (
+    <img
+      src={`https://flagcdn.com/w40/${FLAG_CODES[code] || "gb"}.png`}
+      width="28"
+      height="19"
+      alt=""
+      aria-hidden="true"
+      className={`h-[19px] w-7 rounded-[4px] border border-black/5 object-cover shadow-sm ${className}`}
+    />
+  );
+}
+
+function MenuItem({ item }: { item: MenuLink }) {
+  const Icon = item.icon;
+  return (
+    <li>
+      <Link
+        href={item.href}
+        className="group/item flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1]"
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b] transition group-hover/item:bg-white">
+          <Icon className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <span
+          className={`min-w-0 flex-1 text-[13px] font-semibold leading-snug text-[#173b31] ${item.protectedName ? "notranslate" : ""}`}
+          translate={item.protectedName ? "no" : undefined}
+        >
+          {item.label}
+        </span>
+        <ChevronRight className="h-4 w-4 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
+      </Link>
+    </li>
+  );
+}
+
+function MenuGroup({ title, icon: Icon, children, className = "" }: { title: string; icon: LucideIcon; children: ReactNode; className?: string }) {
+  return (
+    <section className={`min-w-0 rounded-2xl border border-[#0e3b2e]/10 bg-white p-3.5 ${className}`}>
+      <div className="mb-2.5 flex items-center gap-2 border-b border-[#0e3b2e]/10 px-1 pb-3">
+        <Icon className="h-4 w-4 text-[#0e624b]" aria-hidden="true" />
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#1d5b49]">{title}</h3>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function FeatureCard({
+  image,
+  imageAlt,
+  badge,
+  title,
+  description,
+  href,
+  cta,
+  protectedTitle = false,
+}: {
+  image: string;
+  imageAlt: string;
+  badge: string;
+  title: string;
+  description: string;
+  href: string;
+  cta: string;
+  protectedTitle?: boolean;
+}) {
+  return (
+    <article className="relative min-h-[360px] overflow-hidden rounded-2xl bg-[#092a21]">
+      <Image src={image} alt={imageAlt} fill sizes="(max-width: 1280px) 30vw, 350px" className="object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#051713] via-[#051713]/68 to-[#051713]/14" />
+      <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
+        <span className="mb-3 w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.15em] backdrop-blur-sm">
+          {badge}
+        </span>
+        <h2 className={`max-w-xs text-[1.65rem] font-bold leading-[1.08] ${protectedTitle ? "notranslate" : ""}`} translate={protectedTitle ? "no" : undefined}>
+          {title}
+        </h2>
+        <p className="mt-3 max-w-sm text-xs leading-relaxed text-white/78">{description}</p>
+        <Link href={href} className="mt-5 inline-flex w-fit items-center gap-2 text-xs font-bold text-[#ead2a9] transition hover:text-white">
+          {cta}
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+function MegaPanel({
+  children,
+  feature,
+  footerText,
+  footerHref,
+  footerLabel,
+}: {
+  children: ReactNode;
+  feature: ReactNode;
+  footerText: string;
+  footerHref: string;
+  footerLabel: string;
+}) {
+  return (
+    <div className="rounded-[1.75rem] border border-[#0e3b2e]/12 bg-[#f9fbf9] p-3.5 text-left shadow-[0_24px_70px_rgba(4,35,27,0.2)]">
+      <div className="grid gap-3 lg:grid-cols-[minmax(250px,0.9fr)_minmax(0,2.45fr)]">
+        {feature}
+        <div className="grid min-w-0 gap-3 lg:grid-cols-3">{children}</div>
+      </div>
+      <div className="mt-3 flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-[#0e3b2e]/9 bg-[#f1f6f3] px-4 py-2.5">
+        <p className="text-[11px] font-medium text-[#31594d]">{footerText}</p>
+        <Link href={footerHref} className="inline-flex min-h-9 shrink-0 items-center rounded-xl border border-[#0e3b2e]/13 bg-white px-4 text-[11px] font-bold text-[#174f3f] transition hover:border-[#0e624b]/40 hover:bg-[#0e624b] hover:text-white">
+          {footerLabel}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function DesktopMegaMenu({
+  id,
+  label,
+  href,
+  isCurrent,
+  activeMenu,
+  setActiveMenu,
+  onEnter,
+  onLeave,
+  children,
+}: {
+  id: Exclude<MenuName, "language" | null>;
+  label: string;
+  href: string;
+  isCurrent: boolean;
+  activeMenu: MenuName;
+  setActiveMenu: (menu: MenuName) => void;
+  onEnter: (menu: MenuName) => void;
+  onLeave: () => void;
+  children: ReactNode;
+}) {
+  const open = activeMenu === id;
+  return (
+    <li className="static flex h-full items-center" onMouseEnter={() => onEnter(id)} onMouseLeave={onLeave} onFocusCapture={() => onEnter(id)}>
+      <div className={`flex min-h-11 items-center rounded-xl px-2 transition ${open ? "bg-[#0e3b2e]/6" : "hover:bg-[#0e3b2e]/5"}`}>
+        <Link href={href} aria-current={isCurrent ? "page" : undefined} className={`text-[11px] font-bold uppercase tracking-[0.11em] transition ${isCurrent ? "text-[#7d603a]" : "text-[#173b31] hover:text-[#7d603a]"}`}>
+          {label}
+        </Link>
+        <button
+          type="button"
+          aria-label={`${open ? "Close" : "Open"} ${label} menu`}
+          aria-expanded={open}
+          aria-controls={`${id}-mega-menu`}
+          className="ml-0.5 flex h-8 w-6 items-center justify-center rounded-md text-[#6f8f84] hover:text-[#0e624b]"
+          onClick={() => setActiveMenu(open ? null : id)}
+        >
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+        </button>
+      </div>
+      {open && (
+        <div id={`${id}-mega-menu`} className="absolute left-1/2 top-[calc(100%-0.2rem)] z-50 w-[min(96vw,78rem)] -translate-x-1/2 pt-3">
+          {children}
+        </div>
+      )}
+    </li>
+  );
+}
+
+function MobileSection({
+  id,
+  label,
+  href,
+  open,
+  active,
+  onToggle,
+  children,
+}: {
+  id: Exclude<MobileSectionName, null>;
+  label: string;
+  href: string;
+  open: boolean;
+  active: boolean;
+  onToggle: (id: Exclude<MobileSectionName, null>) => void;
+  children: ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-[#0e3b2e]/10 bg-white">
+      <div className="flex min-h-14 items-center gap-2 px-4">
+        <Link href={href} className={`min-w-0 flex-1 text-sm font-bold ${active ? "text-[#7d603a]" : "text-[#173b31]"}`}>{label}</Link>
+        <button type="button" onClick={() => onToggle(id)} aria-expanded={open} aria-controls={`mobile-${id}`} aria-label={`${open ? "Close" : "Open"} ${label} links`} className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eef5f1] text-[#0e624b]">
+          <ChevronDown className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+        </button>
+      </div>
+      {open && <div id={`mobile-${id}`} className="space-y-4 border-t border-[#0e3b2e]/9 bg-[#fbfcfb] p-4">{children}</div>}
+    </section>
+  );
+}
+
+function MobileLinkGroup({ title, links }: { title: string; links: MenuLink[] }) {
+  return (
+    <div>
+      <h3 className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#7d603a]">{title}</h3>
+      <ul className="grid gap-1.5 sm:grid-cols-2">{links.map((item) => <MenuItem key={item.href + item.label} item={item} />)}</ul>
+    </div>
+  );
+}
+
+export default function Navbar() {
+  const pathname = usePathname();
+  const wrapperRef = useRef<HTMLElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [activeMenu, setActiveMenu] = useState<MenuName>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSection, setMobileSection] = useState<MobileSectionName>(null);
+  const [mobileLanguageOpen, setMobileLanguageOpen] = useState(false);
+  const [activeLanguage, setActiveLanguage] = useState("en");
+  const [mounted, setMounted] = useState(false);
+  const [programTypes, setProgramTypes] = useState<TaxonomyTerm[]>(DEFAULT_PROGRAM_TYPES);
+  const [skillLevels, setSkillLevels] = useState<TaxonomyTerm[]>(DEFAULT_SKILL_LEVELS);
+  const [regions, setRegions] = useState<TaxonomyTerm[]>(DEFAULT_REGIONS);
+
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- overlays must close after route changes */
+    setActiveMenu(null);
+    setMobileOpen(false);
+    setMobileSection(null);
+    setMobileLanguageOpen(false);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [pathname]);
+
+  useEffect(() => {
+    /* eslint-disable-next-line react-hooks/set-state-in-effect -- portal mounts only after hydration */
+    setMounted(true);
+    window.__MEGAMENU_READY = true;
+    window.dispatchEvent(new Event("megamenu-ready"));
+
+    const loadTaxonomies = async () => {
+      try {
+        const data = await clientFetch<{ types?: TaxonomyTerm[]; skills?: TaxonomyTerm[]; regions?: TaxonomyTerm[] }>("/api/nav-taxonomies");
+        if (data.types?.length) setProgramTypes(data.types);
+        if (data.skills?.length) setSkillLevels(data.skills);
+        if (data.regions?.length) setRegions(data.regions);
+      } catch {
+        // The exact static menu from the pre-change build stays available offline.
+      }
+    };
+    void loadTaxonomies();
+  }, []);
+
+  useEffect(() => {
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) setActiveMenu(null);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveMenu(null);
+        setMobileOpen(false);
+        setMobileLanguageOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    const update = (event: Event) => {
+      const code = (event as CustomEvent<{ language?: string }>).detail?.language;
+      if (code) setActiveLanguage(code);
+    };
+    window.addEventListener("jf:language-changed", update);
+    return () => window.removeEventListener("jf:language-changed", update);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileOpen && !mobileLanguageOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileLanguageOpen, mobileOpen]);
+
+  useEffect(() => () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+  }, []);
+
+  const openDesktopMenu = (menu: MenuName) => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setActiveMenu(menu);
+  };
+
+  const scheduleDesktopClose = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => setActiveMenu(null), 140);
+  };
+
+  const requestLanguage = (language: string) => {
+    window.dispatchEvent(new CustomEvent("jf:language-request", { detail: { language } }));
+    setActiveMenu(null);
+    setMobileLanguageOpen(false);
+  };
+
+  const toggleMobileSection = (section: Exclude<MobileSectionName, null>) => {
+    setMobileSection((current) => current === section ? null : section);
+  };
+
+  const programTypeLinks: MenuLink[] = programTypes.map((term) => ({
+    label: term.name,
+    href: `/programs?program_type=${term.slug}`,
+    icon: Compass,
+  }));
+  const skillLevelLinks: MenuLink[] = skillLevels.map((term) => ({
+    label: term.name,
+    href: `/programs?skill_level=${term.slug}`,
+    icon: Award,
+  }));
+  const regionLinks: MenuLink[] = regions.map((term) => ({
+    label: term.name,
+    href: `/programs?region=${term.slug}`,
+    icon: MapPin,
+  }));
+  const equipmentLinks: MenuLink[] = EQUIPMENT_CATEGORIES.map((category) => ({
+    label: category.name,
+    href: `/equipment?category=${category.slug}`,
+    icon: category.slug === "bows" ? Target : category.slug === "master-bowyers" ? Hammer : category.slug === "training-kits" ? GraduationCap : SlidersHorizontal,
+  }));
+  const activeLanguageName = SUPPORTED_LANGUAGES.find((language) => language.code === activeLanguage)?.label || "English";
+
+  return (
+    <header ref={wrapperRef} className="sticky top-0 z-50 w-full border-b border-[#0e3b2e]/10 bg-[#f3eee2]/95 backdrop-blur-xl">
+      <a href="#main-content" className="sr-only z-[120] rounded-xl bg-white px-4 py-3 text-[#0e3b2e] focus:not-sr-only focus:absolute focus:left-4 focus:top-4">Skip to main content</a>
+
+      <div className="relative mx-auto flex h-20 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="notranslate flex min-w-0 items-center" translate="no" aria-label="Jan Franko home">
+          <Image src="/images/wp-assets/logo.png" alt="Jan Franko" width={190} height={54} priority className="h-11 w-auto object-contain sm:h-12" />
+        </Link>
+
+        <nav className="hidden h-full items-center lg:flex" aria-label="Primary navigation">
+          <ul className="flex h-full items-center gap-0.5">
+            <li className="flex h-full items-center">
+              <Link href="/" aria-current={pathname === "/" ? "page" : undefined} className={`flex min-h-11 items-center rounded-xl px-3 text-[11px] font-bold uppercase tracking-[0.11em] transition hover:bg-[#0e3b2e]/5 ${pathname === "/" ? "text-[#7d603a]" : "text-[#173b31]"}`}>Home</Link>
+            </li>
+
+            <DesktopMegaMenu id="academy" label="Academy" href="/academy" isCurrent={pathname.startsWith("/academy") || pathname === "/archery-games"} activeMenu={activeMenu} setActiveMenu={setActiveMenu} onEnter={openDesktopMenu} onLeave={scheduleDesktopClose}>
+              <MegaPanel
+                feature={<FeatureCard image="/images/wp-assets/contact-bg.webp" imageAlt="Jan Franko practising traditional archery" badge="Academy Standard" title="Operational Verification" description="Mandatory safety audits and ESI environmental exposure metrics for all archers." href="/academy/certification" cta="View Certification" />}
+                footerText="Mandatory safety audits and ESI environmental exposure metrics for all archers."
+                footerHref="/academy"
+                footerLabel="Academy Overview"
+              >
+                {ACADEMY_GROUPS.map((group) => <MenuGroup key={group.title} title={group.title} icon={group.icon}><ul className="space-y-1">{group.links.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>)}
+              </MegaPanel>
+            </DesktopMegaMenu>
+
+            <DesktopMegaMenu id="programs" label="Programs" href="/programs" isCurrent={pathname === "/programs"} activeMenu={activeMenu} setActiveMenu={setActiveMenu} onEnter={openDesktopMenu} onLeave={scheduleDesktopClose}>
+              <MegaPanel
+                feature={<FeatureCard image="/images/og-bg-expedition.jpg" imageAlt="Traditional archer overlooking a mountain expedition landscape" badge="Featured Expedition" title="Inner Mongolia Steppe Camp" description="Immersive horse archery and traditional archery training in the grasslands of China." href="/programs?open=inner-mongolia-steppe-horse-archery-camp" cta="View Expedition" />}
+                footerText="Applications are reviewed on a rolling basis. Suitable fitness levels are required for Level 3/4."
+                footerHref="/programs"
+                footerLabel="All Directory Listings"
+              >
+                <MenuGroup title="Program Types" icon={Compass}><ul className="space-y-1">{programTypeLinks.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
+                <MenuGroup title="Skill Levels" icon={Award}><ul className="space-y-1">{skillLevelLinks.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
+                <MenuGroup title={`Regions (${regions.length})`} icon={MapPin}><ul className="max-h-[310px] space-y-1 overflow-y-auto pr-1">{regionLinks.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
+              </MegaPanel>
+            </DesktopMegaMenu>
+
+            <DesktopMegaMenu id="equipment" label="Equipment" href="/equipment" isCurrent={pathname.startsWith("/equipment") || pathname.startsWith("/bowyer")} activeMenu={activeMenu} setActiveMenu={setActiveMenu} onEnter={openDesktopMenu} onLeave={scheduleDesktopClose}>
+              <MegaPanel
+                feature={<FeatureCard image="/images/og-bg-workshop.jpg" imageAlt="Traditional bowyer workshop with bow-making tools" badge="Vetted Guild" title="Master Bowyers" description="Harvey Archery · Kadys Bows · MR Bows" href="/about/partners" cta="Partners & Bowyers" />}
+                footerText="Custom Arrow Builder · Master Bowyers"
+                footerHref="/equipment"
+                footerLabel="Equipment"
+              >
+                <MenuGroup title="Equipment Departments" icon={Target}><ul className="space-y-1">{equipmentLinks.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
+                <MenuGroup title="Interactive Tools" icon={SlidersHorizontal}><ul className="space-y-1"><MenuItem item={{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }} /></ul></MenuGroup>
+                <MenuGroup title="Master Bowyers" icon={Hammer}><ul className="space-y-1">{BOWYER_LINKS.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
+              </MegaPanel>
+            </DesktopMegaMenu>
+
+            <DesktopMegaMenu id="knowledge" label="Knowledge" href="/knowledge" isCurrent={pathname.startsWith("/knowledge")} activeMenu={activeMenu} setActiveMenu={setActiveMenu} onEnter={openDesktopMenu} onLeave={scheduleDesktopClose}>
+              <MegaPanel
+                feature={<FeatureCard image="/images/wp-assets/jan-franko-profile.jpeg" imageAlt="Jan Franko practising traditional archery in a forest" badge="Featured Monograph" title="Eastern Archery Lineages" description="Comprehensive immersion into the meditative and martial archery traditions of Asia." href="/knowledge/east-archery" cta="Read Monograph" />}
+                footerText="Comprehensive immersion into the meditative and martial archery traditions of Asia."
+                footerHref="/knowledge"
+                footerLabel="Knowledge"
+              >
+                {KNOWLEDGE_GROUPS.map((group) => <MenuGroup key={group.title} title={group.title} icon={group.icon}><ul className="space-y-1">{group.links.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>)}
+              </MegaPanel>
+            </DesktopMegaMenu>
+
+            <DesktopMegaMenu id="about" label="About" href="/about" isCurrent={pathname.startsWith("/about") || pathname === "/contact"} activeMenu={activeMenu} setActiveMenu={setActiveMenu} onEnter={openDesktopMenu} onLeave={scheduleDesktopClose}>
+              <MegaPanel
+                feature={<FeatureCard image="/images/wp-assets/founder-gallery-1.png" imageAlt="Jan Franko in traditional archery attire" badge="Academy Profile" title="Jan Franko" description="Explore the chronology and martial bow studies of our founder." href="/about/jan-franko" cta="Jan Franko (Instructor)" protectedTitle />}
+                footerText="Follow our expeditions and traditional bow reviews live from the field."
+                footerHref="/contact"
+                footerLabel="Direct Inquiries"
+              >
+                <MenuGroup title="Academy Overview" icon={BookOpen}>
+                  <ul className="space-y-1">
+                    <MenuItem item={{ label: "Academy Profile", href: "/about", icon: GraduationCap }} />
+                    <MenuItem item={{ label: "Jan Franko (Instructor)", href: "/about/jan-franko", icon: UserRound, protectedName: true }} />
+                    <MenuItem item={{ label: "Partners & Bowyers", href: "/about/partners", icon: UsersRound }} />
+                    <MenuItem item={{ label: "Inquiries & Contacts", href: "/contact", icon: Mail }} />
+                  </ul>
+                </MenuGroup>
+                <MenuGroup title="Academy Base" icon={MapPin}>
+                  <ul className="space-y-1 text-[12px] text-[#31594d]">
+                    <li className="flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b]"><MapPin className="h-4 w-4" /></span><span>Tirol, Austria &amp; Košice, Slovakia</span></li>
+                    <li><a href={`mailto:${SITE.email}`} className="flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 transition hover:bg-[#eef5f1]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b]"><Mail className="h-4 w-4" /></span><span>{SITE.email}</span></a></li>
+                    <li><a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 transition hover:bg-[#eef5f1]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b]"><Phone className="h-4 w-4" /></span><span>{SITE.phoneDisplay}</span><ExternalLink className="ml-auto h-3.5 w-3.5" /></a></li>
+                  </ul>
+                </MenuGroup>
+                <MenuGroup title="Social Channels" icon={Globe2}>
+                  <ul className="space-y-1">
+                    {[
+                      ["Facebook", "https://www.facebook.com/share/16uZNxRu4R/"],
+                      ["LinkedIn", "https://www.linkedin.com/in/jan-franko/"],
+                      ["WhatsApp", SITE.whatsappUrl],
+                      ["Telegram", "https://t.me/ExplorerAdventuresJF"],
+                    ].map(([label, href]) => <li key={label}><a href={href} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-[13px] font-semibold text-[#173b31] transition hover:bg-[#eef5f1]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b]"><Globe2 className="h-4 w-4" /></span><span>{label}</span><ExternalLink className="ml-auto h-3.5 w-3.5 text-[#69ad96]" /></a></li>)}
+                  </ul>
+                </MenuGroup>
+              </MegaPanel>
+            </DesktopMegaMenu>
+
+            <li className="static flex h-full items-center" onMouseEnter={() => openDesktopMenu("language")} onMouseLeave={scheduleDesktopClose}>
+              <button type="button" onClick={() => setActiveMenu(activeMenu === "language" ? null : "language")} aria-expanded={activeMenu === "language"} aria-controls="language-mega-menu" className={`notranslate flex min-h-11 items-center gap-2 rounded-xl px-2.5 text-[11px] font-bold uppercase tracking-[0.08em] transition ${activeMenu === "language" ? "bg-[#0e3b2e]/6 text-[#0e624b]" : "text-[#173b31] hover:bg-[#0e3b2e]/5"}`} translate="no">
+                <LanguageFlag code={activeLanguage} />
+                <span>{languageCodeLabel(activeLanguage)}</span>
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${activeMenu === "language" ? "rotate-180" : ""}`} aria-hidden="true" />
+              </button>
+              {activeMenu === "language" && (
+                <div id="language-mega-menu" className="absolute left-1/2 top-[calc(100%-0.2rem)] z-50 w-[min(96vw,78rem)] -translate-x-1/2 pt-3">
+                  <div className="rounded-[1.75rem] border border-[#0e3b2e]/12 bg-[#f9fbf9] p-4 text-left shadow-[0_24px_70px_rgba(4,35,27,0.2)]">
+                    <div className="mb-3 flex items-center justify-between gap-4 rounded-2xl border border-[#0e3b2e]/9 bg-white px-5 py-3">
+                      <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b]"><Languages className="h-4 w-4" /></span><h2 className="text-sm font-bold text-[#173b31]">Select Language</h2></div>
+                      <div className="flex items-center gap-2 rounded-xl bg-[#eef5f1] px-3 py-2 text-xs font-bold text-[#0e624b]"><LanguageFlag code={activeLanguage} />{activeLanguageName}</div>
+                    </div>
+                    <div className="grid gap-3 lg:grid-cols-4">
+                      {LANGUAGE_GROUPS.map((group) => (
+                        <section key={group} className="rounded-2xl border border-[#0e3b2e]/10 bg-white p-3.5">
+                          <h3 className="mb-2.5 border-b border-[#0e3b2e]/10 pb-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#7d603a]">{group}</h3>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {SUPPORTED_LANGUAGES.filter((language) => language.group === group).map((language) => (
+                              <button key={language.code} type="button" onClick={() => requestLanguage(language.code)} className={`flex min-h-10 items-center gap-2 rounded-xl border px-2 py-1.5 text-left text-[11px] font-semibold transition ${activeLanguage === language.code ? "border-[#8bb9a8] bg-[#eaf3ef] text-[#0e624b]" : "border-transparent bg-[#f7f9f7] text-[#31594d] hover:border-[#bdd4ca] hover:bg-white"}`}>
+                                <LanguageFlag code={language.code} />
+                                <span className="min-w-0 truncate">{language.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </li>
+          </ul>
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" className="hidden min-h-11 items-center gap-2 rounded-xl bg-[#0e3b2e] px-4 text-[11px] font-bold text-white transition hover:bg-[#092a21] xl:flex"><Phone className="h-3.5 w-3.5 text-[#c5a880]" aria-hidden="true" />WhatsApp</a>
+          <button type="button" className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#0e3b2e]/15 bg-white/60 text-[#0e3b2e] lg:hidden" aria-label={mobileOpen ? "Close navigation" : "Open navigation"} aria-expanded={mobileOpen} onClick={() => setMobileOpen((value) => !value)}>{mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
+        </div>
+      </div>
+
+      <div className="flex min-h-11 items-center justify-between border-t border-[#0e3b2e]/8 bg-white/45 px-4 sm:px-6 lg:hidden">
+        <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#7d603a]">Select Language</span>
+        <button type="button" onClick={() => setMobileLanguageOpen(true)} className="notranslate flex min-h-9 items-center gap-2 rounded-xl border border-[#0e3b2e]/10 bg-white px-3 text-xs font-bold text-[#173b31] shadow-sm" translate="no">
+          <LanguageFlag code={activeLanguage} />
+          <span>{activeLanguageName}</span>
+          <ChevronDown className="h-3.5 w-3.5 text-[#69ad96]" aria-hidden="true" />
+        </button>
+      </div>
+
+      {mobileOpen && (
+        <nav className="absolute left-0 right-0 top-full max-h-[calc(100vh-7.75rem)] overflow-y-auto border-t border-[#0e3b2e]/10 bg-[#f3eee2] px-4 py-4 shadow-2xl lg:hidden" aria-label="Mobile navigation">
+          <div className="mx-auto max-w-2xl space-y-2.5">
+            <Link href="/" className={`block min-h-14 rounded-2xl border border-[#0e3b2e]/10 bg-white px-4 py-4 text-sm font-bold ${pathname === "/" ? "text-[#7d603a]" : "text-[#173b31]"}`}>Home</Link>
+
+            <MobileSection id="academy" label="Academy" href="/academy" open={mobileSection === "academy"} active={pathname.startsWith("/academy") || pathname === "/archery-games"} onToggle={toggleMobileSection}>
+              {ACADEMY_GROUPS.map((group) => <MobileLinkGroup key={group.title} title={group.title} links={group.links} />)}
+            </MobileSection>
+
+            <MobileSection id="programs" label="Programs" href="/programs" open={mobileSection === "programs"} active={pathname === "/programs"} onToggle={toggleMobileSection}>
+              <MobileLinkGroup title="Program Types" links={programTypeLinks} />
+              <MobileLinkGroup title="Skill Levels" links={skillLevelLinks} />
+              <MobileLinkGroup title={`Regions (${regions.length})`} links={regionLinks} />
+            </MobileSection>
+
+            <MobileSection id="equipment" label="Equipment" href="/equipment" open={mobileSection === "equipment"} active={pathname.startsWith("/equipment") || pathname.startsWith("/bowyer")} onToggle={toggleMobileSection}>
+              <MobileLinkGroup title="Equipment Departments" links={equipmentLinks} />
+              <MobileLinkGroup title="Interactive Tools" links={[{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }]} />
+              <MobileLinkGroup title="Master Bowyers" links={BOWYER_LINKS} />
+            </MobileSection>
+
+            <MobileSection id="knowledge" label="Knowledge" href="/knowledge" open={mobileSection === "knowledge"} active={pathname.startsWith("/knowledge")} onToggle={toggleMobileSection}>
+              {KNOWLEDGE_GROUPS.map((group) => <MobileLinkGroup key={group.title} title={group.title} links={group.links} />)}
+            </MobileSection>
+
+            <MobileSection id="about" label="About" href="/about" open={mobileSection === "about"} active={pathname.startsWith("/about") || pathname === "/contact"} onToggle={toggleMobileSection}>
+              <MobileLinkGroup title="Academy Overview" links={[
+                { label: "Academy Profile", href: "/about", icon: GraduationCap },
+                { label: "Jan Franko (Instructor)", href: "/about/jan-franko", icon: UserRound, protectedName: true },
+                { label: "Partners & Bowyers", href: "/about/partners", icon: UsersRound },
+                { label: "Contact & Inquiries", href: "/contact", icon: Mail },
+              ]} />
+            </MobileSection>
+
+            <a href={SITE.whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-3 flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#0e3b2e] px-4 text-sm font-bold text-white"><Phone className="h-4 w-4 text-[#c5a880]" aria-hidden="true" />{SITE.phoneDisplay}<ExternalLink className="h-3.5 w-3.5 text-white/65" aria-hidden="true" /></a>
+          </div>
+        </nav>
+      )}
+
+      {mounted && mobileLanguageOpen && createPortal(
+        <div className="fixed inset-0 z-[120] flex items-end justify-center bg-[#03120e]/55 p-3 backdrop-blur-sm sm:items-center" onMouseDown={() => setMobileLanguageOpen(false)}>
+          <section role="dialog" aria-modal="true" aria-labelledby="mobile-language-title" className="notranslate flex max-h-[88vh] w-full max-w-xl flex-col overflow-hidden rounded-[1.75rem] bg-[#f9fbf9] shadow-2xl" translate="no" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-[#0e3b2e]/10 bg-white px-5 py-4">
+              <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b]"><Languages className="h-4 w-4" /></span><h2 id="mobile-language-title" className="text-sm font-bold text-[#173b31]">Select Language</h2></div>
+              <button type="button" onClick={() => setMobileLanguageOpen(false)} aria-label="Close language selector" className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eef5f1] text-[#0e624b]"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="space-y-5 overflow-y-auto p-4 sm:p-5">
+              {LANGUAGE_GROUPS.map((group) => (
+                <div key={group}>
+                  <h3 className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#7d603a]">{group}</h3>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {SUPPORTED_LANGUAGES.filter((language) => language.group === group).map((language) => (
+                      <button key={language.code} type="button" onClick={() => requestLanguage(language.code)} className={`flex min-h-11 items-center gap-2.5 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition ${activeLanguage === language.code ? "border-[#8bb9a8] bg-[#eaf3ef] text-[#0e624b]" : "border-[#0e3b2e]/8 bg-white text-[#31594d] hover:border-[#bdd4ca]"}`}>
+                        <LanguageFlag code={language.code} />
+                        <span className="min-w-0 truncate">{language.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>,
+        document.body,
+      )}
+    </header>
+  );
+}
