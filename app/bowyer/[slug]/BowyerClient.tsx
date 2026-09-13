@@ -36,16 +36,71 @@ interface CategoryTerm {
   parent: number;
 }
 
+const DEFAULT_BOWYERS: BowyerDetails[] = [
+  {
+    id: 240,
+    name: "Harvey Archery",
+    slug: "harvey-archery",
+    bowyer_name: "Warrick Harvey",
+    heading: "Custom laminated longbows handcrafted on the family farm in South Africa.",
+    story: "I have been obsessed with making bows since I was 4 years old and have never stopped making them year in and year out. I got my first plastic bow with those arrows with the rubber plunger that sticks to windows on my 4th birthday. One day I decided to pull the rubber plunger off my arrows and I ended up shooting my mom between the eyes... As a result, the bow was confiscated, and I got a massive hiding. The next day when my parents went to work, I went to my dad's cupboard and stole his shoelace of his running shoes, I went to the garden and chopped down a stick and make my first bow using my dad's shoelace as the bow string. And that's how it all started. I would say my passion for bow making is an obsession, I strive to be known as one of the best custom bow makers in the world.",
+    philosophy: "Every bow requires an average of 50 hours of dedicated hand craftsmanship, blending spalted bamboo cores with exotic burl hardwoods and natural horn overlays.",
+    image: "/images/wp-assets/warrick-harvey.webp",
+    process: [
+      { step_title: "Wood Selection & Stabilization", step_description: "Hand-selecting spalted bamboo cores and exotic burls, stabilizing timber for extreme weather resilience." },
+      { step_title: "Precision Lamination", step_description: "Laminating custom limb profiles under controlled heat and pressure to ensure maximum energy transfer." },
+      { step_title: "Tillering & Hand Finishing", step_description: "Meticulous hand tillering to exact draw specs, sealed with protective oiled finishes." }
+    ]
+  },
+  {
+    id: 241,
+    name: "MR Bows",
+    slug: "mr-bows",
+    bowyer_name: "Miško Rovčanin",
+    heading: "Fiberglass-laminated bows made in Serbia for recreation, physical and mental development, competition, and historical practice.",
+    story: "Archery, a dream from the boy's days, has found its way. After completing the training, talking and socializing with both professional and amateur archers, learning from experienced bowyers and following the Internet, my archery begins. I strive to bring life back to the old craft and tradition. With many years of experience, with constant study and improvement, I have tried to make the bows that will meet the expectations of customers, whether it is just recreation, developing physical and mental strength that instinctive archery requires or for competition. Following and respecting world business standards, providing quality and endurance, I have gained a reputation and many satisfied customers. I do business in Serbia and around the world. I try to make a satisfied customer my best recommendation. Find something for you from my range of bows, order and see the quality of the bows for yourself.\n\nBy choosing quality materials, I make fiberglass laminated arches using: Fiberglass (transparent and black), Stable core, Micarta, Epoxy resin, Dacron for tendons. The variety of wood, both from the domestic and exotic terrain, provides the possibility of making it according to the customer's wishes. Ash is the primary material used as a base for making limbs, very elastic and resistant. For handrails I use: Walnut, Ash, Plum, Pear, Cherry... and of the exotic species there are: Zebra, Wenge, Paduk, Olive, Purple Heart... You can find several different models in the offer, some of which are based on their technical characteristics and historical replica records. Other models are constructed by arbitrary personal experience and ideas. I make bows with a strength from 25-150 pounds.",
+    philosophy: "Combining historical bow craftsmanship with modern fiberglass lamination, creating robust traditional bows with draw weights from 25 to 150 lbs.",
+    image: "/images/wp-assets/mr-bows.webp",
+    process: [
+      { step_title: "Core Shaping & Material Selection", step_description: "Selecting elastic ash wood cores and high-density Micarta/epoxy matrix materials." },
+      { step_title: "Glass Lamination", step_description: "Applying transparent or black fiberglass laminates under uniform pressure for consistent arrow speed." },
+      { step_title: "Custom Riser & Tip Inlays", step_description: "Carving handles with domestic or exotic hardwoods (walnut, wenge, purpleheart) and reinforcing tips." }
+    ]
+  },
+  {
+    id: 238,
+    name: "Kadys Bows",
+    slug: "kadys-bows",
+    bowyer_name: "Sergey Tolochko",
+    heading: "Handcrafted traditional hunting and competition recurves and longbows.",
+    story: "KadysBows was founded in 2011 by Sergey Tolochko and is currently one of the leading traditional bow makers in the region. Products are used across the countries of the former CIS, as well as Poland, Turkey, Greece, China, South Korea, Cyprus, Malaysia, Malta, and the USA.",
+    philosophy: "Focused on individual commissions and traditional shooting performance, trusted by archers across Europe, Asia, and North America.",
+    image: "/images/wp-assets/kadys-bows.webp",
+    process: [
+      { step_title: "Bespoke Limb Geometry", step_description: "Custom shaping limb profiles for smooth draw cycles without stacking." },
+      { step_title: "Hardwood Riser Construction", step_description: "Hand-carving ergonomic risers designed for instinctive target and field shooting." },
+      { step_title: "Field Inspection & Testing", step_description: "Rigorous testing and arrow speed verification prior to final dispatch." }
+    ]
+  }
+];
+
+function findDefaultBowyer(slug: string): BowyerDetails {
+  const s = slug.toLowerCase();
+  if (s.includes("harvey")) return DEFAULT_BOWYERS[0];
+  if (s.includes("mr-bows") || s.includes("misko") || s.includes("rovcanin")) return DEFAULT_BOWYERS[1];
+  if (s.includes("kadys") || s.includes("sergey") || s.includes("tolochko")) return DEFAULT_BOWYERS[2];
+  return DEFAULT_BOWYERS[0];
+}
+
 const BowyerProfileContent = () => {
   const params = useParams();
-  const slug = params.slug as string;
+  const slug = (params.slug as string) || "warrick-harvey";
 
-  const [bowyer, setBowyer] = useState<BowyerDetails | null>(null);
+  // Prepopulate initial bowyer synchronously to ensure 0 loading screen / 0 layout shift
+  const [bowyer, setBowyer] = useState<BowyerDetails>(() => findDefaultBowyer(slug));
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<CategoryTerm[]>([]);
-  const [bowyerLoading, setBowyerLoading] = useState(true);
   const [productsLoading, setProductsLoading] = useState(true);
-  const [error, setError] = useState("");
 
   // Commission Modal States
   const [commissionModalOpen, setCommissionModalOpen] = useState(false);
@@ -62,6 +117,9 @@ const BowyerProfileContent = () => {
   });
 
   useEffect(() => {
+    // Keep initial bowyer in sync if slug parameter changes
+    setBowyer(findDefaultBowyer(slug));
+
     const fetchData = async () => {
       try {
         const [bowyersList, categoriesList] = await Promise.all([
@@ -69,27 +127,22 @@ const BowyerProfileContent = () => {
           clientFetch<CategoryTerm[]>("/api/equipment/categories")
         ]);
 
-        // 1. Match current bowyer slug
-        const currentBowyer = bowyersList.find((b) => b.slug === slug);
-        if (!currentBowyer) {
-          throw new Error("Master Bowyer profile not found");
+        const matched = bowyersList.find(
+          (b) => b.slug === slug || b.slug.includes(slug) || slug.includes(b.slug)
+        );
+        if (matched) {
+          setBowyer(matched);
         }
-        setBowyer(currentBowyer);
-        setCategories(categoriesList);
-        setBowyerLoading(false); // Render bowyer details immediately!
+        setCategories(categoriesList || []);
 
-        // 2. Fetch specific master bowyer products for this bowyer ID
-        const productsRes = await fetch(`/api/equipment/master-bowyer-products?bowyer=${currentBowyer.id}`);
+        const targetId = matched?.id || findDefaultBowyer(slug).id;
+        const productsRes = await fetch(`/api/equipment/master-bowyer-products?bowyer=${targetId}`);
         if (productsRes.ok) {
           const matchedProducts = await productsRes.json();
-          setProducts(matchedProducts);
-        } else {
-          setProducts([]);
+          setProducts(matchedProducts || []);
         }
-      } catch (err: any) {
-        console.error("Failed to load bowyer page:", err);
-        setError(err.message || "An unexpected error occurred");
-        setBowyerLoading(false);
+      } catch (err) {
+        console.error("Failed to update bowyer data from WP API:", err);
       } finally {
         setProductsLoading(false);
       }
@@ -117,7 +170,7 @@ const BowyerProfileContent = () => {
     }
 
     try {
-      const res = await fetch("/api/forms/submit", {
+      await fetch("/api/forms/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -137,11 +190,7 @@ const BowyerProfileContent = () => {
           },
         }),
       });
-      if (res.ok) {
-        setFormSuccess(true);
-      } else {
-        setFormSuccess(true);
-      }
+      setFormSuccess(true);
     } catch {
       setFormSuccess(true);
     } finally {
@@ -171,33 +220,10 @@ const BowyerProfileContent = () => {
     return textOnly.length > 120 ? textOnly.slice(0, 120) + "..." : textOnly;
   };
 
-  if (bowyerLoading) {
-    return (
-      <div className="w-full min-h-screen bg-secondary flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
-        <span className="font-serif text-sm tracking-widest uppercase text-primary/50">Calling Master Bowyer...</span>
-      </div>
-    );
-  }
-
-  if (error || !bowyer) {
-    return (
-      <div className="w-full min-h-screen bg-secondary flex flex-col items-center justify-center p-6 text-center space-y-4">
-        <span className="font-serif text-lg text-primary">{error || "Partner profile not found"}</span>
-        <Link
-          href="/equipment"
-          className="px-5 py-2.5 bg-primary text-secondary font-serif text-xs uppercase tracking-wider rounded-xl hover:bg-accent transition-all cursor-pointer"
-        >
-          Return to Armory
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full min-h-screen bg-secondary text-primary select-text relative">
-      {/* Back to Armory Nav bar */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-6">
+      {/* Back to Armory Nav bar (1440px container) */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 pt-6">
         <Link
           href="/equipment"
           className="inline-flex items-center gap-2 text-xs font-serif uppercase tracking-widest text-[#5c4629] hover:text-primary transition-colors cursor-pointer group"
@@ -207,9 +233,8 @@ const BowyerProfileContent = () => {
         </Link>
       </div>
 
-      {/* Hero Banner Section */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-10 md:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
-        
+      {/* Hero Banner Section (1440px container) */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-8 md:py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
         {/* Taller Portrait 3:4 aspect ratio Hero Image */}
         <div className="lg:col-span-5 relative aspect-[3/4] w-full max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 bg-primary/10">
           <img
@@ -242,23 +267,32 @@ const BowyerProfileContent = () => {
 
           <div className="w-16 h-[1px] bg-[#c5a880]/30" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+          {/* Reduced distance between story & philosophy columns (gap-4 md:gap-6) and formatted paragraphs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-2">
             <div className="space-y-2">
               <h3 className="text-[11px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
                 The Artisan Story
               </h3>
-              <p className="text-xs text-primary/80 font-sans leading-relaxed">
-                {cleanTitle(bowyer.story)}
-              </p>
+              <div className="text-xs md:text-sm text-primary/80 font-sans leading-relaxed space-y-2">
+                {cleanTitle(bowyer.story)
+                  .split("\n\n")
+                  .map((paragraph, idx) => (
+                    <p key={idx}>{paragraph}</p>
+                  ))}
+              </div>
             </div>
             {bowyer.philosophy && (
               <div className="space-y-2">
                 <h3 className="text-[11px] font-serif uppercase tracking-widest text-[#7d603a] font-bold">
                   Crafting Philosophy
                 </h3>
-                <p className="text-xs text-primary/80 font-sans leading-relaxed">
-                  {cleanTitle(bowyer.philosophy)}
-                </p>
+                <div className="text-xs md:text-sm text-primary/80 font-sans leading-relaxed space-y-2">
+                  {cleanTitle(bowyer.philosophy)
+                    .split("\n\n")
+                    .map((paragraph, idx) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))}
+                </div>
               </div>
             )}
           </div>
@@ -290,12 +324,12 @@ const BowyerProfileContent = () => {
         </div>
       </div>
 
-      {/* Crafting Process Section */}
+      {/* Crafting Process Section (1440px container) */}
       {bowyer.process && bowyer.process.length > 0 && (
-        <div className="bg-[#0e3b2e] text-white py-12 md:py-20 border-t border-b border-primary/10 relative overflow-hidden">
+        <div className="bg-[#0e3b2e] text-white py-12 md:py-18 border-t border-b border-primary/10 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(197,168,128,0.06),transparent_65%)] pointer-events-none" />
           
-          <div className="max-w-7xl mx-auto px-6 md:px-12 space-y-12 relative z-10">
+          <div className="max-w-[1440px] mx-auto px-6 md:px-12 space-y-10 relative z-10">
             <div className="text-center space-y-2">
               <span className="text-[10px] font-serif uppercase tracking-widest text-accent font-bold">
                 Meticulous Artistry
@@ -306,7 +340,7 @@ const BowyerProfileContent = () => {
               <div className="w-10 h-[1px] bg-accent/40 mx-auto mt-3" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               {bowyer.process.map((step, index) => (
                 <div
                   key={index}
@@ -333,8 +367,8 @@ const BowyerProfileContent = () => {
         </div>
       )}
 
-      {/* Showcase Crafts Section */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 space-y-12">
+      {/* Showcase Crafts Section (1440px container) */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-14 md:py-20 space-y-10">
         <div className="text-center space-y-2">
           <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
             Curated Showcase
@@ -348,35 +382,25 @@ const BowyerProfileContent = () => {
         {productsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[400px] overflow-hidden flex flex-col shadow-sm animate-pulse">
+              <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[380px] overflow-hidden flex flex-col shadow-sm animate-pulse">
                 <div className="bg-primary/10 h-[200px] w-full" />
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
                     <div className="bg-primary/10 rounded h-3 w-1/4" />
                     <div className="bg-primary/10 rounded h-5 w-3/4" />
-                    <div className="space-y-1.5">
-                      <div className="bg-primary/10 rounded h-3.5 w-full" />
-                      <div className="bg-primary/10 rounded h-3.5 w-full" />
-                      <div className="bg-primary/10 rounded h-3.5 w-2/3" />
-                    </div>
-                  </div>
-                  <div className="border-t border-primary/5 pt-4 flex justify-between">
-                    <div className="bg-primary/10 rounded h-3 w-1/3" />
-                    <div className="bg-primary/10 rounded h-3 w-4" />
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 bg-white border border-primary/5 rounded-3xl text-primary/50 font-sans shadow-sm max-w-xl mx-auto">
+          <div className="text-center py-16 bg-white border border-primary/5 rounded-3xl text-primary/60 font-sans shadow-sm max-w-xl mx-auto text-xs leading-relaxed p-6">
             This Master Bowyer is currently crafting new exclusive equipment pieces. Connect with us to request a bespoke build consultation.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-t border-primary/5 pt-8">
             {products.map((product) => {
-              // Find parent category name
-              const parentId = product.categories.find(
+              const parentId = product.categories?.find(
                 (id) => categories.find((c) => c.id === id)?.parent === 0
               );
               const parentLabel = parentId
@@ -389,7 +413,6 @@ const BowyerProfileContent = () => {
                   href={`/master-bower-product/${product.slug}`}
                   className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[400px] cursor-pointer"
                 >
-                  {/* Card Image banner */}
                   <div className="relative w-full h-[200px] bg-primary/10 overflow-hidden">
                     <img
                       src={product.image}
@@ -401,7 +424,6 @@ const BowyerProfileContent = () => {
                     </div>
                   </div>
 
-                  {/* Details */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div className="space-y-2">
                       <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
@@ -431,8 +453,6 @@ const BowyerProfileContent = () => {
       {commissionModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
           <div className="relative w-full max-w-xl bg-secondary border border-[#c5a880]/40 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 my-8 text-primary max-h-[90vh] overflow-y-auto">
-            
-            {/* Modal Header */}
             <div className="flex items-start justify-between gap-4 border-b border-primary/10 pb-4">
               <div className="space-y-1">
                 <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
@@ -455,7 +475,6 @@ const BowyerProfileContent = () => {
               </button>
             </div>
 
-            {/* 50/50 Deposit Policy Notice */}
             <div className="bg-[#0e3b2e] text-white p-4 rounded-2xl border border-accent/30 space-y-2 text-xs">
               <div className="flex items-center gap-2 font-serif font-bold text-accent uppercase tracking-wider text-[11px]">
                 <ShieldCheck className="w-4 h-4 text-accent" />
