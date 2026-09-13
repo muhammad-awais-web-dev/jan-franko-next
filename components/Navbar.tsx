@@ -38,6 +38,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
+import { readConsent } from "@/lib/consent";
 import {
   EQUIPMENT_CATEGORIES,
   LANGUAGE_GROUPS,
@@ -463,12 +464,27 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const update = (event: Event) => {
-      const code = (event as CustomEvent<{ language?: string }>).detail?.language;
-      if (code) setActiveLanguage(code);
+    const checkCookie = () => {
+      if (typeof document === "undefined") return;
+      const cookies = document.cookie.split("; ");
+      const transCookie = cookies.find((row) => row.startsWith("googtrans="));
+      if (transCookie) {
+        const parts = transCookie.split("=");
+        if (parts.length > 1) {
+          const val = decodeURIComponent(parts[1]);
+          const lang = val.split("/").pop();
+          if (lang) {
+            setActiveLanguage(lang);
+            return;
+          }
+        }
+      }
+      setActiveLanguage("en");
     };
-    window.addEventListener("jf:language-changed", update);
-    return () => window.removeEventListener("jf:language-changed", update);
+    checkCookie();
+
+    const interval = setInterval(checkCookie, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -495,9 +511,32 @@ export default function Navbar() {
   };
 
   const requestLanguage = (language: string) => {
-    window.dispatchEvent(new CustomEvent("jf:language-request", { detail: { language } }));
+    const consent = readConsent();
+    if (!consent?.functional && language !== "en") {
+      setActiveMenu(null);
+      setMobileLanguageOpen(false);
+      window.dispatchEvent(
+        new CustomEvent("jf:open-consent", {
+          detail: { highlightFunctional: true },
+        })
+      );
+      return;
+    }
+
+    document.cookie = `googtrans=/en/${language}; path=/;`;
+    document.cookie = `googtrans=/en/${language}; path=/; domain=${window.location.hostname};`;
+
+    setActiveLanguage(language);
     setActiveMenu(null);
     setMobileLanguageOpen(false);
+
+    const select = document.querySelector("select.goog-te-combo") as HTMLSelectElement | null;
+    if (select) {
+      select.value = language;
+      select.dispatchEvent(new Event("change"));
+    } else {
+      window.location.reload();
+    }
   };
 
   const toggleMobileSection = (section: Exclude<MobileSectionName, null>) => {
