@@ -1,10 +1,15 @@
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ExternalLink, ShieldAlert, ShieldCheck } from "lucide-react";
 import { BOW_REVIEW_RECORDS } from "@/data/equipment";
 import { constructMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = constructMetadata({
+export default function EquipmentVerificationPage() {
+  notFound();
+}
+
+const metadata: Metadata = constructMetadata({
   title: "Bow Content Verification Register | Jan Franko Traditional Archery",
   description: "Publication status, image decision, and source record for every culturally or historically named bow in the equipment catalog.",
   canonicalUrl: "/equipment/verification",
@@ -16,7 +21,7 @@ const labels = {
   withheld: "Withheld pending review",
 } as const;
 
-export default function EquipmentVerificationPage() {
+function _DisabledEquipmentVerificationContent() {
   const referenceCount = BOW_REVIEW_RECORDS.filter((item) => item.publicationStatus === "reference-only").length;
   const designCount = BOW_REVIEW_RECORDS.filter((item) => item.publicationStatus === "design-in-development").length;
 

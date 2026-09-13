@@ -616,7 +616,7 @@ export default function Navbar() {
                 footerLabel="Equipment"
               >
                 <MenuGroup title="Equipment Departments" icon={Target}><ul className="space-y-1">{equipmentLinks.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
-                <MenuGroup title="Interactive Tools & Audit" icon={SlidersHorizontal}><ul className="space-y-1"><MenuItem item={{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }} /><MenuItem item={{ label: "Bow Verification Register", href: "/equipment/verification", icon: ShieldCheck }} /></ul></MenuGroup>
+                <MenuGroup title="Interactive Tools" icon={SlidersHorizontal}><ul className="space-y-1"><MenuItem item={{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }} /></ul></MenuGroup>
                 <MenuGroup title="Master Bowyers" icon={Hammer}><ul className="space-y-1">{BOWYER_LINKS.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
               </MegaPanel>
             </DesktopMegaMenu>
@@ -734,7 +734,7 @@ export default function Navbar() {
 
             <MobileSection id="equipment" label="Equipment" href="/equipment" open={mobileSection === "equipment"} active={pathname.startsWith("/equipment") || pathname.startsWith("/bowyer")} onToggle={toggleMobileSection}>
               <MobileLinkGroup title="Equipment Departments" links={equipmentLinks} />
-              <MobileLinkGroup title="Interactive Tools & Audit" links={[{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }, { label: "Bow Verification Register", href: "/equipment/verification", icon: ShieldCheck }]} />
+              <MobileLinkGroup title="Interactive Tools" links={[{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }]} />
               <MobileLinkGroup title="Master Bowyers" links={BOWYER_LINKS} />
             </MobileSection>
 
