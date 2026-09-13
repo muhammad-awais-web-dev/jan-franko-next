@@ -101,24 +101,41 @@ const BowyerProfileContent = () => {
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitting(true);
+
+    let bowyerTabName = "Harvey Archery";
+    const s = String(slug || "").toLowerCase();
+    if (s.includes("harvey")) {
+      bowyerTabName = "Harvey Archery";
+    } else if (s.includes("mr-bows") || s.includes("misko")) {
+      bowyerTabName = "MR Bows";
+    } else if (s.includes("kadys") || s.includes("sergey")) {
+      bowyerTabName = "Kadys Bows";
+    } else if (bowyer?.name) {
+      if (bowyer.name.toLowerCase().includes("harvey")) bowyerTabName = "Harvey Archery";
+      else if (bowyer.name.toLowerCase().includes("mr") || bowyer.name.toLowerCase().includes("rovčanin")) bowyerTabName = "MR Bows";
+      else if (bowyer.name.toLowerCase().includes("kadys") || bowyer.name.toLowerCase().includes("tolochko")) bowyerTabName = "Kadys Bows";
+    }
+
     try {
-      const res = await fetch("/api/forms/equipment-submit", {
+      const res = await fetch("/api/forms/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          form_name: bowyerTabName,
+          page_url: typeof window !== "undefined" ? window.location.href : `/bowyer/${slug}`,
           fields: {
+            bowyer_brand: bowyerTabName,
+            bowyer_name: bowyer?.name || slug,
             full_name: formData.fullName,
             email: formData.email,
             phone: formData.phone,
-            bowyer_requested: bowyer?.name || slug,
             draw_weight: formData.drawWeight,
             orientation: formData.orientation,
             intended_purpose: formData.purpose,
             custom_notes: formData.customNotes,
-            deposit_terms_accepted: "50% deposit before build / 50% + shipping upon completion"
+            deposit_terms_accepted: "50% deposit before build / 50% + shipping upon completion",
           },
-          page_url: typeof window !== "undefined" ? window.location.href : `/bowyer/${slug}`
-        })
+        }),
       });
       if (res.ok) {
         setFormSuccess(true);

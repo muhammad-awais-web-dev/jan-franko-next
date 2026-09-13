@@ -140,20 +140,69 @@ const BowyerProductContent = () => {
     }
     setErrors({});
 
+    // Determine target Master Bowyer tab name based on product taxonomy / slug
+    let bowyerTabName = "Harvey Archery";
+    const firstBowyerId = product?.bowyerIds?.[0];
+    const s = String(slug || "").toLowerCase();
+
+    if (firstBowyerId === 240 || s === "raptor" || s === "crowned-eagle" || s === "lammervanger") {
+      bowyerTabName = "Harvey Archery";
+    } else if (firstBowyerId === 241 || ["tiron", "spartak", "krstas", "obilic", "varjag", "aga", "despot"].includes(s)) {
+      bowyerTabName = "MR Bows";
+    } else if (firstBowyerId === 238 || s.startsWith("long") || s.includes("aspid") || s.includes("orhan") || s.includes("pioneer") || s.includes("nail") || s.includes("bb") || s.includes("hoder") || s.includes("khan") || s.includes("lynx") || s.includes("leon")) {
+      bowyerTabName = "Kadys Bows";
+    } else if (product?.acf?.bowyer_name) {
+      const bn = product.acf.bowyer_name.toLowerCase();
+      if (bn.includes("harvey")) bowyerTabName = "Harvey Archery";
+      else if (bn.includes("rovčanin") || bn.includes("rovcanin") || bn.includes("mr. bows")) bowyerTabName = "MR Bows";
+      else if (bn.includes("tolochko") || bn.includes("kadys")) bowyerTabName = "Kadys Bows";
+    }
+
+    // Format all configurator selection fields cleanly for WordPress display
+    const formattedSelections: Record<string, any> = {};
+    const selectionSummaryLines: string[] = [];
+
+    product?.acf?.configurator_fields?.forEach((configField) => {
+      const val = selections[configField.field_id];
+      if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
+        const label = configField.field_label || configField.field_id;
+        const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
+        formattedSelections[label] = formattedVal;
+        selectionSummaryLines.push(`${label}: ${formattedVal}`);
+      }
+    });
+
+    // Capture any additional custom selection keys
+    Object.entries(selections).forEach(([key, val]) => {
+      if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
+        const isKnownField = product?.acf?.configurator_fields?.some((f) => f.field_id === key);
+        if (!isKnownField) {
+          const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
+          if (!formattedSelections[key]) {
+            formattedSelections[key] = formattedVal;
+            selectionSummaryLines.push(`${key}: ${formattedVal}`);
+          }
+        }
+      }
+    });
+
     try {
       await fetch("/api/forms/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          form_name: "Bespoke Master Bow Order",
+          form_name: bowyerTabName,
           page_url: typeof window !== "undefined" ? window.location.href : `/master-bower-product/${slug}`,
           fields: {
+            bowyer: bowyerTabName,
             bow_title: product?.title || slug,
+            bow_slug: slug,
             full_name: fullName,
             email: email,
             phone: phone,
-            custom_selections: selections,
             message: message,
+            specifications_summary: selectionSummaryLines.join(" | "),
+            ...formattedSelections,
           },
         }),
       });
