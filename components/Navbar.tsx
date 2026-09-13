@@ -516,22 +516,6 @@ const Navbar = () => {
                         </Link>
                       </h4>
                       <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
-                        {(parentCat.slug === "arrows" || parentCat.slug === "arrows-shafts" || parentCat.slug.includes("arrow") || parentCat.name.toLowerCase().includes("arrow")) && (
-                          <li>
-                            <Link
-                              href="/equipment/arrow-configurator"
-                              className="hover:text-accent transition-colors flex items-center justify-between py-1 font-bold text-accent bg-accent/5 px-2 rounded-lg border border-accent/20"
-                            >
-                              <span className="flex items-center gap-1.5">
-                                <Sliders className="w-3.5 h-3.5" />
-                                Custom Arrow Builder
-                              </span>
-                              <span className="text-[9px] px-1.5 py-0.5 bg-accent/20 text-accent rounded font-sans tracking-wider uppercase font-bold">
-                                Builder
-                              </span>
-                            </Link>
-                          </li>
-                        )}
                         {subCats.length === 0 ? (
                           <li>
                             <Link
@@ -556,32 +540,30 @@ const Navbar = () => {
                       </ul>
                     </div>
                   ))}
+
+                  {/* Interactive Tools Category Block (After all other categories) */}
+                  <div className="space-y-3 font-sans">
+                    <h4 className="text-xs uppercase tracking-widest text-[#7d603a] font-bold border-b border-primary/5 pb-2 flex items-center gap-1.5 font-sans">
+                      <Sliders className="w-4 h-4 text-accent" />
+                      <span>Interactive Tools</span>
+                    </h4>
+                    <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
+                      <li>
+                        <Link
+                          href="/equipment/arrow-configurator"
+                          className="hover:text-accent transition-colors block py-0.5"
+                        >
+                          Custom Arrow Builder
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
                 </Masonry>
 
-                {/* Right 1 Column: Master Bowyers & Custom Arrow Builder Card */}
+                {/* Right 1 Column: Master Bowyers Card */}
                 <div className="col-span-1 bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner min-h-[380px] relative overflow-hidden">
                   <div className="space-y-3">
-                    {/* Featured Tool CTA */}
-                    <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-2">
-                      <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
-                        Interactive Tool
-                      </span>
-                      <Link
-                        href="/equipment/arrow-configurator"
-                        className="flex items-center justify-between group/tool text-white hover:text-accent transition-colors"
-                      >
-                        <span className="font-serif text-sm font-bold flex items-center gap-1.5">
-                          <Sliders className="w-4 h-4 text-accent shrink-0" />
-                          Custom Arrow Builder
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-accent group-hover/tool:translate-x-0.5 transition-transform shrink-0" />
-                      </Link>
-                      <p className="text-[10px] text-white/70 font-sans leading-snug">
-                        Design custom arrows tailored to your draw length, spine, and fletching.
-                      </p>
-                    </div>
-
-                    <div className="space-y-0.5 border-b border-white/10 pb-2.5 pt-1">
+                    <div className="space-y-0.5 border-b border-white/10 pb-2.5">
                       <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
                         Vetted Guild
                       </span>
@@ -1161,18 +1143,6 @@ const Navbar = () => {
 
                 {isEquipmentMobileOpen && (
                   <div className="pl-4 border-l border-primary/10 space-y-4 pt-1 pb-3 animate-in slide-in-from-top-2 duration-200">
-                    <Link
-                      href="/equipment/arrow-configurator"
-                      className="flex items-center justify-between py-2 px-3 bg-[#7d603a]/10 border border-[#7d603a]/20 rounded-xl text-xs font-bold text-[#7d603a] hover:bg-[#7d603a]/20 transition-all font-sans"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <Sliders className="w-3.5 h-3.5 text-[#7d603a]" />
-                        Custom Arrow Builder
-                      </span>
-                      <span className="text-[9px] px-1.5 py-0.5 bg-[#7d603a] text-white rounded font-sans tracking-wider uppercase font-bold">
-                        Builder
-                      </span>
-                    </Link>
                     {topCats.map((parentCat) => {
                       const subs = equipmentCategories.filter((c) => c.parent === parentCat.id);
                       const key = `eq-cat-${parentCat.id}`;
@@ -1228,6 +1198,21 @@ const Navbar = () => {
                         );
                       }
                     })}
+
+                    {/* Interactive Tools Group after all other categories */}
+                    <div className="space-y-2 pt-2 border-t border-primary/10">
+                      <div className="text-xs font-serif font-bold text-[#7d603a] tracking-wider uppercase flex items-center gap-1.5">
+                        <Sliders className="w-3.5 h-3.5 text-[#7d603a]" />
+                        <span>Interactive Tools</span>
+                      </div>
+                      <ul className="space-y-1.5 pl-2 font-sans text-xs tracking-wide text-primary/80 font-medium normal-case">
+                        <li>
+                          <Link href="/equipment/arrow-configurator" className="hover:text-[#7d603a] block py-1 transition-colors">
+                            Custom Arrow Builder
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 )}
               </li>
