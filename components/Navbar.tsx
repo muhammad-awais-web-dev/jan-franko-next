@@ -516,6 +516,22 @@ const Navbar = () => {
                         </Link>
                       </h4>
                       <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
+                        {parentCat.slug === "arrows-shafts" && (
+                          <li>
+                            <Link
+                              href="/equipment/arrow-configurator"
+                              className="hover:text-accent transition-colors flex items-center justify-between py-1 font-bold text-accent bg-accent/5 px-2 rounded-lg border border-accent/20"
+                            >
+                              <span className="flex items-center gap-1.5">
+                                <Sliders className="w-3.5 h-3.5" />
+                                Custom Arrow Builder
+                              </span>
+                              <span className="text-[9px] px-1.5 py-0.5 bg-accent/20 text-accent rounded font-sans tracking-wider uppercase font-bold">
+                                Builder
+                              </span>
+                            </Link>
+                          </li>
+                        )}
                         {subCats.length === 0 ? (
                           <li>
                             <Link
@@ -1125,6 +1141,18 @@ const Navbar = () => {
 
                 {isEquipmentMobileOpen && (
                   <div className="pl-4 border-l border-primary/10 space-y-4 pt-1 pb-3 animate-in slide-in-from-top-2 duration-200">
+                    <Link
+                      href="/equipment/arrow-configurator"
+                      className="flex items-center justify-between py-2 px-3 bg-[#7d603a]/10 border border-[#7d603a]/20 rounded-xl text-xs font-bold text-[#7d603a] hover:bg-[#7d603a]/20 transition-all font-sans"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Sliders className="w-3.5 h-3.5 text-[#7d603a]" />
+                        Custom Arrow Builder
+                      </span>
+                      <span className="text-[9px] px-1.5 py-0.5 bg-[#7d603a] text-white rounded font-sans tracking-wider uppercase font-bold">
+                        Builder
+                      </span>
+                    </Link>
                     {topCats.map((parentCat) => {
                       const subs = equipmentCategories.filter((c) => c.parent === parentCat.id);
                       const key = `eq-cat-${parentCat.id}`;
