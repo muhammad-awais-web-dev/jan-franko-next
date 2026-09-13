@@ -59,7 +59,8 @@ type TaxonomyTerm = { id: number; name: string; slug: string };
 type MenuLink = {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  image?: string;
   protectedName?: boolean;
 };
 
@@ -156,9 +157,24 @@ const KNOWLEDGE_GROUPS: { title: string; icon: LucideIcon; links: MenuLink[] }[]
 ];
 
 const BOWYER_LINKS: MenuLink[] = [
-  { label: "Harvey Archery — Warrick Harvey", href: "/bowyer/warrick-harvey", icon: Hammer, protectedName: true },
-  { label: "Kadys Bows — Sergey Tolochko", href: "/bowyer/kadys-bows", icon: Hammer, protectedName: true },
-  { label: "MR Bows — Miško Rovčanin", href: "/bowyer/mr-bows", icon: Hammer, protectedName: true },
+  {
+    label: "Harvey Archery — Warrick Harvey",
+    href: "/bowyer/warrick-harvey",
+    image: "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg",
+    protectedName: true,
+  },
+  {
+    label: "Kadys Bows — Sergey Tolochko",
+    href: "/bowyer/kadys-bows",
+    image: "https://janfranko.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-12-at-11.23.29-PM.jpeg",
+    protectedName: true,
+  },
+  {
+    label: "MR Bows — Miško Rovčanin",
+    href: "/bowyer/mr-bows",
+    image: "https://janfranko.com/wp-content/uploads/2026/04/16864081_1249414485136489_6658590496747384211_n.jpg",
+    protectedName: true,
+  },
 ];
 
 const FLAG_CODES: Record<string, string> = {
@@ -223,8 +239,18 @@ function MenuItem({ item }: { item: MenuLink }) {
         href={item.href}
         className="group/item flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1]"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b] transition group-hover/item:bg-white">
-          <Icon className="h-4 w-4" aria-hidden="true" />
+        <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#e8f2ed] text-[#0e624b] transition group-hover/item:bg-white">
+          {item.image ? (
+            <Image
+              src={item.image}
+              alt=""
+              width={36}
+              height={36}
+              className="h-full w-full object-cover object-center"
+            />
+          ) : Icon ? (
+            <Icon className="h-4 w-4" aria-hidden="true" />
+          ) : null}
         </span>
         <span
           className={`min-w-0 flex-1 text-[13px] font-semibold leading-snug text-[#173b31] ${item.protectedName ? "notranslate" : ""}`}
