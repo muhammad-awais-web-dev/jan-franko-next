@@ -261,7 +261,18 @@ const MACRO_REGIONS = {
     // 2. Program Type Filter
     if (selectedType) {
       const typeId = Number(selectedType);
-      sorted = sorted.filter((p) => p.program_type && p.program_type.includes(typeId));
+      sorted = sorted.filter((p) => {
+        if (p.program_type && Array.isArray(p.program_type) && p.program_type.includes(typeId)) {
+          return true;
+        }
+        if (
+          (selectedType === "corporate-training" || selectedType === "236" || typeId === 236) &&
+          (p.id === 4744 || p.slug.includes("zemiansky-vrbovok"))
+        ) {
+          return true;
+        }
+        return false;
+      });
     }
 
     // 3. Status Filter
@@ -522,8 +533,11 @@ const MACRO_REGIONS = {
         // Enrich Program 4744 (Zemiansky Vrbovok) with Corporate Event specification per client mandate
         const enrichedProgData = progData.map((prog) => {
           if (prog.id === 4744 || prog.slug.includes("zemiansky-vrbovok")) {
+            const currentTypes = Array.isArray(prog.program_type) ? prog.program_type : [];
+            const updatedTypes = currentTypes.includes(236) ? currentTypes : [...currentTypes, 236];
             return {
               ...prog,
+              program_type: updatedTypes,
               title: {
                 rendered: "Corporate Archery & Team Building at Zruby Dúbrava"
               },
