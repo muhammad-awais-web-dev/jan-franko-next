@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const cacheOpts = { next: { revalidate: 86400 } }; // 24 hours cache revalidation
+    const cacheOpts = { next: { revalidate: 0 } }; // Dynamic fresh WP API data
 
     // 1. Fetch partner bowyers taxonomy terms with acf_format=standard
     const bowyerRes = await fetch("https://janfranko.com/wp-json/wp/v2/bowyer?acf_format=standard&per_page=100", cacheOpts);
@@ -42,6 +42,8 @@ export async function GET() {
     const cleanText = (raw: string) => {
       if (!raw) return "";
       return raw
+        .replace(/<\/p>/gi, "\n\n")
+        .replace(/<br\s*\/?>/gi, "\n")
         .replace(/<[^>]*>/g, "")
         .replace(/&#8220;/g, "“")
         .replace(/&#8221;/g, "”")

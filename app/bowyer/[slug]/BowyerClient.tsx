@@ -267,13 +267,13 @@ const BowyerProfileContent = () => {
 
           <div className="w-16 h-[1px] bg-[#c5a880]/30" />
 
-          {/* Reduced distance between story & philosophy columns (gap-4 md:gap-6) and formatted paragraphs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-2">
+          {/* Vertically stacked Artisan Story and Crafting Philosophy sections */}
+          <div className="space-y-6 pt-2">
             <div className="space-y-2">
-              <h3 className="text-[11px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
+              <h3 className="text-[11px] font-serif uppercase tracking-widest text-[#5c4629] font-bold border-b border-[#5c4629]/15 pb-1">
                 The Artisan Story
               </h3>
-              <div className="text-xs md:text-sm text-primary/80 font-sans leading-relaxed space-y-2">
+              <div className="text-xs md:text-sm text-primary/80 font-sans leading-relaxed space-y-2.5">
                 {cleanTitle(bowyer.story)
                   .split("\n\n")
                   .map((paragraph, idx) => (
@@ -282,11 +282,11 @@ const BowyerProfileContent = () => {
               </div>
             </div>
             {bowyer.philosophy && (
-              <div className="space-y-2">
-                <h3 className="text-[11px] font-serif uppercase tracking-widest text-[#7d603a] font-bold">
+              <div className="space-y-2 pt-2">
+                <h3 className="text-[11px] font-serif uppercase tracking-widest text-[#7d603a] font-bold border-b border-[#7d603a]/15 pb-1">
                   Crafting Philosophy
                 </h3>
-                <div className="text-xs md:text-sm text-primary/80 font-sans leading-relaxed space-y-2">
+                <div className="text-xs md:text-sm text-primary/80 font-sans leading-relaxed space-y-2.5">
                   {cleanTitle(bowyer.philosophy)
                     .split("\n\n")
                     .map((paragraph, idx) => (
