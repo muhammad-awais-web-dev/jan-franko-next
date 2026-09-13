@@ -49,8 +49,7 @@ const HeroMobile = () => {
 
       {/* Description Paragraph */}
       <p className="text-sm text-secondary/90 font-light leading-relaxed max-w-sm mb-8 z-10">
-        A traditional archery academy focused on structured training, cultural study, and expeditions exploring historic archery traditions.
-        At The Global Academy for Traditional Archery, we offer a comprehensive approach to learning the art of traditional archery, designed to build instinct through rigorous, measurable structure.
+        A traditional archery academy offering a comprehensive, structured approach to mastering the art of traditional archery, cultural study, and global wilderness expeditions.
       </p>
 
       {/* CTA Button */}

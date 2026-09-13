@@ -184,8 +184,7 @@ const Hero = () => {
           ref={descRef}
           className="text-base md:text-lg text-primary/80 font-light leading-relaxed max-w-2xl mb-8 opacity-0"
         >
-          A traditional archery academy focused on structured training, cultural study, and expeditions exploring historic archery traditions.
-          At The Global Academy for Traditional Archery, we offer a comprehensive approach to learning the art of traditional archery. Our programs are designed to provide students with the skills, knowledge, and experience needed to excel in this ancient practice.
+          A traditional archery academy offering a comprehensive, structured approach to mastering the art of traditional archery, cultural study, and global wilderness expeditions.
         </p>
         
         <Link
