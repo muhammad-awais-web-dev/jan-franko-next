@@ -97,6 +97,7 @@ const ACADEMY_GROUPS: { title: string; icon: LucideIcon; links: MenuLink[] }[] =
     links: [
       { label: "The Academy Hub", href: "/academy", icon: GraduationCap },
       { label: "Certification & Audit", href: "/academy/certification", icon: ShieldCheck },
+      { label: "Training Philosophy", href: "/academy/training-philosophy", icon: BookOpen },
     ],
   },
   {
@@ -104,6 +105,8 @@ const ACADEMY_GROUPS: { title: string; icon: LucideIcon; links: MenuLink[] }[] =
     icon: Award,
     links: [
       { label: "Explorer Rank System", href: "/academy/explorer-rank-system", icon: Award },
+      { label: "Archer's Virtues & Ranks", href: "/academy/archers-virtues", icon: ShieldCheck },
+      { label: "The Raptor Path", href: "/academy/raptor-path", icon: Target },
       { label: "Environmental Stress Index (ESI)", href: "/academy/environmental-stress-index-esi", icon: Activity },
     ],
   },
@@ -113,6 +116,7 @@ const ACADEMY_GROUPS: { title: string; icon: LucideIcon; links: MenuLink[] }[] =
     links: [
       { label: "Summit Protocol (Tier III)", href: "/academy/summit-protocol", icon: Mountain },
       { label: "Code of Conduct & Neutrality", href: "/academy/code-of-conduct", icon: ScrollText },
+      { label: "Special Practice Retreats", href: "/academy/special-practice-retreats", icon: CalendarDays },
       { label: "Archery Games & Events", href: "/archery-games", icon: CalendarDays },
     ],
   },
@@ -612,7 +616,7 @@ export default function Navbar() {
                 footerLabel="Equipment"
               >
                 <MenuGroup title="Equipment Departments" icon={Target}><ul className="space-y-1">{equipmentLinks.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
-                <MenuGroup title="Interactive Tools" icon={SlidersHorizontal}><ul className="space-y-1"><MenuItem item={{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }} /></ul></MenuGroup>
+                <MenuGroup title="Interactive Tools & Audit" icon={SlidersHorizontal}><ul className="space-y-1"><MenuItem item={{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }} /><MenuItem item={{ label: "Bow Verification Register", href: "/equipment/verification", icon: ShieldCheck }} /></ul></MenuGroup>
                 <MenuGroup title="Master Bowyers" icon={Hammer}><ul className="space-y-1">{BOWYER_LINKS.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
               </MegaPanel>
             </DesktopMegaMenu>
@@ -730,7 +734,7 @@ export default function Navbar() {
 
             <MobileSection id="equipment" label="Equipment" href="/equipment" open={mobileSection === "equipment"} active={pathname.startsWith("/equipment") || pathname.startsWith("/bowyer")} onToggle={toggleMobileSection}>
               <MobileLinkGroup title="Equipment Departments" links={equipmentLinks} />
-              <MobileLinkGroup title="Interactive Tools" links={[{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }]} />
+              <MobileLinkGroup title="Interactive Tools & Audit" links={[{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }, { label: "Bow Verification Register", href: "/equipment/verification", icon: ShieldCheck }]} />
               <MobileLinkGroup title="Master Bowyers" links={BOWYER_LINKS} />
             </MobileSection>
 
