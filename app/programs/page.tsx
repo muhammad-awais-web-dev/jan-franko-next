@@ -261,18 +261,7 @@ const MACRO_REGIONS = {
     // 2. Program Type Filter
     if (selectedType) {
       const typeId = Number(selectedType);
-      sorted = sorted.filter((p) => {
-        if (p.program_type && Array.isArray(p.program_type) && p.program_type.includes(typeId)) {
-          return true;
-        }
-        if (
-          (selectedType === "corporate-training" || selectedType === "236" || typeId === 236) &&
-          (p.id === 4744 || p.slug.includes("zemiansky-vrbovok"))
-        ) {
-          return true;
-        }
-        return false;
-      });
+      sorted = sorted.filter((p) => p.program_type && Array.isArray(p.program_type) && p.program_type.includes(typeId));
     }
 
     // 3. Status Filter
@@ -530,60 +519,12 @@ const MACRO_REGIONS = {
           }
         }
 
-        // Enrich Program 4744 (Zemiansky Vrbovok) with Corporate Event specification per client mandate
-        const enrichedProgData = progData.map((prog) => {
-          if (prog.id === 4744 || prog.slug.includes("zemiansky-vrbovok")) {
-            const currentTypes = Array.isArray(prog.program_type) ? prog.program_type : [];
-            const updatedTypes = currentTypes.includes(236) ? currentTypes : [...currentTypes, 236];
-            return {
-              ...prog,
-              program_type: updatedTypes,
-              title: {
-                rendered: "Corporate Archery & Team Building at Zruby Dúbrava"
-              },
-              acf: {
-                ...prog.acf,
-                subtitle: "Zemiansky Vrbovok 125 — Corporate Retreat",
-                program_type: "Corporate & Team-Building",
-                country: "Slovakia",
-                main_location: "Zruby Dúbrava, Zemiansky Vrbovok 125, 962 41 Zemiansky Vrbovok (near Bzovík Castle)",
-                closest_arrival_city: "Bratislava / Vienna",
-                short_description: "Custom corporate archery retreats, team-building, and leadership experiences set in the historic countryside of Zemiansky Vrbovok (Zruby Dúbrava 125).",
-                full_introduction: "Set in the historic countryside of Zemiansky Vrbovok near Bzovík Castle, this corporate retreat connects physical posture, diaphragmatic breathing, and focus with collaborative team archery challenges.",
-                group_size: "Corporate & Private Groups",
-                enable_duration_override: true,
-                duration_overide: "1 to 3 Days (Customizable)",
-                recommended_season: "Spring / Summer / Autumn",
-                enable_activities: true,
-                activities_list: [
-                  {
-                    activities_item_title: "Instinctive Focus & Breath Work",
-                    activities_item_description: "Connecting diaphragmatic breathing and biomechanical alignment with team archery."
-                  },
-                  {
-                    activities_item_title: "Team Archery Challenge",
-                    activities_item_description: "Structured group targets and collaborative field archery competitions."
-                  }
-                ],
-                enable_training_focus: true,
-                training_focus: [
-                  {
-                    training_focus_title: "Stress Regulation",
-                    training_focus_description: "Using instinctive archery to lower heart rate and sharpen executive focus."
-                  }
-                ]
-              }
-            };
-          }
-          return prog;
-        });
-
-        // Set high-res free Unsplash image for Zemiansky Vrbovok corporate retreat
-        if (mediaMap[3309] || enrichedProgData.some((p) => p.id === 4744)) {
+        // Set high-res free Unsplash image for Zemiansky Vrbovok corporate retreat background if media item 3309 is referenced
+        if (mediaMap[3309] || progData.some((p) => p.id === 4744)) {
           mediaMap[3309] = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80";
         }
 
-        setPrograms(enrichedProgData);
+        setPrograms(progData);
         setMedia(mediaMap);
       } catch (err: any) {
         console.error("Filter request error:", err);
