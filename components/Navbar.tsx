@@ -177,6 +177,45 @@ const BOWYER_LINKS: MenuLink[] = [
   },
 ];
 
+function FacebookIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
+function LinkedInIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.285-.143-1.687-.833-1.947-.928-.26-.095-.45-.143-.639.143-.19.286-.735.928-.901 1.118-.166.19-.333.214-.618.071-.285-.143-1.207-.445-2.299-1.419-.85-.758-1.424-1.693-1.591-1.979-.166-.285-.018-.439.125-.581.129-.128.285-.333.428-.5.143-.167.19-.285.285-.476.095-.19.048-.357-.024-.5-.071-.143-.639-1.541-.875-2.107-.23-.552-.464-.477-.639-.486-.165-.008-.356-.01-.546-.01-.19 0-.499.071-.76.357-.26.286-.998.976-.998 2.38 0 1.404 1.022 2.76 1.165 2.951.143.19 2.012 3.073 4.875 4.31.681.294 1.213.47 1.627.601.684.217 1.307.186 1.8.113.549-.082 1.687-.69 1.925-1.356.237-.666.237-1.237.166-1.356-.07-.119-.26-.19-.545-.333z" />
+    </svg>
+  );
+}
+
+function TelegramIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.16-.22 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.577.192l-8.533 7.703-.33 4.953c.485 0 .7-.223.97-.485l2.33-2.266 4.85 3.582c.893.492 1.535.24 1.758-.823l3.18-15c.325-1.305-.5-1.9-.136-1.5z" />
+    </svg>
+  );
+}
+
+const SOCIAL_LINKS: MenuLink[] = [
+  { label: "Facebook", href: "https://www.facebook.com/share/16uZNxRu4R/", icon: FacebookIcon as LucideIcon },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/jan-franko/", icon: LinkedInIcon as LucideIcon },
+  { label: "WhatsApp", href: SITE.whatsappUrl, icon: WhatsAppIcon as LucideIcon },
+  { label: "Telegram", href: "https://t.me/ExplorerAdventuresJF", icon: TelegramIcon as LucideIcon },
+];
+
 const FLAG_CODES: Record<string, string> = {
   en: "gb",
   de: "de",
@@ -233,10 +272,13 @@ function LanguageFlag({ code, className = "" }: { code: string; className?: stri
 
 function MenuItem({ item }: { item: MenuLink }) {
   const Icon = item.icon;
+  const isExternal = item.href.startsWith("http");
   return (
     <li>
       <Link
         href={item.href}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener noreferrer" : undefined}
         className="group/item flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1]"
       >
         <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#e8f2ed] text-[#0e624b] transition group-hover/item:bg-white">
@@ -258,7 +300,11 @@ function MenuItem({ item }: { item: MenuLink }) {
         >
           {item.label}
         </span>
-        <ChevronRight className="h-4 w-4 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
+        {isExternal ? (
+          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
+        ) : (
+          <ChevronRight className="h-4 w-4 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
+        )}
       </Link>
     </li>
   );
@@ -682,12 +728,9 @@ export default function Navbar() {
                 </MenuGroup>
                 <MenuGroup title="Social Channels" icon={Globe2}>
                   <ul className="space-y-1">
-                    {[
-                      ["Facebook", "https://www.facebook.com/share/16uZNxRu4R/"],
-                      ["LinkedIn", "https://www.linkedin.com/in/jan-franko/"],
-                      ["WhatsApp", SITE.whatsappUrl],
-                      ["Telegram", "https://t.me/ExplorerAdventuresJF"],
-                    ].map(([label, href]) => <li key={label}><a href={href} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-[13px] font-semibold text-[#173b31] transition hover:bg-[#eef5f1]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f2ed] text-[#0e624b]"><Globe2 className="h-4 w-4" /></span><span>{label}</span><ExternalLink className="ml-auto h-3.5 w-3.5 text-[#69ad96]" /></a></li>)}
+                    {SOCIAL_LINKS.map((item) => (
+                      <MenuItem key={item.label} item={item} />
+                    ))}
                   </ul>
                 </MenuGroup>
               </MegaPanel>
