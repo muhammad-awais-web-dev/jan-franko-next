@@ -166,7 +166,7 @@ const AboutPage = () => {
               <p>
                 Traditional archery is often misunderstood as either target sport shooting or historical reenactment. We approach it differently. It demands more than mechanical accuracy—it requires attention, stability, and the ability to remain composed under changing conditions.
               </p>
-              <blockquote className="border-l-2 border-accent pl-4 py-1.5 text-accent font-serif italic text-lg md:text-xl leading-relaxed">
+              <blockquote className="border-l-2 border-accent pl-4 py-2 text-[#7d603a] font-serif italic text-lg md:text-xl font-medium leading-relaxed bg-accent/5 rounded-r-lg">
                 "Archery is not only about the bow and the arrow. It is about the relationship between the body, breath, movement, attention and intention."
               </blockquote>
               <p>

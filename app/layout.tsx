@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
+import { Geist, Geist_Mono, Lora } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -18,10 +18,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const cormorant = Cormorant_Garamond({
+const fontSerif = Lora({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
 });
 
@@ -49,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} h-full antialiased scroll-smooth overflow-x-hidden max-w-full`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fontSerif.variable} h-full antialiased scroll-smooth overflow-x-hidden max-w-full`}
     >
       <body className="min-h-full flex flex-col relative bg-[#f0e9d9] text-[#0e3b2e] overflow-x-hidden max-w-full">
         <GoogleTranslate />
