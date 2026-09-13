@@ -562,10 +562,10 @@ export default function Navbar() {
     href: `/programs?region=${term.slug}`,
     icon: MapPin,
   }));
-  const equipmentLinks: MenuLink[] = EQUIPMENT_CATEGORIES.map((category) => ({
+  const equipmentLinks: MenuLink[] = EQUIPMENT_CATEGORIES.filter((category) => category.slug !== "master-bowyers").map((category) => ({
     label: category.name,
     href: `/equipment?category=${category.slug}`,
-    icon: category.slug === "bows" ? Target : category.slug === "master-bowyers" ? Hammer : category.slug === "training-kits" ? GraduationCap : SlidersHorizontal,
+    icon: category.slug === "bows" ? Target : category.slug === "training-kits" ? GraduationCap : SlidersHorizontal,
   }));
   const activeLanguageName = SUPPORTED_LANGUAGES.find((language) => language.code === activeLanguage)?.label || "English";
 
