@@ -118,7 +118,7 @@ export default function JanFrankoProfilePage() {
     <main id="main-content" className="min-h-screen bg-[#f0e9d9] text-[#0e3b2e]">
       <section className="relative overflow-hidden bg-[#0e3b2e] px-6 py-14 text-white sm:py-20 lg:py-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_75%_30%,rgba(197,168,128,0.16),transparent_48%)]" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div className="relative mx-auto grid max-w-[1440px] items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/15 bg-[#092a21] shadow-2xl">
             <Image src="/images/wp-assets/jan-franko-profile.jpeg" alt="Jan Franko, founder and lead instructor" fill priority sizes="(max-width: 1024px) 90vw, 380px" className="object-cover" />
           </div>
@@ -134,7 +134,7 @@ export default function JanFrankoProfilePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+      <section className="mx-auto max-w-[1440px] px-6 py-16 sm:py-20">
         <div className="mb-12 max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#7d603a]">The Path of the Bow</p>
           <h2 className="mt-3 font-serif text-4xl font-bold sm:text-5xl">The Path of the Bow</h2>
@@ -150,7 +150,7 @@ export default function JanFrankoProfilePage() {
       </section>
 
       <section className="bg-[#0b3126] px-6 py-16 text-[#f0e9d9] sm:py-20">
-        <div className="mx-auto max-w-5xl space-y-14">
+        <div className="mx-auto max-w-[1440px] space-y-14">
           {approachSections.map((section) => (
             <article key={section.title} className="grid gap-6 lg:grid-cols-[0.42fr_1fr] lg:gap-14">
               <div><Compass className="mb-4 h-6 w-6 text-[#c5a880]" /><h2 className="font-serif text-3xl font-bold text-white">{section.title}</h2></div>
@@ -160,7 +160,7 @@ export default function JanFrankoProfilePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+      <section className="mx-auto max-w-[1440px] px-6 py-16 sm:py-20">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#7d603a]">Background &amp; Credentials</p>
         <h2 className="mt-3 font-serif text-4xl font-bold">Experience supporting the teaching practice</h2>
         <div className="mt-10 grid gap-5 md:grid-cols-2">
@@ -169,7 +169,7 @@ export default function JanFrankoProfilePage() {
       </section>
 
       <section className="px-6 pb-20">
-        <div className="mx-auto max-w-5xl rounded-3xl bg-[#0e3b2e] p-8 text-center text-white shadow-xl sm:p-12">
+        <div className="mx-auto max-w-[1440px] rounded-3xl bg-[#0e3b2e] p-8 text-center text-white shadow-xl sm:p-12">
           <h2 className="font-serif text-3xl font-bold">Ready to train or consult?</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/75">Reach out directly via WhatsApp or the inquiry form.</p>
           <Link href="/contact" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#c5a880] px-7 text-xs font-bold uppercase tracking-wider text-[#0e3b2e]">Open the inquiry form <ArrowRight className="h-4 w-4" /></Link>
