@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, Compass, MapPin, Award, Sliders, BookOpen, Tag, Mail, Phone, Globe } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight, Compass, MapPin, Award, Sliders, BookOpen, Tag, Mail, Phone, Globe } from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
 import { readConsent } from "@/lib/consent";
 import { DEFAULT_PROGRAM_TYPES, DEFAULT_SKILL_LEVELS, DEFAULT_REGIONS } from "@/data/site";
@@ -516,7 +516,7 @@ const Navbar = () => {
                         </Link>
                       </h4>
                       <ul className="space-y-2 font-sans text-xs tracking-wider normal-case text-primary/80">
-                        {parentCat.slug === "arrows-shafts" && (
+                        {(parentCat.slug === "arrows" || parentCat.slug === "arrows-shafts" || parentCat.slug.includes("arrow") || parentCat.name.toLowerCase().includes("arrow")) && (
                           <li>
                             <Link
                               href="/equipment/arrow-configurator"
@@ -558,10 +558,30 @@ const Navbar = () => {
                   ))}
                 </Masonry>
 
-                {/* Right 1 Column: Master Bowyers Card */}
+                {/* Right 1 Column: Master Bowyers & Custom Arrow Builder Card */}
                 <div className="col-span-1 bg-[#0e3b2e] rounded-2xl p-5 text-white flex flex-col justify-between space-y-4 shadow-inner min-h-[380px] relative overflow-hidden">
                   <div className="space-y-3">
-                    <div className="space-y-0.5 border-b border-white/10 pb-2.5">
+                    {/* Featured Tool CTA */}
+                    <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-2">
+                      <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
+                        Interactive Tool
+                      </span>
+                      <Link
+                        href="/equipment/arrow-configurator"
+                        className="flex items-center justify-between group/tool text-white hover:text-accent transition-colors"
+                      >
+                        <span className="font-serif text-sm font-bold flex items-center gap-1.5">
+                          <Sliders className="w-4 h-4 text-accent shrink-0" />
+                          Custom Arrow Builder
+                        </span>
+                        <ChevronRight className="w-4 h-4 text-accent group-hover/tool:translate-x-0.5 transition-transform shrink-0" />
+                      </Link>
+                      <p className="text-[10px] text-white/70 font-sans leading-snug">
+                        Design custom arrows tailored to your draw length, spine, and fletching.
+                      </p>
+                    </div>
+
+                    <div className="space-y-0.5 border-b border-white/10 pb-2.5 pt-1">
                       <span className="text-[9px] uppercase tracking-widest text-accent font-bold font-sans block">
                         Vetted Guild
                       </span>
