@@ -172,89 +172,6 @@ const MACRO_REGIONS = {
   }
 };
 
-const PROGRAM_THEMATIC_GALLERIES: Record<number, string[]> = {
-  4753: [
-    "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4750: [
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4747: [
-    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4744: [
-    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4740: [
-    "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4728: [
-    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4724: [
-    "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4719: [
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4717: [
-    "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4713: [
-    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4701: [
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4695: [
-    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4692: [
-    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4678: [
-    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4616: [
-    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
-  ],
-  4563: [
-    "https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80"
-  ]
-};
-
 export default function ProgramsClient({
   initialPrograms,
   initialMedia,
@@ -504,25 +421,17 @@ export default function ProgramsClient({
     );
   };
 
-  // Helper to resolve unique, high-res gallery images for each program
-  const getProgramGalleryImages = (prog: Program): string[] => {
-    const customMediaUrls: string[] = [];
+  // Only extract real, non-duplicate media URLs fetched directly from WordPress for this specific program
+  const getProgramGalleryUrls = (prog: Program): string[] => {
+    const galleryUrls: string[] = [];
     if (prog.acf?.supplementary_images && Array.isArray(prog.acf.supplementary_images)) {
       prog.acf.supplementary_images.forEach((id) => {
-        // Filter out duplicate generic placeholder 3309 if present
-        if (id !== 3309 && media[id]) {
-          customMediaUrls.push(media[id]);
+        if (media[id] && !galleryUrls.includes(media[id])) {
+          galleryUrls.push(media[id]);
         }
       });
     }
-    if (customMediaUrls.length >= 2) {
-      return customMediaUrls;
-    }
-    return PROGRAM_THEMATIC_GALLERIES[prog.id] || [
-      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
-    ];
+    return galleryUrls;
   };
 
   // GSAP Entrance Animations for Program Cards
@@ -748,6 +657,17 @@ export default function ProgramsClient({
       setShowValidationError(true);
     }
   };
+
+  const modalGalleryUrls = activeModalProgram ? getProgramGalleryUrls(activeModalProgram) : [];
+
+  const hasLocation = Boolean(activeModalProgram?.acf?.main_location || activeModalProgram?.acf?.country);
+  const hasArrival = Boolean(activeModalProgram?.acf?.closest_arrival_city);
+  const hasDuration = Boolean(activeModalProgram?.acf?.enable_duration_override ? activeModalProgram?.acf?.duration_overide : activeModalProgram?.acf?.duration);
+  const hasSeason = Boolean(activeModalProgram?.acf?.recommended_season);
+  const hasCapacity = Boolean(activeModalProgram?.acf?.group_size);
+  const hasElement = Boolean(activeModalProgram?.acf?.five_elements_connection);
+
+  const hasAnySpecs = hasLocation || hasArrival || hasDuration || hasSeason || hasCapacity || hasElement;
 
   return (
     <div className="w-full min-h-screen bg-secondary text-primary select-text relative">
@@ -1182,14 +1102,16 @@ export default function ProgramsClient({
 
                 <div className="relative z-20 p-6 md:p-8 space-y-4 text-white">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-serif font-bold uppercase tracking-widest text-accent">
-                      {cleanTitle(
-                        activeModalProgram.program_type
-                          ?.map((id) => types.find((t) => t.id === id)?.name)
-                          .filter(Boolean)
-                          .join(" • ") || activeModalProgram.acf?.program_type || "Program Detail"
-                      )}
-                    </span>
+                    {activeModalProgram.program_type && activeModalProgram.program_type.length > 0 && (
+                      <span className="text-[10px] font-serif font-bold uppercase tracking-widest text-accent">
+                        {cleanTitle(
+                          activeModalProgram.program_type
+                            ?.map((id) => types.find((t) => t.id === id)?.name)
+                            .filter(Boolean)
+                            .join(" • ") || activeModalProgram.acf?.program_type || ""
+                        )}
+                      </span>
+                    )}
                     <h3 className="text-2xl md:text-3xl font-serif font-bold leading-tight">
                       {cleanTitle(activeModalProgram.acf?.hero_headline_override || activeModalProgram.title.rendered)}
                     </h3>
@@ -1201,20 +1123,24 @@ export default function ProgramsClient({
                   </div>
 
                   {/* Program Status & Schedule */}
-                  <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3.5 rounded-2xl space-y-1">
-                    <span className="text-[9px] font-serif uppercase tracking-widest text-white/70 block font-semibold">
-                      Status &amp; Schedule
-                    </span>
-                    <p className="text-xs font-serif font-bold text-white flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
-                      <span>{cleanTitle(activeModalProgram.acf?.event_status_label || "Date to be confirmed")}</span>
-                    </p>
-                    {activeModalProgram.acf?.event_date && (
-                      <p className="text-[11px] font-sans text-accent pl-5">
-                        {cleanTitle(activeModalProgram.acf.event_date)}
-                      </p>
-                    )}
-                  </div>
+                  {(activeModalProgram.acf?.event_status_label || activeModalProgram.acf?.event_date) && (
+                    <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3.5 rounded-2xl space-y-1">
+                      <span className="text-[9px] font-serif uppercase tracking-widest text-white/70 block font-semibold">
+                        Status &amp; Schedule
+                      </span>
+                      {activeModalProgram.acf?.event_status_label && (
+                        <p className="text-xs font-serif font-bold text-white flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
+                          <span>{cleanTitle(activeModalProgram.acf.event_status_label)}</span>
+                        </p>
+                      )}
+                      {activeModalProgram.acf?.event_date && (
+                        <p className="text-[11px] font-sans text-accent pl-5">
+                          {cleanTitle(activeModalProgram.acf.event_date)}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {activeModalProgram.acf?.five_elements_connection && (
                     <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/15 p-3 rounded-2xl">
@@ -1244,114 +1170,130 @@ export default function ProgramsClient({
                 {!isApplying ? (
                   <>
                     {/* 6 Core Specs Grid Header */}
-                    <div className="bg-primary/5 border border-primary/10 rounded-2xl p-5 mb-6">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-4">
-                        {/* 1. Location */}
-                        <div className="flex items-start gap-2.5">
-                          <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
-                              Location
-                            </span>
-                            <span className="text-xs font-semibold text-primary block leading-tight">
-                              {cleanTitle(
-                                activeModalProgram.acf?.main_location && activeModalProgram.acf?.country
-                                  ? `${activeModalProgram.acf.main_location}, ${activeModalProgram.acf.country}`
-                                  : activeModalProgram.acf?.country || "Worldwide"
-                              )}
-                            </span>
-                          </div>
-                        </div>
+                    {hasAnySpecs && (
+                      <div className="bg-primary/5 border border-primary/10 rounded-2xl p-5 mb-6">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-4">
+                          {/* 1. Location */}
+                          {hasLocation && (
+                            <div className="flex items-start gap-2.5">
+                              <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
+                                  Location
+                                </span>
+                                <span className="text-xs font-semibold text-primary block leading-tight">
+                                  {cleanTitle(
+                                    activeModalProgram.acf?.main_location && activeModalProgram.acf?.country
+                                      ? `${activeModalProgram.acf.main_location}, ${activeModalProgram.acf.country}`
+                                      : activeModalProgram.acf?.country || activeModalProgram.acf?.main_location || ""
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          )}
 
-                        {/* 2. Arrival Hub */}
-                        <div className="flex items-start gap-2.5">
-                          <Plane className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
-                              Arrival Hub
-                            </span>
-                            <span className="text-xs font-semibold text-primary block leading-tight">
-                              {cleanTitle(activeModalProgram.acf?.closest_arrival_city || "Detailed on confirmation")}
-                            </span>
-                          </div>
-                        </div>
+                          {/* 2. Arrival Hub */}
+                          {hasArrival && (
+                            <div className="flex items-start gap-2.5">
+                              <Plane className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
+                                  Arrival Hub
+                                </span>
+                                <span className="text-xs font-semibold text-primary block leading-tight">
+                                  {cleanTitle(activeModalProgram.acf?.closest_arrival_city || "")}
+                                </span>
+                              </div>
+                            </div>
+                          )}
 
-                        {/* 3. Duration */}
-                        <div className="flex items-start gap-2.5">
-                          <Clock className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
-                              Duration
-                            </span>
-                            <span className="text-xs font-semibold text-primary block leading-tight">
-                              {cleanTitle(
-                                activeModalProgram.acf?.enable_duration_override
-                                  ? activeModalProgram.acf.duration_overide || "Custom Duration"
-                                  : activeModalProgram.acf?.duration
-                                  ? `${activeModalProgram.acf.duration} Days`
-                                  : "Flexible"
-                              )}
-                            </span>
-                          </div>
-                        </div>
+                          {/* 3. Duration */}
+                          {hasDuration && (
+                            <div className="flex items-start gap-2.5">
+                              <Clock className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
+                                  Duration
+                                </span>
+                                <span className="text-xs font-semibold text-primary block leading-tight">
+                                  {cleanTitle(
+                                    activeModalProgram.acf?.enable_duration_override
+                                      ? activeModalProgram.acf.duration_overide || ""
+                                      : activeModalProgram.acf?.duration
+                                      ? `${activeModalProgram.acf.duration} Days`
+                                      : ""
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          )}
 
-                        {/* 4. Season */}
-                        <div className="flex items-start gap-2.5">
-                          <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
-                              Season
-                            </span>
-                            <span className="text-xs font-semibold text-primary block leading-tight">
-                              {cleanTitle(activeModalProgram.acf?.recommended_season || "Year-round")}
-                            </span>
-                          </div>
-                        </div>
+                          {/* 4. Season */}
+                          {hasSeason && (
+                            <div className="flex items-start gap-2.5">
+                              <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
+                                  Season
+                                </span>
+                                <span className="text-xs font-semibold text-primary block leading-tight">
+                                  {cleanTitle(activeModalProgram.acf?.recommended_season || "")}
+                                </span>
+                              </div>
+                            </div>
+                          )}
 
-                        {/* 5. Capacity */}
-                        <div className="flex items-start gap-2.5">
-                          <Users className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
-                              Capacity
-                            </span>
-                            <span className="text-xs font-semibold text-primary block leading-tight">
-                              {cleanTitle(activeModalProgram.acf?.group_size || "Small Group (Max 8-12)")}
-                            </span>
-                          </div>
-                        </div>
+                          {/* 5. Capacity */}
+                          {hasCapacity && (
+                            <div className="flex items-start gap-2.5">
+                              <Users className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
+                                  Capacity
+                                </span>
+                                <span className="text-xs font-semibold text-primary block leading-tight">
+                                  {cleanTitle(activeModalProgram.acf?.group_size || "")}
+                                </span>
+                              </div>
+                            </div>
+                          )}
 
-                        {/* 6. Element */}
-                        <div className="flex items-start gap-2.5">
-                          {getElementIcon(activeModalProgram.acf?.five_elements_connection, "w-4 h-4 text-accent shrink-0 mt-0.5")}
-                          <div>
-                            <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
-                              Element
-                            </span>
-                            <span className="text-xs font-semibold text-primary block leading-tight">
-                              {cleanTitle(activeModalProgram.acf?.five_elements_connection || "Universal")}
-                            </span>
-                          </div>
+                          {/* 6. Element */}
+                          {hasElement && (
+                            <div className="flex items-start gap-2.5">
+                              {getElementIcon(activeModalProgram.acf?.five_elements_connection, "w-4 h-4 text-accent shrink-0 mt-0.5")}
+                              <div>
+                                <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
+                                  Element
+                                </span>
+                                <span className="text-xs font-semibold text-primary block leading-tight">
+                                  {cleanTitle(activeModalProgram.acf?.five_elements_connection || "")}
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Overview & Full Introduction */}
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
-                        <BookOpen className="w-4 h-4 text-accent" />
-                        Overview &amp; Program Scope
-                      </h4>
-                      <div
-                        className="text-xs md:text-sm text-primary/85 leading-relaxed space-y-3 prose font-normal max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: cleanTitle(activeModalProgram.acf?.full_introduction || activeModalProgram.content.rendered)
-                        }}
-                      />
-                    </div>
+                    {(activeModalProgram.acf?.full_introduction || activeModalProgram.content?.rendered) && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-accent" />
+                          Overview &amp; Program Scope
+                        </h4>
+                        <div
+                          className="text-xs md:text-sm text-primary/85 leading-relaxed space-y-3 prose font-normal max-w-none"
+                          dangerouslySetInnerHTML={{
+                            __html: cleanTitle(activeModalProgram.acf?.full_introduction || activeModalProgram.content.rendered)
+                          }}
+                        />
+                      </div>
+                    )}
 
-                    {/* Environment & Location Details */}
-                    {(activeModalProgram.acf?.terrain_description || activeModalProgram.acf?.climate_notes || activeModalProgram.acf?.closest_arrival_city) && (
+                    {/* Environment & Terrain Details */}
+                    {(activeModalProgram.acf?.terrain_description || activeModalProgram.acf?.climate_notes) && (
                       <div className="bg-primary/5 p-5 rounded-2xl space-y-3 border border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <Mountain className="w-4 h-4 text-accent" />
@@ -1360,7 +1302,7 @@ export default function ProgramsClient({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                           {activeModalProgram.acf?.terrain_description && (
                             <div className="sm:col-span-2">
-                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Terrain</span>
+                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Terrain Description</span>
                               <p className="text-primary/85 font-normal leading-relaxed mt-0.5">
                                 {cleanTitle(activeModalProgram.acf.terrain_description)}
                               </p>
@@ -1368,7 +1310,7 @@ export default function ProgramsClient({
                           )}
                           {activeModalProgram.acf?.climate_notes && (
                             <div className="sm:col-span-2">
-                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Climate &amp; Weather</span>
+                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Climate &amp; Weather Notes</span>
                               <p className="text-primary/85 font-normal leading-relaxed mt-0.5">
                                 {cleanTitle(activeModalProgram.acf.climate_notes)}
                               </p>
@@ -1409,7 +1351,7 @@ export default function ProgramsClient({
                     )}
 
                     {/* Training Focus */}
-                    {activeModalProgram.acf?.training_focus && activeModalProgram.acf.training_focus.length > 0 && (
+                    {activeModalProgram.acf?.enable_training_focus && activeModalProgram.acf?.training_focus && activeModalProgram.acf.training_focus.length > 0 && (
                       <div className="space-y-4 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <Target className="w-4 h-4 text-accent" />
@@ -1431,7 +1373,7 @@ export default function ProgramsClient({
                     )}
 
                     {/* Activities List */}
-                    {activeModalProgram.acf?.activities_list && activeModalProgram.acf.activities_list.length > 0 && (
+                    {activeModalProgram.acf?.enable_activities && activeModalProgram.acf?.activities_list && activeModalProgram.acf.activities_list.length > 0 && (
                       <div className="space-y-4 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <Award className="w-4 h-4 text-accent" />
@@ -1456,7 +1398,7 @@ export default function ProgramsClient({
                     )}
 
                     {/* Program Stages & Itinerary */}
-                    {activeModalProgram.acf?.program_stages__schedule && activeModalProgram.acf.program_stages__schedule.length > 0 && (
+                    {activeModalProgram.acf?.["enable_schedule_&_itinerary"] && activeModalProgram.acf?.program_stages__schedule && activeModalProgram.acf.program_stages__schedule.length > 0 && (
                       <div className="space-y-4 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <Clock className="w-4 h-4 text-accent" />
@@ -1487,14 +1429,14 @@ export default function ProgramsClient({
                     )}
 
                     {/* Who This Is For */}
-                    {(activeModalProgram.acf?.ideal_participant_for_list || activeModalProgram.acf?.not_suitable_for_list) && (
+                    {((activeModalProgram.acf?.ideal_participant_for_list && activeModalProgram.acf.ideal_participant_for_list.length > 0) || (activeModalProgram.acf?.not_suitable_for_list && activeModalProgram.acf.not_suitable_for_list.length > 0)) && (
                       <div className="space-y-4 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <Users className="w-4 h-4 text-accent" />
                           Participant Profile &amp; Suitability
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {activeModalProgram.acf?.ideal_participant_for_list && (
+                          {activeModalProgram.acf?.ideal_participant_for_list && activeModalProgram.acf.ideal_participant_for_list.length > 0 && (
                             <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-2xl space-y-2">
                               <span className="text-xs font-serif font-bold text-emerald-800 flex items-center gap-1.5">
                                 <Check className="w-4 h-4 text-emerald-700" />
@@ -1511,7 +1453,7 @@ export default function ProgramsClient({
                             </div>
                           )}
 
-                          {activeModalProgram.acf?.not_suitable_for_list && (
+                          {activeModalProgram.acf?.not_suitable_for_list && activeModalProgram.acf.not_suitable_for_list.length > 0 && (
                             <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-2xl space-y-2">
                               <span className="text-xs font-serif font-bold text-amber-800 flex items-center gap-1.5">
                                 <XCircle className="w-4 h-4 text-amber-700" />
@@ -1598,15 +1540,15 @@ export default function ProgramsClient({
                       </div>
                     )}
 
-                    {/* Curated Distinct Field Gallery */}
-                    {getProgramGalleryImages(activeModalProgram).length > 0 && (
+                    {/* Authentic WordPress Media Gallery (Rendered strictly if real program media exists) */}
+                    {modalGalleryUrls.length > 0 && (
                       <div className="space-y-3 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <ImageIcon className="w-4 h-4 text-accent" />
                           Field Gallery
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          {getProgramGalleryImages(activeModalProgram).map((imgSrc, idx) => (
+                          {modalGalleryUrls.map((imgSrc, idx) => (
                             <div
                               key={idx}
                               onClick={() => setLightboxImage(imgSrc)}

@@ -76,10 +76,6 @@ async function getProgramsData(): Promise<{
       }
     }
 
-    if (mediaMap[3309] || initialPrograms.some((p) => p.id === 4744)) {
-      mediaMap[3309] = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80";
-    }
-
     return {
       initialPrograms,
       initialMedia: mediaMap,
