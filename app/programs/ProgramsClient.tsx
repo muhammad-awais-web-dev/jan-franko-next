@@ -421,8 +421,11 @@ export default function ProgramsClient({
     );
   };
 
-  // Only extract real, non-duplicate media URLs fetched directly from WordPress for this specific program
+  // Only extract real, non-duplicate media URLs fetched directly from WordPress for this specific program if add_gallery toggle is enabled
   const getProgramGalleryUrls = (prog: Program): string[] => {
+    if (!prog.acf?.add_gallery) {
+      return [];
+    }
     const galleryUrls: string[] = [];
     if (prog.acf?.supplementary_images && Array.isArray(prog.acf.supplementary_images)) {
       prog.acf.supplementary_images.forEach((id) => {
