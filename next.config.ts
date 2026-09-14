@@ -41,7 +41,10 @@ const nextConfig: NextConfig = {
       { source: "/scrolls/category/:path*", destination: "/knowledge", permanent: true },
       { source: "/scrolls/region/:path*", destination: "/knowledge", permanent: true },
       { source: "/scrolls/:slug*", destination: "/knowledge/:slug*", permanent: true },
-      { source: "/knowledge/mongolia", destination: "/knowledge/mongolia-expedition", permanent: true },
+      // 3. Equipment Categories -> Canonical /equipment
+      { source: "/equipment/categories", destination: "/equipment", permanent: true },
+      { source: "/equipment/category", destination: "/equipment", permanent: true },
+      { source: "/categories", destination: "/equipment", permanent: true },
     ];
   },
 };
