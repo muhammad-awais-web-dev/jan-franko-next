@@ -367,20 +367,16 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   };
 
   const activeCategoryObj = React.useMemo(() => {
+    if (initialCategorySlug) {
+      const s = initialCategorySlug.toLowerCase().trim();
+      const match =
+        allCategories.find((c) => c.slug.toLowerCase() === s) ||
+        allCategories.find((c) => c.name.toLowerCase() === s);
+      if (match) return match;
+    }
     if (!selectedCategory) return null;
     return allCategories.find((c) => c.id.toString() === selectedCategory) || null;
-  }, [selectedCategory, allCategories]);
-
-  const activeParentCategoryObj = React.useMemo(() => {
-    if (!activeCategoryObj || activeCategoryObj.parent === 0) return null;
-    return allCategories.find((c) => c.id === activeCategoryObj.parent) || null;
-  }, [activeCategoryObj, allCategories]);
-
-  const heroBadge = activeParentCategoryObj
-    ? `Academy Armory • ${cleanTitle(activeParentCategoryObj.name)}`
-    : activeCategoryObj
-    ? "Academy Armory • Department"
-    : "Academy Armory";
+  }, [initialCategorySlug, selectedCategory, allCategories]);
 
   const heroTitle = activeCategoryObj
     ? cleanTitle(activeCategoryObj.name)
@@ -528,9 +524,6 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(14,59,46,0.5))] z-0" />
         
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4">
-          <span className="inline-block px-4 py-1.5 bg-[#c5a880]/10 border border-[#c5a880]/30 rounded-full text-[10px] md:text-xs font-serif font-semibold tracking-widest uppercase text-accent">
-            {heroBadge}
-          </span>
           <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight text-white leading-tight">
             {heroTitle}
           </h1>
