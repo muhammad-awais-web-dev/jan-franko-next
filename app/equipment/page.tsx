@@ -35,7 +35,7 @@ function getCategoryIdsForSlug(categorySlug: string): number[] {
 async function getEquipmentData(): Promise<{ initialProducts: Product[]; initialCategories: CategoryTerm[] }> {
   try {
     const [prodRes, catRes, mediaRes1, mediaRes2] = await Promise.all([
-      fetch("https://janfranko.com/wp-json/wp/v2/product?per_page=100", { next: { revalidate: 600 } }),
+      fetch("https://janfranko.com/wp-json/wp/v2/product?per_page=100&_embed", { next: { revalidate: 600 } }),
       fetch("https://janfranko.com/wp-json/wp/v2/product_cat?per_page=100", { next: { revalidate: 86400 } }),
       fetch("https://janfranko.com/wp-json/wp/v2/media?per_page=100&page=1", { next: { revalidate: 600 } }).catch(() => null),
       fetch("https://janfranko.com/wp-json/wp/v2/media?per_page=100&page=2", { next: { revalidate: 600 } }).catch(() => null),
@@ -78,8 +78,10 @@ async function getEquipmentData(): Promise<{ initialProducts: Product[]; initial
 
     const mappedProducts: Product[] = Array.isArray(rawProducts)
       ? rawProducts.map((p: any) => {
+          const embeddedImage = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
           const yoastImage = p.yoast_head_json?.og_image?.[0]?.url;
           const featuredImage =
+            embeddedImage ||
             yoastImage ||
             mediaMap[p.featured_media] ||
             "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80";

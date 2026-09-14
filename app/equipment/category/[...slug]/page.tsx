@@ -29,24 +29,30 @@ export async function generateStaticParams() {
 async function fetchEquipmentData() {
   try {
     const [prodRes, catRes] = await Promise.all([
-      fetch("https://janfranko.com/wp-json/wp/v2/product?per_page=100", { next: { revalidate: 600 } }),
+      fetch("https://janfranko.com/wp-json/wp/v2/product?per_page=100&_embed", { next: { revalidate: 600 } }),
       fetch("https://janfranko.com/wp-json/wp/v2/product_cat?per_page=100", { next: { revalidate: 86400 } })
     ]);
 
     const prods = prodRes.ok ? await prodRes.json() : [];
     const cats = catRes.ok ? await catRes.json() : [];
 
-    const products = prods.map((p: any) => ({
-      id: p.id,
-      slug: p.slug,
-      title: p.title?.rendered || "",
-      excerpt: p.excerpt?.rendered || "",
-      content: p.content?.rendered || "",
-      date: p.date || "",
-      image: p._embedded?.["wp:featuredmedia"]?.[0]?.source_url || "/images/og-bg-workshop.jpg",
-      categories: p.product_cat || [],
-      brands: p.brand || [],
-    }));
+    const products = prods.map((p: any) => {
+      const yoastImage = p.yoast_head_json?.og_image?.[0]?.url;
+      const embeddedImage = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+      const featuredImage = embeddedImage || yoastImage || "/images/og-bg-workshop.jpg";
+
+      return {
+        id: p.id,
+        slug: p.slug,
+        title: p.title?.rendered || "",
+        excerpt: p.excerpt?.rendered || "",
+        content: p.content?.rendered || "",
+        date: p.date || "",
+        image: featuredImage,
+        categories: p.product_cat || [],
+        brands: p.brand || [],
+      };
+    });
 
     const categories = cats.map((c: any) => ({
       id: c.id,
