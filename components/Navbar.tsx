@@ -519,14 +519,28 @@ function EquipmentDepartmentsGroup({
               <button
                 type="button"
                 onClick={() => setActiveCategory(null)}
-                className="group/item flex min-h-11 w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1] text-[#0e624b] font-bold text-xs border border-[#0e624b]/15 bg-[#e8f2ed]/60 mb-2 cursor-pointer"
+                className="group/item flex min-h-10 w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1] text-[#0e624b] font-bold text-xs border border-[#0e624b]/15 bg-[#e8f2ed]/60 mb-1.5 cursor-pointer"
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#0e624b] text-white">
-                  <ArrowLeft className="h-3.5 w-3.5" />
+                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-[#0e624b] text-white">
+                  <ArrowLeft className="h-3 w-3" />
                 </span>
-                <span>Back to Departments</span>
+                <span>Back</span>
               </button>
             </li>
+            {activeCategory && (
+              <li>
+                <Link
+                  href={`/equipment/category/${activeCategory.slug}`}
+                  className="group/item flex min-h-10 w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-bold text-[#0e624b] border border-[#0e624b]/20 bg-[#0e624b]/10 transition hover:bg-[#0e624b] hover:text-white mb-2 cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <LayoutGrid className="h-3.5 w-3.5 text-[#0e624b] group-hover/item:text-white" />
+                    <span>View All in {activeCategory.name}</span>
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 opacity-70 group-hover/item:translate-x-0.5 transition-transform" />
+                </Link>
+              </li>
+            )}
             {activeCategory?.subcategories.map((subItem) => (
               <MenuItem key={subItem.href} item={subItem} />
             ))}
