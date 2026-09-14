@@ -1054,30 +1054,8 @@ const MACRO_REGIONS = {
           </div>
         </div>
 
-        {/* Loading / Error States */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[400px] overflow-hidden flex flex-col shadow-sm animate-pulse">
-                <div className="bg-primary/10 h-[200px] w-full" />
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="bg-primary/10 rounded h-3 w-1/4" />
-                    <div className="bg-primary/10 rounded h-5 w-3/4" />
-                    <div className="space-y-1.5">
-                      <div className="bg-primary/10 rounded h-3.5 w-full" />
-                      <div className="bg-primary/10 rounded h-3.5 w-2/3" />
-                    </div>
-                  </div>
-                  <div className="border-t border-primary/5 pt-4 flex justify-between">
-                    <div className="bg-primary/10 rounded h-3 w-1/3" />
-                    <div className="bg-primary/10 rounded h-3 w-4" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : error ? (
+        {/* Error State or Rendered Directory Grid */}
+        {isLoading ? null : error ? (
           <div className="bg-red-500/10 border border-red-500/20 text-red-700 p-6 rounded-2xl">
             <h3 className="font-serif font-bold text-lg mb-1">Database Request Failed</h3>
             <p className="text-sm font-normal">{error}</p>
