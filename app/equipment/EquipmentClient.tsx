@@ -199,21 +199,24 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
   // Build a recursive category tree list for hierarchy select options
   const getCategoryTree = (): { id: number; name: string; level: number }[] => {
     const list: { id: number; name: string; level: number }[] = [];
+    const visitedIds = new Set<number>();
     
     const buildTree = (parentId: number, level: number) => {
-      const children = categories.filter((c) => c.parent === parentId);
+      const children = categories.filter((c) => c.parent === parentId && !visitedIds.has(c.id));
       children.sort((a, b) => a.name.localeCompare(b.name));
       
       children.forEach((child) => {
+        visitedIds.add(child.id);
         list.push({ id: child.id, name: child.name, level });
         buildTree(child.id, level + 1);
       });
     };
 
-    const roots = categories.filter((c) => c.parent === 0 && c.id !== 28);
+    const roots = categories.filter((c) => c.parent === 0 && c.id !== 28 && !visitedIds.has(c.id));
     roots.sort((a, b) => a.name.localeCompare(b.name));
     
     roots.forEach((root) => {
+      visitedIds.add(root.id);
       list.push({ id: root.id, name: root.name, level: 0 });
       buildTree(root.id, 1);
     });
@@ -414,8 +417,8 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
                 className="w-full bg-secondary text-primary border border-primary/10 rounded-xl p-2.5 text-xs outline-none focus:border-accent cursor-pointer font-sans"
               >
                 <option value="">All Categories</option>
-                {getCategoryTree().map((cat) => (
-                  <option key={cat.id} value={cat.id}>
+                {getCategoryTree().map((cat, idx) => (
+                  <option key={`${cat.id}-${idx}`} value={cat.id}>
                     {"— ".repeat(cat.level) + cleanTitle(cat.name)}
                   </option>
                 ))}
