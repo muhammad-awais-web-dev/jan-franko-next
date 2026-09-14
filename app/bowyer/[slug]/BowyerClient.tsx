@@ -3,7 +3,17 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Sparkles, Star, Loader2, X, ShieldCheck, CheckCircle, MessageSquare, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  Sparkles,
+  Star,
+  Loader2,
+  X,
+  ShieldCheck,
+  CheckCircle,
+  MessageSquare,
+  ExternalLink,
+} from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
 import { findMasterBowyer } from "@/data/bowyers";
 
@@ -43,53 +53,103 @@ const DEFAULT_BOWYERS: BowyerDetails[] = [
     name: "Harvey Archery",
     slug: "harvey-archery",
     bowyer_name: "Warrick Harvey",
-    heading: "Custom laminated longbows handcrafted on the family farm in South Africa.",
-    story: "I have been obsessed with making bows since I was 4 years old and have never stopped making them year in and year out. I got my first plastic bow with those arrows with the rubber plunger that sticks to windows on my 4th birthday. One day I decided to pull the rubber plunger off my arrows and I ended up shooting my mom between the eyes... As a result, the bow was confiscated, and I got a massive hiding. The next day when my parents went to work, I went to my dad's cupboard and stole his shoelace of his running shoes, I went to the garden and chopped down a stick and make my first bow using my dad's shoelace as the bow string. And that's how it all started. I would say my passion for bow making is an obsession, I strive to be known as one of the best custom bow makers in the world.",
-    philosophy: "Every bow requires an average of 50 hours of dedicated hand craftsmanship, blending spalted bamboo cores with exotic burl hardwoods and natural horn overlays.",
-    image: "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg",
+    heading:
+      "Custom laminated longbows handcrafted on the family farm in South Africa.",
+    story:
+      "I have been obsessed with making bows since I was 4 years old and have never stopped making them year in and year out. I got my first plastic bow with those arrows with the rubber plunger that sticks to windows on my 4th birthday. One day I decided to pull the rubber plunger off my arrows and I ended up shooting my mom between the eyes... As a result, the bow was confiscated, and I got a massive hiding. The next day when my parents went to work, I went to my dad's cupboard and stole his shoelace of his running shoes, I went to the garden and chopped down a stick and make my first bow using my dad's shoelace as the bow string. And that's how it all started. I would say my passion for bow making is an obsession, I strive to be known as one of the best custom bow makers in the world.",
+    philosophy:
+      "Every bow requires an average of 50 hours of dedicated hand craftsmanship, blending spalted bamboo cores with exotic burl hardwoods and natural horn overlays.",
+    image:
+      "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg",
     process: [
-      { step_title: "Wood Selection & Stabilization", step_description: "Hand-selecting spalted bamboo cores and exotic burls, stabilizing timber for extreme weather resilience." },
-      { step_title: "Precision Lamination", step_description: "Laminating custom limb profiles under controlled heat and pressure to ensure maximum energy transfer." },
-      { step_title: "Tillering & Hand Finishing", step_description: "Meticulous hand tillering to exact draw specs, sealed with protective oiled finishes." }
-    ]
+      {
+        step_title: "Wood Selection & Stabilization",
+        step_description:
+          "Hand-selecting spalted bamboo cores and exotic burls, stabilizing timber for extreme weather resilience.",
+      },
+      {
+        step_title: "Precision Lamination",
+        step_description:
+          "Laminating custom limb profiles under controlled heat and pressure to ensure maximum energy transfer.",
+      },
+      {
+        step_title: "Tillering & Hand Finishing",
+        step_description:
+          "Meticulous hand tillering to exact draw specs, sealed with protective oiled finishes.",
+      },
+    ],
   },
   {
     id: 241,
     name: "MR Bows",
     slug: "mr-bows",
     bowyer_name: "Miško Rovčanin",
-    heading: "Fiberglass-laminated bows made in Serbia for recreation, physical and mental development, competition, and historical practice.",
-    story: "Archery, a dream from the boy's days, has found its way. After completing the training, talking and socializing with both professional and amateur archers, learning from experienced bowyers and following the Internet, my archery begins. I strive to bring life back to the old craft and tradition. With many years of experience, with constant study and improvement, I have tried to make the bows that will meet the expectations of customers, whether it is just recreation, developing physical and mental strength that instinctive archery requires or for competition. Following and respecting world business standards, providing quality and endurance, I have gained a reputation and many satisfied customers. I do business in Serbia and around the world. I try to make a satisfied customer my best recommendation. Find something for you from my range of bows, order and see the quality of the bows for yourself.\n\nBy choosing quality materials, I make fiberglass laminated arches using: Fiberglass (transparent and black), Stable core, Micarta, Epoxy resin, Dacron for tendons. The variety of wood, both from the domestic and exotic terrain, provides the possibility of making it according to the customer's wishes. Ash is the primary material used as a base for making limbs, very elastic and resistant. For handrails I use: Walnut, Ash, Plum, Pear, Cherry... and of the exotic species there are: Zebra, Wenge, Paduk, Olive, Purple Heart... You can find several different models in the offer, some of which are based on their technical characteristics and historical replica records. Other models are constructed by arbitrary personal experience and ideas. I make bows with a strength from 25-150 pounds.",
-    philosophy: "Combining historical bow craftsmanship with modern fiberglass lamination, creating robust traditional bows with draw weights from 25 to 150 lbs.",
-    image: "https://janfranko.com/wp-content/uploads/2026/04/16864081_1249414485136489_6658590496747384211_n.jpg",
+    heading:
+      "Fiberglass-laminated bows made in Serbia for recreation, physical and mental development, competition, and historical practice.",
+    story:
+      "Archery, a dream from the boy's days, has found its way. After completing the training, talking and socializing with both professional and amateur archers, learning from experienced bowyers and following the Internet, my archery begins. I strive to bring life back to the old craft and tradition. With many years of experience, with constant study and improvement, I have tried to make the bows that will meet the expectations of customers, whether it is just recreation, developing physical and mental strength that instinctive archery requires or for competition. Following and respecting world business standards, providing quality and endurance, I have gained a reputation and many satisfied customers. I do business in Serbia and around the world. I try to make a satisfied customer my best recommendation. Find something for you from my range of bows, order and see the quality of the bows for yourself.\n\nBy choosing quality materials, I make fiberglass laminated arches using: Fiberglass (transparent and black), Stable core, Micarta, Epoxy resin, Dacron for tendons. The variety of wood, both from the domestic and exotic terrain, provides the possibility of making it according to the customer's wishes. Ash is the primary material used as a base for making limbs, very elastic and resistant. For handrails I use: Walnut, Ash, Plum, Pear, Cherry... and of the exotic species there are: Zebra, Wenge, Paduk, Olive, Purple Heart... You can find several different models in the offer, some of which are based on their technical characteristics and historical replica records. Other models are constructed by arbitrary personal experience and ideas. I make bows with a strength from 25-150 pounds.",
+    philosophy:
+      "Combining historical bow craftsmanship with modern fiberglass lamination, creating robust traditional bows with draw weights from 25 to 150 lbs.",
+    image:
+      "https://janfranko.com/wp-content/uploads/2026/04/16864081_1249414485136489_6658590496747384211_n.jpg",
     process: [
-      { step_title: "Core Shaping & Material Selection", step_description: "Selecting elastic ash wood cores and high-density Micarta/epoxy matrix materials." },
-      { step_title: "Glass Lamination", step_description: "Applying transparent or black fiberglass laminates under uniform pressure for consistent arrow speed." },
-      { step_title: "Custom Riser & Tip Inlays", step_description: "Carving handles with domestic or exotic hardwoods (walnut, wenge, purpleheart) and reinforcing tips." }
-    ]
+      {
+        step_title: "Core Shaping & Material Selection",
+        step_description:
+          "Selecting elastic ash wood cores and high-density Micarta/epoxy matrix materials.",
+      },
+      {
+        step_title: "Glass Lamination",
+        step_description:
+          "Applying transparent or black fiberglass laminates under uniform pressure for consistent arrow speed.",
+      },
+      {
+        step_title: "Custom Riser & Tip Inlays",
+        step_description:
+          "Carving handles with domestic or exotic hardwoods (walnut, wenge, purpleheart) and reinforcing tips.",
+      },
+    ],
   },
   {
     id: 238,
     name: "Kadys Bows",
     slug: "kadys-bows",
     bowyer_name: "Sergey Tolochko",
-    heading: "Handcrafted traditional hunting and competition recurves and longbows.",
-    story: "KadysBows was founded in 2011 by Sergey Tolochko and is currently one of the leading traditional bow makers in the region. Products are used across the countries of the former CIS, as well as Poland, Turkey, Greece, China, South Korea, Cyprus, Malaysia, Malta, and the USA.",
-    philosophy: "Focused on individual commissions and traditional shooting performance, trusted by archers across Europe, Asia, and North America.",
-    image: "https://janfranko.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-12-at-11.23.29-PM.jpeg",
+    heading:
+      "Handcrafted traditional hunting and competition recurves and longbows.",
+    story:
+      "KadysBows was founded in 2011 by Sergey Tolochko and is currently one of the leading traditional bow makers in the region. Products are used across the countries of the former CIS, as well as Poland, Turkey, Greece, China, South Korea, Cyprus, Malaysia, Malta, and the USA.",
+    philosophy:
+      "Focused on individual commissions and traditional shooting performance, trusted by archers across Europe, Asia, and North America.",
+    image:
+      "https://janfranko.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-12-at-11.23.29-PM.jpeg",
     process: [
-      { step_title: "Bespoke Limb Geometry", step_description: "Custom shaping limb profiles for smooth draw cycles without stacking." },
-      { step_title: "Hardwood Riser Construction", step_description: "Hand-carving ergonomic risers designed for instinctive target and field shooting." },
-      { step_title: "Field Inspection & Testing", step_description: "Rigorous testing and arrow speed verification prior to final dispatch." }
-    ]
-  }
+      {
+        step_title: "Bespoke Limb Geometry",
+        step_description:
+          "Custom shaping limb profiles for smooth draw cycles without stacking.",
+      },
+      {
+        step_title: "Hardwood Riser Construction",
+        step_description:
+          "Hand-carving ergonomic risers designed for instinctive target and field shooting.",
+      },
+      {
+        step_title: "Field Inspection & Testing",
+        step_description:
+          "Rigorous testing and arrow speed verification prior to final dispatch.",
+      },
+    ],
+  },
 ];
 
 function findDefaultBowyer(slug: string): BowyerDetails {
   const s = slug.toLowerCase();
   if (s.includes("harvey")) return DEFAULT_BOWYERS[0];
-  if (s.includes("mr-bows") || s.includes("misko") || s.includes("rovcanin")) return DEFAULT_BOWYERS[1];
-  if (s.includes("kadys") || s.includes("sergey") || s.includes("tolochko")) return DEFAULT_BOWYERS[2];
+  if (s.includes("mr-bows") || s.includes("misko") || s.includes("rovcanin"))
+    return DEFAULT_BOWYERS[1];
+  if (s.includes("kadys") || s.includes("sergey") || s.includes("tolochko"))
+    return DEFAULT_BOWYERS[2];
   return DEFAULT_BOWYERS[0];
 }
 
@@ -99,10 +159,13 @@ const BowyerProfileContent = () => {
   const masterBowyerData = findMasterBowyer(slug);
 
   // Prepopulate initial bowyer synchronously to ensure 0 loading screen / 0 layout shift
-  const [bowyer, setBowyer] = useState<BowyerDetails>(() => findDefaultBowyer(slug));
+  const [bowyer, setBowyer] = useState<BowyerDetails>(() =>
+    findDefaultBowyer(slug),
+  );
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<CategoryTerm[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [galleryExpanded, setGalleryExpanded] = useState(false);
 
   // Commission Modal States
   const [commissionModalOpen, setCommissionModalOpen] = useState(false);
@@ -115,7 +178,7 @@ const BowyerProfileContent = () => {
     drawWeight: "40-45 lbs",
     orientation: "Right Hand (RH)",
     purpose: "Instinctive Field & Target Archery",
-    customNotes: ""
+    customNotes: "",
   });
 
   useEffect(() => {
@@ -126,11 +189,12 @@ const BowyerProfileContent = () => {
       try {
         const [bowyersList, categoriesList] = await Promise.all([
           clientFetch<BowyerDetails[]>("/api/equipment/bowyers"),
-          clientFetch<CategoryTerm[]>("/api/equipment/categories")
+          clientFetch<CategoryTerm[]>("/api/equipment/categories"),
         ]);
 
         const matched = bowyersList.find(
-          (b) => b.slug === slug || b.slug.includes(slug) || slug.includes(b.slug)
+          (b) =>
+            b.slug === slug || b.slug.includes(slug) || slug.includes(b.slug),
         );
         if (matched) {
           setBowyer(matched);
@@ -138,7 +202,9 @@ const BowyerProfileContent = () => {
         setCategories(categoriesList || []);
 
         const targetId = matched?.id || findDefaultBowyer(slug).id;
-        const productsRes = await fetch(`/api/equipment/master-bowyer-products?bowyer=${targetId}`);
+        const productsRes = await fetch(
+          `/api/equipment/master-bowyer-products?bowyer=${targetId}`,
+        );
         if (productsRes.ok) {
           const matchedProducts = await productsRes.json();
           setProducts(matchedProducts || []);
@@ -166,9 +232,18 @@ const BowyerProfileContent = () => {
     } else if (s.includes("kadys") || s.includes("sergey")) {
       bowyerTabName = "Kadys Bows";
     } else if (bowyer?.name) {
-      if (bowyer.name.toLowerCase().includes("harvey")) bowyerTabName = "Harvey Archery";
-      else if (bowyer.name.toLowerCase().includes("mr") || bowyer.name.toLowerCase().includes("rovčanin")) bowyerTabName = "MR Bows";
-      else if (bowyer.name.toLowerCase().includes("kadys") || bowyer.name.toLowerCase().includes("tolochko")) bowyerTabName = "Kadys Bows";
+      if (bowyer.name.toLowerCase().includes("harvey"))
+        bowyerTabName = "Harvey Archery";
+      else if (
+        bowyer.name.toLowerCase().includes("mr") ||
+        bowyer.name.toLowerCase().includes("rovčanin")
+      )
+        bowyerTabName = "MR Bows";
+      else if (
+        bowyer.name.toLowerCase().includes("kadys") ||
+        bowyer.name.toLowerCase().includes("tolochko")
+      )
+        bowyerTabName = "Kadys Bows";
     }
 
     try {
@@ -177,7 +252,10 @@ const BowyerProfileContent = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           form_name: bowyerTabName,
-          page_url: typeof window !== "undefined" ? window.location.href : `/bowyer/${slug}`,
+          page_url:
+            typeof window !== "undefined"
+              ? window.location.href
+              : `/bowyer/${slug}`,
           fields: {
             bowyer_brand: bowyerTabName,
             bowyer_name: bowyer?.name || slug,
@@ -188,7 +266,8 @@ const BowyerProfileContent = () => {
             orientation: formData.orientation,
             intended_purpose: formData.purpose,
             custom_notes: formData.customNotes,
-            deposit_terms_accepted: "50% deposit before build / 50% + shipping upon completion",
+            deposit_terms_accepted:
+              "50% deposit before build / 50% + shipping upon completion",
           },
         }),
       });
@@ -254,12 +333,21 @@ const BowyerProfileContent = () => {
               <Sparkles className="w-3 h-3 text-accent" />
               Partner Bowyer Craft
             </span>
-            <h1 className="notranslate text-4xl md:text-6xl font-serif font-bold text-primary tracking-tight leading-tight" translate="no">
+            <h1
+              className="notranslate text-4xl md:text-6xl font-serif font-bold text-primary tracking-tight leading-tight"
+              translate="no"
+            >
               {cleanTitle(bowyer.name)}
             </h1>
             {bowyer.bowyer_name && (
-              <div className="notranslate text-sm md:text-base font-serif font-bold text-[#7d603a] tracking-wider uppercase pt-1" translate="no">
-                Master Craftsman: <span className="text-primary">{cleanTitle(bowyer.bowyer_name)}</span>
+              <div
+                className="notranslate text-sm md:text-base font-serif font-bold text-[#7d603a] tracking-wider uppercase pt-1"
+                translate="no"
+              >
+                Master Craftsman:{" "}
+                <span className="text-primary">
+                  {cleanTitle(bowyer.bowyer_name)}
+                </span>
               </div>
             )}
             <p className="text-lg md:text-xl font-serif text-accent italic font-medium leading-relaxed">
@@ -310,7 +398,14 @@ const BowyerProfileContent = () => {
                   50/50 Deposit &amp; Build Agreement
                 </h4>
                 <p className="text-xs text-primary/75 font-sans leading-relaxed">
-                  <strong className="text-primary font-semibold">50% deposit</strong> required prior to starting the build. The remaining <strong className="text-primary font-semibold">50% + insured shipping</strong> is due upon completion before dispatch.
+                  <strong className="text-primary font-semibold">
+                    50% deposit
+                  </strong>{" "}
+                  required prior to starting the build. The remaining{" "}
+                  <strong className="text-primary font-semibold">
+                    50% + insured shipping
+                  </strong>{" "}
+                  is due upon completion before dispatch.
                 </p>
               </div>
               <button
@@ -330,7 +425,6 @@ const BowyerProfileContent = () => {
       {masterBowyerData && (
         <div className="bg-white border-t border-b border-primary/10 py-12 md:py-16">
           <div className="max-w-[1440px] mx-auto px-6 md:px-12 space-y-12">
-            
             {/* 1. Workshop Heritage & Background Facts */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               <div className="lg:col-span-4 space-y-2">
@@ -341,7 +435,9 @@ const BowyerProfileContent = () => {
                   Background &amp; Sourcing
                 </h3>
                 <p className="text-xs text-primary/70 font-sans leading-relaxed">
-                  Verified background metrics, workshop origins, and international distribution verified directly from the master bowyer's official channels.
+                  Verified background metrics, workshop origins, and
+                  international distribution verified directly from the master
+                  bowyer's official channels.
                 </p>
                 {masterBowyerData.sourceUrl && (
                   <a
@@ -350,14 +446,20 @@ const BowyerProfileContent = () => {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7d603a] hover:text-primary transition-colors font-sans pt-2"
                   >
-                    <span>{masterBowyerData.sourceLabel || "Official Bowyer Website"}</span>
+                    <span>
+                      {masterBowyerData.sourceLabel ||
+                        "Official Bowyer Website"}
+                    </span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
               </div>
               <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {masterBowyerData.background.map((fact, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-[#f0e9d9]/30 border border-primary/5 space-y-1">
+                  <div
+                    key={idx}
+                    className="p-4 rounded-2xl bg-[#f0e9d9]/30 border border-primary/5 space-y-1"
+                  >
                     <div className="text-[10px] font-serif font-bold uppercase tracking-widest text-[#5c4629]">
                       Fact #{idx + 1}
                     </div>
@@ -370,28 +472,32 @@ const BowyerProfileContent = () => {
             </div>
 
             {/* 2. Core Materials & Construction */}
-            {masterBowyerData.materials && masterBowyerData.materials.length > 0 && (
-              <div className="space-y-4 border-t border-primary/10 pt-10">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
-                    Material Science
-                  </span>
-                  <h3 className="text-xl font-serif font-bold text-primary">
-                    Core Materials &amp; Construction Specs
-                  </h3>
+            {masterBowyerData.materials &&
+              masterBowyerData.materials.length > 0 && (
+                <div className="space-y-4 border-t border-primary/10 pt-10">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
+                      Material Science
+                    </span>
+                    <h3 className="text-xl font-serif font-bold text-primary">
+                      Core Materials &amp; Construction Specs
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {masterBowyerData.materials.map((mat, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-2xl bg-white border border-primary/10 space-y-1.5 shadow-xs"
+                      >
+                        <div className="w-2 h-2 rounded-full bg-accent" />
+                        <p className="text-xs text-primary/85 font-sans leading-relaxed">
+                          {mat}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {masterBowyerData.materials.map((mat, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl bg-white border border-primary/10 space-y-1.5 shadow-xs">
-                      <div className="w-2 h-2 rounded-full bg-accent" />
-                      <p className="text-xs text-primary/85 font-sans leading-relaxed">
-                        {mat}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
 
             {/* 3. Signature Bow Models */}
             {masterBowyerData.models && masterBowyerData.models.length > 0 && (
@@ -406,11 +512,17 @@ const BowyerProfileContent = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {masterBowyerData.models.map((model, idx) => (
-                    <div key={idx} className="p-5 rounded-2xl bg-[#0e3b2e]/5 border border-[#c5a880]/30 space-y-2">
+                    <div
+                      key={idx}
+                      className="p-5 rounded-2xl bg-[#0e3b2e]/5 border border-[#c5a880]/30 space-y-2"
+                    >
                       <div className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold">
                         Signature Model
                       </div>
-                      <h4 className="notranslate font-serif text-base font-bold text-primary" translate="no">
+                      <h4
+                        className="notranslate font-serif text-base font-bold text-primary"
+                        translate="no"
+                      >
                         {model.name}
                       </h4>
                       <p className="text-xs text-primary/75 font-sans leading-relaxed">
@@ -421,7 +533,6 @@ const BowyerProfileContent = () => {
                 </div>
               </div>
             )}
-
           </div>
         </div>
       )}
@@ -430,7 +541,7 @@ const BowyerProfileContent = () => {
       {bowyer.process && bowyer.process.length > 0 && (
         <div className="bg-[#0e3b2e] text-white py-12 md:py-18 border-t border-b border-primary/10 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(197,168,128,0.06),transparent_65%)] pointer-events-none" />
-          
+
           <div className="max-w-[1440px] mx-auto px-6 md:px-12 space-y-10 relative z-10">
             <div className="text-center space-y-2">
               <span className="text-[10px] font-serif uppercase tracking-widest text-accent font-bold">
@@ -469,6 +580,179 @@ const BowyerProfileContent = () => {
         </div>
       )}
 
+      {/* ── Harvey Archery Exclusive: YouTube Videos & Photo Gallery ── */}
+      {slug.toLowerCase().includes("harvey") &&
+        (() => {
+          const HARVEY_VIDEOS: {
+            id: string;
+            title: string;
+            description: string;
+          }[] = [
+            {
+              id: "IBk75THON80",
+              title: "Behind the Build — Harvey Archery at Work",
+              description:
+                "Warrick Harvey walks through his bow-making process on the Tuli Circle family farm in South Africa — from raw timber selection to the final tiller pull. Watch how 50+ hours of handcraft go into every single limb.",
+            },
+            {
+              id: "oS6FHsegl6o",
+              title: "Field Session — The Raptor in Action",
+              description:
+                "A live field shooting session with the Harvey Archery Raptor — a 57-inch super-hybrid built for 3D target and hunting. Aggressive reflex-deflex geometry meets a whisper-quiet release cycle.",
+            },
+            {
+              id: "bLWOHgmMJzE",
+              title: "Craftsmanship Up Close — Exotic Materials & Finishing",
+              description:
+                "A detailed look at the exotic materials that define every Harvey bow: spalted bamboo cores, stabilised burl hardwood risers, and natural kudu/gemsbok horn tip overlays, finished by hand under the South African sky.",
+            },
+          ];
+
+          const HARVEY_GALLERY_IMAGES: string[] = [
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0004_EB0E272F-EA2E-4FE5.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0007_12296845-23F9-4265.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0018_A584AF75-CB83-40D0.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0006_D0AC544C-79DC-43AE.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0011_IMG_1107.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0001_IMG_8538.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0002_IMG_8493.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/683042880_18407486683183235_2948344188137590091_n.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/681048927_18407486674183235_9204372385451197551_n.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/681487353_18407486692183235_7022020878069214566_n.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/671229785_18406446736183235_8794904767205341196_n.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/674482150_18407157280183235_631952241601392902_n.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0020_796211D3-9A32-432D.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0010_IMG_1875.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0019_A1C116F5-AB39-4B9D-1.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0000_IMG_9887.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0022_6804BA1B-D1FC-4DF8.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0016_AD09E73B-8655-4F26.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0015_B0EA1DD8-A2DA-4C29.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0013_DF21F55C-8FFC-4779.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0017_ABDA265C-C6E2-415C.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0023_374D4EA5-F368-4741.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0012_FFF2B850-1974-49EE.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0021_9828A9A9-00A6-4FCD.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/main_prod-3.png",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0025_Background.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/main_prod-2.png",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0008_4DA71DD7-83F2-4644.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0014_D6178654-0198-4790.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0024_8B5AA883-0EDE-44B6.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0009_IMG_2273.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0003_F7AA0170-6F7C-4C31.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/0A39702D-7AF2-47EE-81C0-23C7CBF12D7C_0005_D54D6FF8-3DAD-49DC.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0038.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0033.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/raptor_3.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0034.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0028.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0037.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0036.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0035.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/crowned-eagle_1.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0023.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0022.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0021.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0020.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0031.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0030.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0029.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0025.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/IMG-20260320-WA0024.jpg",
+            "https://janfranko.com/wp-content/uploads/2026/04/lammervanger_1.jpg",
+          ];
+
+          const displayedImages = galleryExpanded
+            ? HARVEY_GALLERY_IMAGES
+            : HARVEY_GALLERY_IMAGES.slice(0, 9);
+
+          return (
+            <div className="pt-14 md:pt-20 border-t border-primary/10 space-y-16">
+              {/* Video Sections */}
+              <div className="max-w-5xl mx-auto px-6 md:px-12 space-y-20">
+                {HARVEY_VIDEOS.map((video) => (
+                  <div key={video.id} className="space-y-6">
+                    {/* Section Header */}
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
+                        Harvey Archery — Field & Workshop
+                      </span>
+                      <h2 className="text-xl md:text-3xl font-serif font-bold text-primary tracking-tight">
+                        {video.title}
+                      </h2>
+                      <div className="w-10 h-[1px] bg-[#c5a880]/40" />
+                    </div>
+
+                    {/* YouTube Embed */}
+                    <div
+                      className="relative w-full rounded-2xl overflow-hidden border border-primary/10 shadow-lg bg-primary/5"
+                      style={{ paddingBottom: "56.25%" }}
+                    >
+                      <iframe
+                        className="absolute inset-0 w-full h-full"
+                        src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
+                        title={video.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+
+                    {/* Video Description */}
+                    <p className="text-sm font-sans text-primary/75 leading-relaxed max-w-3xl">
+                      {video.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Image Gallery */}
+              {HARVEY_GALLERY_IMAGES.length > 0 && (
+                <div className="max-w-[1440px] mx-auto px-6 md:px-12 space-y-10">
+                  <div className="text-center space-y-2">
+                    <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
+                      Workshop & Field
+                    </span>
+                    <h2 className="text-2xl md:text-4xl font-serif font-bold text-primary tracking-tight">
+                      Harvey Archery — Photo Gallery
+                    </h2>
+                    <div className="w-10 h-[1px] bg-[#c5a880]/30 mx-auto mt-3" />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {displayedImages.map((src, idx) => (
+                      <div
+                        key={idx}
+                        className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-primary/10 shadow-sm bg-primary/5 group"
+                      >
+                        <img
+                          src={src}
+                          alt={`Harvey Archery gallery image ${idx + 1}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Expand / Collapse Button */}
+                  {HARVEY_GALLERY_IMAGES.length > 9 && (
+                    <div className="text-center pt-4">
+                      <button
+                        onClick={() => setGalleryExpanded(!galleryExpanded)}
+                        className="px-8 py-3.5 bg-primary text-secondary hover:bg-accent hover:text-primary transition-all duration-300 font-serif text-xs uppercase tracking-widest font-bold rounded-xl shadow-md cursor-pointer inline-flex items-center gap-2"
+                      >
+                        {galleryExpanded
+                          ? "Show Less"
+                          : `View All Photos (${HARVEY_GALLERY_IMAGES.length} Images)`}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
       {/* Showcase Crafts Section (1440px container) */}
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-14 md:py-20 space-y-10">
         <div className="text-center space-y-2">
@@ -484,7 +768,10 @@ const BowyerProfileContent = () => {
         {productsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[460px] overflow-hidden flex flex-col shadow-sm animate-pulse">
+              <div
+                key={n}
+                className="bg-white border border-primary/5 rounded-2xl h-[460px] overflow-hidden flex flex-col shadow-sm animate-pulse"
+              >
                 <div className="bg-primary/10 h-[280px] w-full" />
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
@@ -497,13 +784,14 @@ const BowyerProfileContent = () => {
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-16 bg-white border border-primary/5 rounded-3xl text-primary/60 font-sans shadow-sm max-w-xl mx-auto text-xs leading-relaxed p-6">
-            This Master Bowyer is currently crafting new exclusive equipment pieces. Connect with us to request a bespoke build consultation.
+            This Master Bowyer is currently crafting new exclusive equipment
+            pieces. Connect with us to request a bespoke build consultation.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-t border-primary/5 pt-8">
             {products.map((product) => {
               const parentId = product.categories?.find(
-                (id) => categories.find((c) => c.id === id)?.parent === 0
+                (id) => categories.find((c) => c.id === id)?.parent === 0,
               );
               const parentLabel = parentId
                 ? categories.find((c) => c.id === parentId)?.name
@@ -531,7 +819,10 @@ const BowyerProfileContent = () => {
                       <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
                         {cleanTitle(parentLabel)}
                       </div>
-                      <h3 className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1" translate="no">
+                      <h3
+                        className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1"
+                        translate="no"
+                      >
                         {cleanTitle(product.title)}
                       </h3>
                       <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-3">
@@ -551,106 +842,6 @@ const BowyerProfileContent = () => {
         )}
       </div>
 
-      {/* ── Harvey Archery Exclusive: YouTube Videos ── */}
-      {slug.toLowerCase().includes("harvey") && (() => {
-
-        const HARVEY_VIDEOS: { id: string; title: string; description: string }[] = [
-          {
-            id: "IBk75THON80",
-            title: "Behind the Build — Harvey Archery at Work",
-            description:
-              "Warrick Harvey walks through his bow-making process on the Tuli Circle family farm in South Africa — from raw timber selection to the final tiller pull. Watch how 50+ hours of handcraft go into every single limb.",
-          },
-          {
-            id: "oS6FHsegl6o",
-            title: "Field Session — The Raptor in Action",
-            description:
-              "A live field shooting session with the Harvey Archery Raptor — a 57-inch super-hybrid built for 3D target and hunting. Aggressive reflex-deflex geometry meets a whisper-quiet release cycle.",
-          },
-          {
-            id: "bLWOHgmMJzE",
-            title: "Craftsmanship Up Close — Exotic Materials & Finishing",
-            description:
-              "A detailed look at the exotic materials that define every Harvey bow: spalted bamboo cores, stabilised burl hardwood risers, and natural kudu/gemsbok horn tip overlays, finished by hand under the South African sky.",
-          },
-        ];
-
-        // ── Harvey Archery Exclusive: Additional Images ──
-        // Add image URLs to this array when ready — each will appear as a card in the gallery grid.
-        const HARVEY_GALLERY_IMAGES: string[] = [
-          // e.g. "https://janfranko.com/wp-content/uploads/2026/04/harvey-example-1.jpg",
-        ];
-
-        return (
-          <>
-            {/* Video Sections */}
-            <div className="max-w-5xl mx-auto px-6 md:px-12 pb-10 space-y-20">
-              {HARVEY_VIDEOS.map((video) => (
-                <div key={video.id} className="space-y-6">
-                  {/* Section Header */}
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
-                      Harvey Archery — Field & Workshop
-                    </span>
-                    <h2 className="text-xl md:text-3xl font-serif font-bold text-primary tracking-tight">
-                      {video.title}
-                    </h2>
-                    <div className="w-10 h-[1px] bg-[#c5a880]/40" />
-                  </div>
-
-                  {/* YouTube Embed */}
-                  <div className="relative w-full rounded-2xl overflow-hidden border border-primary/10 shadow-lg bg-primary/5" style={{ paddingBottom: "56.25%" }}>
-                    <iframe
-                      className="absolute inset-0 w-full h-full"
-                      src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
-                      title={video.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-
-                  {/* Video Description */}
-                  <p className="text-sm font-sans text-primary/75 leading-relaxed max-w-3xl">
-                    {video.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Image Gallery — only renders when HARVEY_GALLERY_IMAGES has entries */}
-            {HARVEY_GALLERY_IMAGES.length > 0 && (
-              <div className="max-w-[1440px] mx-auto px-6 md:px-12 pb-16 space-y-10">
-                <div className="text-center space-y-2">
-                  <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
-                    Workshop & Field
-                  </span>
-                  <h2 className="text-2xl md:text-4xl font-serif font-bold text-primary tracking-tight">
-                    Harvey Archery — Photo Gallery
-                  </h2>
-                  <div className="w-10 h-[1px] bg-[#c5a880]/30 mx-auto mt-3" />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {HARVEY_GALLERY_IMAGES.map((src, idx) => (
-                    <div
-                      key={idx}
-                      className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-primary/10 shadow-sm bg-primary/5 group"
-                    >
-                      <img
-                        src={src}
-                        alt={`Harvey Archery gallery image ${idx + 1}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        );
-      })()}
-
-
       {/* Interactive Bowyer Commission & Consultation Request Modal */}
       {commissionModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
@@ -660,7 +851,10 @@ const BowyerProfileContent = () => {
                 <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
                   Custom Bowyer Commission
                 </span>
-                <h3 className="notranslate text-xl font-serif font-bold text-primary" translate="no">
+                <h3
+                  className="notranslate text-xl font-serif font-bold text-primary"
+                  translate="no"
+                >
                   Consultation Request — {cleanTitle(bowyer.name)}
                 </h3>
               </div>
@@ -683,7 +877,16 @@ const BowyerProfileContent = () => {
                 <span>50/50 Deposit Payment Terms</span>
               </div>
               <p className="text-white/80 font-sans leading-relaxed text-[11px]">
-                Every master bowyer piece is custom-crafted. Production begins after specifications are agreed upon and a <strong className="text-white font-semibold">50% production deposit</strong> is received. The remaining <strong className="text-white font-semibold">50% plus insured international shipping</strong> is due upon completion prior to dispatch.
+                Every master bowyer piece is custom-crafted. Production begins
+                after specifications are agreed upon and a{" "}
+                <strong className="text-white font-semibold">
+                  50% production deposit
+                </strong>{" "}
+                is received. The remaining{" "}
+                <strong className="text-white font-semibold">
+                  50% plus insured international shipping
+                </strong>{" "}
+                is due upon completion prior to dispatch.
               </p>
             </div>
 
@@ -692,9 +895,17 @@ const BowyerProfileContent = () => {
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
                   <CheckCircle className="w-6 h-6" />
                 </div>
-                <h4 className="font-serif text-lg font-bold text-primary">Consultation Request Received</h4>
+                <h4 className="font-serif text-lg font-bold text-primary">
+                  Consultation Request Received
+                </h4>
                 <p className="text-xs text-primary/75 max-w-md mx-auto leading-relaxed">
-                  Thank you! Your commission request for <strong className="notranslate" translate="no">{cleanTitle(bowyer.name)}</strong> has been recorded. Our team and the master craftsman will review your specifications and contact you shortly to confirm build timeline and deposit details.
+                  Thank you! Your commission request for{" "}
+                  <strong className="notranslate" translate="no">
+                    {cleanTitle(bowyer.name)}
+                  </strong>{" "}
+                  has been recorded. Our team and the master craftsman will
+                  review your specifications and contact you shortly to confirm
+                  build timeline and deposit details.
                 </p>
                 <button
                   type="button"
@@ -708,7 +919,10 @@ const BowyerProfileContent = () => {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleCommissionSubmit} className="space-y-4 text-xs">
+              <form
+                onSubmit={handleCommissionSubmit}
+                className="space-y-4 text-xs"
+              >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="font-serif font-bold text-primary uppercase text-[10px] tracking-wider block">
@@ -719,7 +933,9 @@ const BowyerProfileContent = () => {
                       required
                       placeholder="e.g. Alexander Vance"
                       value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, fullName: e.target.value })
+                      }
                       className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
                     />
                   </div>
@@ -732,7 +948,9 @@ const BowyerProfileContent = () => {
                       required
                       placeholder="e.g. alexander@example.com"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
                     />
                   </div>
@@ -747,7 +965,9 @@ const BowyerProfileContent = () => {
                       type="tel"
                       placeholder="+43 664 123 4567"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
                       className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
                     />
                   </div>
@@ -757,14 +977,26 @@ const BowyerProfileContent = () => {
                     </label>
                     <select
                       value={formData.drawWeight}
-                      onChange={(e) => setFormData({ ...formData, drawWeight: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, drawWeight: e.target.value })
+                      }
                       className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
                     >
-                      <option value="30-35 lbs">30 – 35 lbs (Light / Form Practice)</option>
-                      <option value="35-40 lbs">35 – 40 lbs (Intermediate Target)</option>
-                      <option value="40-45 lbs">40 – 45 lbs (Standard Instinctive Field)</option>
-                      <option value="45-50 lbs">45 – 50 lbs (Heavy Target &amp; Field)</option>
-                      <option value="55+ lbs">55+ lbs (Warbow / Heavy Hunting)</option>
+                      <option value="30-35 lbs">
+                        30 – 35 lbs (Light / Form Practice)
+                      </option>
+                      <option value="35-40 lbs">
+                        35 – 40 lbs (Intermediate Target)
+                      </option>
+                      <option value="40-45 lbs">
+                        40 – 45 lbs (Standard Instinctive Field)
+                      </option>
+                      <option value="45-50 lbs">
+                        45 – 50 lbs (Heavy Target &amp; Field)
+                      </option>
+                      <option value="55+ lbs">
+                        55+ lbs (Warbow / Heavy Hunting)
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -776,12 +1008,19 @@ const BowyerProfileContent = () => {
                     </label>
                     <select
                       value={formData.orientation}
-                      onChange={(e) => setFormData({ ...formData, orientation: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          orientation: e.target.value,
+                        })
+                      }
                       className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
                     >
                       <option value="Right Hand (RH)">Right Handed (RH)</option>
                       <option value="Left Hand (LH)">Left Handed (LH)</option>
-                      <option value="Ambidextrous (Asiatic Nock)">Ambidextrous (Thumb Draw / Asiatic)</option>
+                      <option value="Ambidextrous (Asiatic Nock)">
+                        Ambidextrous (Thumb Draw / Asiatic)
+                      </option>
                     </select>
                   </div>
                   <div className="space-y-1">
@@ -790,13 +1029,23 @@ const BowyerProfileContent = () => {
                     </label>
                     <select
                       value={formData.purpose}
-                      onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, purpose: e.target.value })
+                      }
                       className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs"
                     >
-                      <option value="Instinctive Field & Target Archery">Instinctive Field &amp; Target</option>
-                      <option value="3D Target Competition">3D Target Competition</option>
-                      <option value="Traditional Bowhunting">Traditional Bowhunting</option>
-                      <option value="Private Master Collection">Private Collection &amp; Exhibition</option>
+                      <option value="Instinctive Field & Target Archery">
+                        Instinctive Field &amp; Target
+                      </option>
+                      <option value="3D Target Competition">
+                        3D Target Competition
+                      </option>
+                      <option value="Traditional Bowhunting">
+                        Traditional Bowhunting
+                      </option>
+                      <option value="Private Master Collection">
+                        Private Collection &amp; Exhibition
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -809,7 +1058,9 @@ const BowyerProfileContent = () => {
                     rows={3}
                     placeholder="Specify preferred wood laminates, burl finish, draw length in inches, or custom inlay details..."
                     value={formData.customNotes}
-                    onChange={(e) => setFormData({ ...formData, customNotes: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, customNotes: e.target.value })
+                    }
                     className="w-full px-3.5 py-2.5 bg-white border border-primary/15 rounded-xl text-primary focus:outline-none focus:border-accent text-xs leading-relaxed"
                   />
                 </div>
