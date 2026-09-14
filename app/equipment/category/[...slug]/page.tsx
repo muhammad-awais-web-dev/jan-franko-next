@@ -42,10 +42,37 @@ async function fetchEquipmentData() {
     const prods = prodRes.ok ? await prodRes.json() : [];
     const cats = catRes.ok ? await catRes.json() : [];
 
+    const featuredMediaIds = Array.from(
+      new Set(prods.map((p: any) => p.featured_media).filter(Boolean))
+    );
+
+    let mediaMap: Record<number, string> = {};
+    if (featuredMediaIds.length > 0) {
+      const mediaRes = await fetch(`https://janfranko.com/wp-json/wp/v2/media?include=${featuredMediaIds.join(",")}&per_page=100`, { next: { revalidate: 600 } }).catch(() => null);
+      if (mediaRes && mediaRes.ok) {
+        const mediaItems = await mediaRes.json();
+        if (Array.isArray(mediaItems)) {
+          mediaItems.forEach((m: any) => {
+            if (m.id && m.source_url) mediaMap[m.id] = m.source_url;
+          });
+        }
+      }
+    }
+
     const products = prods.map((p: any) => {
       const yoastImage = p.yoast_head_json?.og_image?.[0]?.url;
       const embeddedImage = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
-      const featuredImage = embeddedImage || yoastImage || "/images/og-bg-workshop.jpg";
+      const mediaMapImage = mediaMap[p.featured_media];
+
+      const contentHtml = p.content?.rendered || "";
+      const regex = /<img[^>]+src=["']([^"']+)["']/gi;
+      let match;
+      const contentImgs: string[] = [];
+      while ((match = regex.exec(contentHtml)) !== null) {
+        if (match[1]) contentImgs.push(match[1]);
+      }
+
+      const featuredImage = embeddedImage || yoastImage || mediaMapImage || contentImgs[0] || "/images/og-bg-workshop.jpg";
 
       return {
         id: p.id,

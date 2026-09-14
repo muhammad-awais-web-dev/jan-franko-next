@@ -10,11 +10,22 @@ export async function GET() {
       return NextResponse.json({ error: "Failed to fetch products" }, { status: res.status });
     }
     const products = await res.json();
+    if (!Array.isArray(products)) {
+      return NextResponse.json([]);
+    }
 
-    // 2. Fetch media items across pages to collect all product attachments
-    const [mediaRes1, mediaRes2] = await Promise.all([
+    // Collect all featured_media IDs to query specific media attachments directly
+    const featuredMediaIds = Array.from(
+      new Set(products.map((p: any) => p.featured_media).filter(Boolean))
+    );
+
+    // 2. Fetch media items across pages + targeted media IDs include query
+    const [mediaRes1, mediaRes2, targetedMediaRes] = await Promise.all([
       fetch("https://janfranko.com/wp-json/wp/v2/media?per_page=100&page=1", { next: { revalidate: 600 } }),
-      fetch("https://janfranko.com/wp-json/wp/v2/media?per_page=100&page=2", { next: { revalidate: 600 } }).catch(() => null)
+      fetch("https://janfranko.com/wp-json/wp/v2/media?per_page=100&page=2", { next: { revalidate: 600 } }).catch(() => null),
+      featuredMediaIds.length > 0
+        ? fetch(`https://janfranko.com/wp-json/wp/v2/media?include=${featuredMediaIds.join(",")}&per_page=100`, { next: { revalidate: 600 } }).catch(() => null)
+        : null
     ]);
 
     let mediaItems: any[] = [];
@@ -25,6 +36,10 @@ export async function GET() {
     if (mediaRes2 && mediaRes2.ok) {
       const items2 = await mediaRes2.json();
       if (Array.isArray(items2)) mediaItems.push(...items2);
+    }
+    if (targetedMediaRes && targetedMediaRes.ok) {
+      const itemsTargeted = await targetedMediaRes.json();
+      if (Array.isArray(itemsTargeted)) mediaItems.push(...itemsTargeted);
     }
 
     let mediaMap: Record<number, string> = {};
@@ -48,10 +63,7 @@ export async function GET() {
     const mapped = products.map((p: any) => {
       const embeddedImage = p._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
       const yoastImage = p.yoast_head_json?.og_image?.[0]?.url;
-      const featuredImage = embeddedImage || yoastImage || mediaMap[p.featured_media] || "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80";
-
-      // Attached media gallery
-      const attached = mediaByParentMap[p.id] || [];
+      const mediaMapImage = mediaMap[p.featured_media];
 
       // Extract inline <img src="..."> images from HTML content
       const contentHtml = p.content?.rendered || "";
@@ -61,6 +73,16 @@ export async function GET() {
       while ((match = regex.exec(contentHtml)) !== null) {
         if (match[1]) contentImgs.push(match[1]);
       }
+
+      const featuredImage =
+        embeddedImage ||
+        yoastImage ||
+        mediaMapImage ||
+        contentImgs[0] ||
+        "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80";
+
+      // Attached media gallery
+      const attached = mediaByParentMap[p.id] || [];
 
       // Combine into a deduplicated gallery array
       const gallery = Array.from(
