@@ -5,7 +5,11 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
-import { Search, X, SlidersHorizontal } from "lucide-react";
+import { Search, X, SlidersHorizontal, LayoutGrid, List, Check } from "lucide-react";
+import ProductComparisonModal, {
+  FloatingCompareBar,
+  ComparisonProduct,
+} from "@/components/equipment/ProductComparisonModal";
 
 export interface Product {
   id: number;
@@ -45,6 +49,11 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
+
+  // View Mode & Comparison States
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [compareItems, setCompareItems] = useState<ComparisonProduct[]>([]);
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
 
   // Background fetch to ensure client cache fresh synchronization
   useEffect(() => {
@@ -126,7 +135,46 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
         overwrite: "auto"
       }
     );
-  }, [loading, searchQuery, selectedCategory, sortBy]);
+  }, [loading, searchQuery, selectedCategory, sortBy, viewMode]);
+
+  // Comparison toggle handler
+  const toggleCompareProduct = (
+    product: Product,
+    categoriesLabel?: string,
+    brandLabel?: string
+  ) => {
+    setCompareItems((prev) => {
+      const exists = prev.some((item) => item.id === product.id);
+      if (exists) {
+        return prev.filter((item) => item.id !== product.id);
+      }
+      if (prev.length >= 3) {
+        alert("You can compare a maximum of 3 products at a time.");
+        return prev;
+      }
+      return [
+        ...prev,
+        {
+          id: product.id,
+          slug: product.slug,
+          title: product.title,
+          excerpt: product.excerpt,
+          content: product.content,
+          image: product.image,
+          categoriesLabel,
+          brandLabel: brandLabel || undefined,
+        },
+      ];
+    });
+  };
+
+  const removeCompareProduct = (productId: number) => {
+    setCompareItems((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const clearCompareProducts = () => {
+    setCompareItems([]);
+  };
 
   // Helper to recursively get all subcategory IDs for deep matching
   const getCategoryDescendants = (catId: number): number[] => {
@@ -294,8 +342,35 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
               )}
             </div>
 
-            {/* Right Controls: Sort & Filter Toggle */}
+            {/* Right Controls: View Mode, Sort & Filter Toggle */}
             <div className="flex items-center justify-end gap-3 flex-wrap">
+              {/* Grid / List View Toggle */}
+              <div className="flex items-center bg-white border border-primary/20 rounded-full p-1 shadow-xs">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-full transition-all cursor-pointer ${
+                    viewMode === "grid"
+                      ? "bg-[#0e3b2e] text-white shadow-xs"
+                      : "text-primary/60 hover:text-primary"
+                  }`}
+                  title="Grid View"
+                  aria-label="Grid View"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-full transition-all cursor-pointer ${
+                    viewMode === "list"
+                      ? "bg-[#0e3b2e] text-white shadow-xs"
+                      : "text-primary/60 hover:text-primary"
+                  }`}
+                  title="List View"
+                  aria-label="List View"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
               {/* Sort By Dropdown */}
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold hidden sm:inline">
@@ -425,10 +500,10 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
               </button>
             </div>
           </div>
-        ) : (
+        ) : viewMode === "grid" ? (
+          /* GRID VIEW */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sortedProducts.map((product) => {
-              // Get parent category name
               const parentId = product.categories.find(
                 (id) => categories.find((c) => c.id === id)?.parent === 0
               );
@@ -436,7 +511,6 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
                 ? categories.find((c) => c.id === parentId)?.name 
                 : "Equipment";
 
-              // Get brand/bowyer name
               const brandId = product.categories.find(
                 (id) => categories.find((c) => c.id === id)?.parent === 114
               );
@@ -444,14 +518,15 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
                 ? categories.find((c) => c.id === brandId)?.name
                 : null;
 
+              const isCompared = compareItems.some((item) => item.id === product.id);
+
               return (
-                <Link
+                <div
                   key={product.slug}
-                  href={`/equipment/${product.slug}`}
-                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[400px] cursor-pointer"
+                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[420px] relative"
                 >
                   {/* Image Banner */}
-                  <div className="relative w-full h-[200px] bg-primary/10 overflow-hidden">
+                  <Link href={`/equipment/${product.slug}`} className="relative w-full h-[200px] bg-primary/10 overflow-hidden block">
                     <Image
                       src={product.image}
                       alt={product.title}
@@ -462,7 +537,7 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
                     <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest">
                       Consultation Only
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Body Details */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
@@ -476,26 +551,172 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
                           </>
                         )}
                       </div>
-                      <h3 className="text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1">
-                        {cleanTitle(product.title)}
-                      </h3>
-                      <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-3">
+                      <Link href={`/equipment/${product.slug}`}>
+                        <h3 className="text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1">
+                          {cleanTitle(product.title)}
+                        </h3>
+                      </Link>
+                      <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-2">
                         {cleanExcerpt(product.excerpt)}
                       </p>
                     </div>
 
-                    <div className="border-t border-primary/5 pt-4 flex items-center justify-between text-[10px] font-serif uppercase tracking-widest font-bold text-accent group-hover:translate-x-1 transition-transform duration-300">
-                      <span>Inspect Specs</span>
-                      <span>→</span>
+                    {/* Card Footer: Compare Toggle & Inspect Link */}
+                    <div className="border-t border-primary/5 pt-4 flex items-center justify-between">
+                      {/* Compare Checkbox Button */}
+                      <button
+                        type="button"
+                        onClick={() => toggleCompareProduct(product, parentLabel, brandLabel || undefined)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-serif font-semibold transition-all cursor-pointer ${
+                          isCompared
+                            ? "bg-[#0e3b2e] text-white shadow-xs"
+                            : "bg-secondary hover:bg-primary/10 text-primary border border-primary/15"
+                        }`}
+                      >
+                        <div
+                          className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${
+                            isCompared
+                              ? "bg-accent border-accent text-white"
+                              : "border-primary/30 bg-white"
+                          }`}
+                        >
+                          {isCompared && <Check className="w-2.5 h-2.5 text-primary stroke-[3]" />}
+                        </div>
+                        <span>{isCompared ? "Compared" : "Compare"}</span>
+                      </button>
+
+                      <Link
+                        href={`/equipment/${product.slug}`}
+                        className="text-[10px] font-serif uppercase tracking-widest font-bold text-accent group-hover:translate-x-1 transition-transform duration-300 flex items-center gap-1"
+                      >
+                        <span>Inspect Specs</span>
+                        <span>→</span>
+                      </Link>
                     </div>
                   </div>
-                </Link>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* LIST VIEW */
+          <div className="flex flex-col gap-4">
+            {sortedProducts.map((product) => {
+              const parentId = product.categories.find(
+                (id) => categories.find((c) => c.id === id)?.parent === 0
+              );
+              const parentLabel = parentId 
+                ? categories.find((c) => c.id === parentId)?.name 
+                : "Equipment";
+
+              const brandId = product.categories.find(
+                (id) => categories.find((c) => c.id === id)?.parent === 114
+              );
+              const brandLabel = brandId
+                ? categories.find((c) => c.id === brandId)?.name
+                : null;
+
+              const isCompared = compareItems.some((item) => item.id === product.id);
+
+              return (
+                <div
+                  key={product.slug}
+                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-accent/40 transition-all duration-300 flex flex-col md:flex-row items-stretch p-4 md:p-5 gap-6"
+                >
+                  {/* Thumbnail Image */}
+                  <Link href={`/equipment/${product.slug}`} className="relative w-full md:w-56 h-48 md:h-auto rounded-xl overflow-hidden bg-primary/10 shrink-0 block">
+                    <Image
+                      src={product.image}
+                      alt={product.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 224px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute top-3 left-3 z-10 px-2.5 py-0.5 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest">
+                      Consultation Only
+                    </div>
+                  </Link>
+
+                  {/* Product Information */}
+                  <div className="flex-1 flex flex-col justify-between space-y-3 py-1">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
+                        <span>{cleanTitle(parentLabel)}</span>
+                        {brandLabel && (
+                          <>
+                            <span className="text-primary/30 font-sans">•</span>
+                            <span>{cleanTitle(brandLabel)}</span>
+                          </>
+                        )}
+                      </div>
+
+                      <Link href={`/equipment/${product.slug}`}>
+                        <h3 className="text-xl font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300">
+                          {cleanTitle(product.title)}
+                        </h3>
+                      </Link>
+
+                      <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-2 md:line-clamp-3">
+                        {cleanExcerpt(product.excerpt)}
+                      </p>
+                    </div>
+
+                    {/* Actions & Compare Toggle */}
+                    <div className="flex items-center justify-between pt-3 border-t border-primary/5">
+                      <button
+                        type="button"
+                        onClick={() => toggleCompareProduct(product, parentLabel, brandLabel || undefined)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-serif font-semibold transition-all cursor-pointer ${
+                          isCompared
+                            ? "bg-[#0e3b2e] text-white shadow-xs"
+                            : "bg-secondary hover:bg-primary/10 text-primary border border-primary/15"
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                            isCompared
+                              ? "bg-accent border-accent text-white"
+                              : "border-primary/30 bg-white"
+                          }`}
+                        >
+                          {isCompared && <Check className="w-3 h-3 text-primary stroke-[3]" />}
+                        </div>
+                        <span>{isCompared ? "Compared" : "Add to Compare"}</span>
+                      </button>
+
+                      <Link
+                        href={`/equipment/${product.slug}`}
+                        className="px-5 py-2 bg-[#0e3b2e] hover:bg-[#0e3b2e]/90 text-white rounded-xl font-serif font-bold text-xs uppercase tracking-wider transition-colors inline-flex items-center gap-1.5"
+                      >
+                        <span>Inspect Specs</span>
+                        <span>→</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
         )}
 
       </div>
+
+      {/* Floating Bottom Comparison Drawer Bar */}
+      <FloatingCompareBar
+        selectedProducts={compareItems}
+        onRemoveProduct={removeCompareProduct}
+        onClearAll={clearCompareProducts}
+        onOpenModal={() => setIsCompareModalOpen(true)}
+      />
+
+      {/* Product Comparison Modal */}
+      <ProductComparisonModal
+        selectedProducts={compareItems}
+        onRemoveProduct={removeCompareProduct}
+        onClearAll={clearCompareProducts}
+        isOpen={isCompareModalOpen}
+        onClose={() => setIsCompareModalOpen(false)}
+      />
     </div>
   );
 }
