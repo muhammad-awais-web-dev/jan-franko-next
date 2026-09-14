@@ -677,52 +677,6 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
                   <option value="title-desc">Title: Z-A</option>
                 </select>
               </div>
-
-              {/* Filters Toggle Button */}
-              <button
-                onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-secondary rounded-full text-xs font-serif tracking-widest uppercase transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-accent" />
-                Filters
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Collapsible Filters Drawer */}
-        <div
-          className={`overflow-hidden transition-all duration-500 ease-in-out ${
-            isFiltersOpen ? "max-h-[500px] opacity-100 mb-8" : "max-h-0 opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="bg-white border border-primary/5 p-6 rounded-3xl shadow-sm space-y-6">
-            <div className="max-w-md mx-auto space-y-2">
-              <label className="text-xs font-serif uppercase tracking-wider text-[#5c4629] font-bold">Category</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full bg-secondary text-primary border border-primary/10 rounded-xl p-2.5 text-xs outline-none focus:border-accent cursor-pointer font-sans"
-              >
-                <option value="">All Categories</option>
-                {getCategoryTree().map((cat, idx) => (
-                  <option key={`${cat.id}-${idx}`} value={cat.id}>
-                    {"— ".repeat(cat.level) + cleanTitle(cat.name)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Reset Controls */}
-            <div className="flex justify-end pt-4 border-t border-primary/5">
-              <button
-                onClick={() => {
-                  setSelectedCategory("");
-                }}
-                className="px-4 py-2 border border-primary/20 hover:border-primary text-primary text-xs font-serif uppercase tracking-wider rounded-xl transition-colors duration-300 cursor-pointer"
-              >
-                Reset Filters
-              </button>
             </div>
           </div>
         </div>

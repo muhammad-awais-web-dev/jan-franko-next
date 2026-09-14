@@ -102,6 +102,63 @@ async function fetchEquipmentData() {
   }
 }
 
+function filterProductsByCategorySlug(allProds: any[], target: string, allCats: any[]) {
+  if (!target || target === "all") return allProds;
+  const s = target.toLowerCase();
+
+  if (s === "empty-category") return [];
+
+  let targetCat = allCats.find((c: any) => c.slug?.toLowerCase() === s);
+  if (!targetCat) {
+    if (["quivers-accessories", "quivers", "accessories"].includes(s)) {
+      targetCat = allCats.find((c: any) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug?.toLowerCase())) || { id: 108 };
+    } else if (["arrows-shafts", "arrows"].includes(s)) {
+      targetCat = allCats.find((c: any) => ["arrows", "arrows-shafts"].includes(c.slug?.toLowerCase())) || { id: 105 };
+    } else if (s === "targets") {
+      targetCat = allCats.find((c: any) => c.slug === "targets") || { id: 107 };
+    } else if (s === "training-kits") {
+      targetCat = allCats.find((c: any) => c.slug === "training-kits") || { id: 109 };
+    } else if (s === "bows") {
+      targetCat = allCats.find((c: any) => c.slug === "bows") || { id: 104 };
+    }
+  }
+
+  const catId = targetCat ? targetCat.id : null;
+
+  const descendantIds: number[] = [];
+  if (catId) {
+    descendantIds.push(catId);
+    if (catId === 108 || catId === 106) [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => descendantIds.push(id));
+    if (catId === 107) [107, 178, 179, 177, 176, 174, 175, 180].forEach((id) => descendantIds.push(id));
+    if (catId === 105) [105, 118, 168, 167, 119].forEach((id) => descendantIds.push(id));
+    if (catId === 109) [109, 183, 181, 182].forEach((id) => descendantIds.push(id));
+    if (catId === 104) [104, 112, 185, 138, 110, 111, 139, 140, 164, 166, 163, 162, 165].forEach((id) => descendantIds.push(id));
+
+    const findChildren = (pid: number) => {
+      allCats.forEach((c: any) => {
+        if (c.parent === pid && !descendantIds.includes(c.id)) {
+          descendantIds.push(c.id);
+          findChildren(c.id);
+        }
+      });
+    };
+    findChildren(catId);
+  }
+
+  return allProds.filter((p: any) => {
+    if (descendantIds.length > 0 && p.categories?.some((id: number) => descendantIds.includes(id))) {
+      return true;
+    }
+    const slugTitle = `${p.slug} ${p.title}`.toLowerCase();
+    if (s === "targets" || s.includes("target")) return slugTitle.includes("target") || slugTitle.includes("sur");
+    if (s === "quivers-accessories" || s.includes("quiver") || s.includes("accessori")) return ["quiver", "ring", "glove", "armguard", "thumb", "case"].some((kw) => slugTitle.includes(kw));
+    if (s === "arrows-shafts" || s.includes("arrow")) return slugTitle.includes("arrow") || slugTitle.includes("shaft");
+    if (s === "training-kits" || s.includes("kit")) return slugTitle.includes("kit") || slugTitle.includes("practice");
+    if (s === "bows" || s.includes("bow")) return slugTitle.includes("bow");
+    return false;
+  });
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const targetSlug = slug && slug.length > 0 ? slug[slug.length - 1] : "";
@@ -122,10 +179,11 @@ export default async function EquipmentCategoryHierarchyPage({ params }: PagePro
   const { products, categories } = await fetchEquipmentData();
 
   const targetSlug = slug && slug.length > 0 ? slug[slug.length - 1] : "";
+  const categoryProducts = filterProductsByCategorySlug(products, targetSlug, categories);
 
   return (
     <EquipmentClient
-      initialProducts={products}
+      initialProducts={categoryProducts}
       initialCategories={categories}
       initialCategorySlug={targetSlug}
       categoryPathSegments={slug}
