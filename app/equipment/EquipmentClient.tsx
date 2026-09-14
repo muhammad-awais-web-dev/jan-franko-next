@@ -85,44 +85,14 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       let term = allCategories.find((c) => c.slug.toLowerCase() === s);
       if (term) return term.id.toString();
 
-      // Known category aliases mapping (only when direct slug match is not found)
-      if (s === "quivers") {
-        term = allCategories.find((c) => c.slug === "quivers" || c.id === 106);
-        if (term) return term.id.toString();
-        return "106";
-      }
-
-      if (["quivers-accessories", "accessories"].includes(s) || s.includes("accessori")) {
-        term = allCategories.find((c) => ["accessories", "quivers-accessories"].includes(c.slug.toLowerCase())) ||
-               allCategories.find((c) => c.id === 108);
-        if (term) return term.id.toString();
-        return "108";
-      }
-
-      if (["arrows-shafts", "arrows"].includes(s) || s.includes("arrow") || s.includes("shaft")) {
-        term = allCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug.toLowerCase())) ||
-               allCategories.find((c) => c.id === 105);
-        if (term) return term.id.toString();
-        return "105";
-      }
-
-      if (s === "targets" || s.includes("target")) {
-        term = allCategories.find((c) => c.slug === "targets" || c.id === 107);
-        if (term) return term.id.toString();
-        return "107";
-      }
-
-      if (s === "training-kits" || s.includes("kit") || s.includes("training")) {
-        term = allCategories.find((c) => c.slug === "training-kits" || c.id === 109);
-        if (term) return term.id.toString();
-        return "109";
-      }
-
-      if (s === "bows" || (s.includes("bow") && !s.includes("bowyer"))) {
-        term = allCategories.find((c) => c.slug === "bows" || c.id === 104);
-        if (term) return term.id.toString();
-        return "104";
-      }
+      // Dynamic fuzzy match against category slug or name
+      term = allCategories.find(
+        (c) =>
+          c.slug.toLowerCase().includes(s) ||
+          c.name.toLowerCase().includes(s) ||
+          s.includes(c.slug.toLowerCase())
+      );
+      if (term) return term.id.toString();
 
       if (s === "empty-category") return "9999";
 
@@ -252,42 +222,13 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
     setCompareItems([]);
   };
 
-  // Helper to recursively get all subcategory IDs for deep matching
+  // Helper to recursively get all subcategory IDs for deep matching dynamically
   const getCategoryDescendants = (catId: number): number[] => {
     const ids = [catId];
-    if (catId === 108) {
-      [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => {
-        if (!ids.includes(id)) ids.push(id);
-      });
-    } else if (catId === 106) {
-      [106, 120, 121].forEach((id) => {
-        if (!ids.includes(id)) ids.push(id);
-      });
-    }
-    if (catId === 107) {
-      [107, 178, 179, 177, 176, 174, 175, 180].forEach((id) => {
-        if (!ids.includes(id)) ids.push(id);
-      });
-    }
-    if (catId === 105) {
-      [105, 118, 168, 167, 119].forEach((id) => {
-        if (!ids.includes(id)) ids.push(id);
-      });
-    }
-    if (catId === 109) {
-      [109, 183, 181, 182].forEach((id) => {
-        if (!ids.includes(id)) ids.push(id);
-      });
-    }
-    if (catId === 104) {
-      [104, 112, 185, 138, 110, 111, 139, 140, 164, 166, 163, 162, 165].forEach((id) => {
-        if (!ids.includes(id)) ids.push(id);
-      });
-    }
     const findChildren = (parent: number) => {
       categories.forEach((c) => {
-        if (c.parent === parent) {
-          if (!ids.includes(c.id)) ids.push(c.id);
+        if (c.parent === parent && !ids.includes(c.id)) {
+          ids.push(c.id);
           findChildren(c.id);
         }
       });

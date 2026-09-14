@@ -120,39 +120,26 @@ async function fetchEquipmentData() {
 
 function filterProductsByCategorySlug(allProds: any[], target: string, allCats: any[]) {
   if (!target || target === "all") return allProds;
-  const s = target.toLowerCase();
+  const s = target.toLowerCase().trim();
 
   if (s === "empty-category") return [];
 
+  // Dynamically locate target category term from WordPress categories
   let targetCat = allCats.find((c: any) => c.slug?.toLowerCase() === s);
+  
+  // Fuzzy fallback if exact slug differs slightly
   if (!targetCat) {
-    if (s === "quivers") {
-      targetCat = allCats.find((c: any) => c.slug?.toLowerCase() === "quivers" || c.id === 106) || { id: 106 };
-    } else if (["quivers-accessories", "accessories"].includes(s)) {
-      targetCat = allCats.find((c: any) => ["accessories", "quivers-accessories"].includes(c.slug?.toLowerCase()) || c.id === 108) || { id: 108 };
-    } else if (["arrows-shafts", "arrows"].includes(s)) {
-      targetCat = allCats.find((c: any) => ["arrows", "arrows-shafts"].includes(c.slug?.toLowerCase()) || c.id === 105) || { id: 105 };
-    } else if (s === "targets") {
-      targetCat = allCats.find((c: any) => c.slug === "targets" || c.id === 107) || { id: 107 };
-    } else if (s === "training-kits") {
-      targetCat = allCats.find((c: any) => c.slug === "training-kits" || c.id === 109) || { id: 109 };
-    } else if (s === "bows") {
-      targetCat = allCats.find((c: any) => c.slug === "bows" || c.id === 104) || { id: 104 };
-    }
+    targetCat = allCats.find((c: any) => 
+      c.slug?.toLowerCase().includes(s) || s.includes(c.slug?.toLowerCase() || "")
+    );
   }
 
   const catId = targetCat ? targetCat.id : null;
 
+  // Dynamically collect target category ID + ALL recursive child/grandchild IDs from WordPress taxonomy tree
   const descendantIds: number[] = [];
   if (catId) {
     descendantIds.push(catId);
-    if (catId === 108) [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => descendantIds.push(id));
-    if (catId === 106) [106, 120, 121].forEach((id) => descendantIds.push(id));
-    if (catId === 107) [107, 178, 179, 177, 176, 174, 175, 180].forEach((id) => descendantIds.push(id));
-    if (catId === 105) [105, 118, 168, 167, 119].forEach((id) => descendantIds.push(id));
-    if (catId === 109) [109, 183, 181, 182].forEach((id) => descendantIds.push(id));
-    if (catId === 104) [104, 112, 185, 138, 110, 111, 139, 140, 164, 166, 163, 162, 165].forEach((id) => descendantIds.push(id));
-
     const findChildren = (pid: number) => {
       allCats.forEach((c: any) => {
         if (c.parent === pid && !descendantIds.includes(c.id)) {
@@ -164,21 +151,21 @@ function filterProductsByCategorySlug(allProds: any[], target: string, allCats: 
     findChildren(catId);
   }
 
-  const isTopLevelParent = ["bows", "accessories", "quivers", "quivers-accessories", "targets", "arrows", "arrows-shafts", "training-kits"].includes(s);
+  // Keywords derived dynamically from target category slug
+  const targetWords = s.split(/[-_]+/).filter((w) => w.length > 2);
 
   return allProds.filter((p: any) => {
+    // 1. Direct WordPress category assignment match
     if (descendantIds.length > 0 && p.categories?.some((id: number) => descendantIds.includes(id))) {
       return true;
     }
 
-    if (isTopLevelParent) {
+    // 2. Dynamic keyword fallback for products without explicit category IDs set
+    if (targetWords.length > 0) {
       const slugTitle = `${p.slug} ${p.title}`.toLowerCase();
-      if (s === "targets" || s.includes("target")) return slugTitle.includes("target") || slugTitle.includes("sur");
-      if (s === "quivers") return slugTitle.includes("quiver");
-      if (s === "quivers-accessories" || s === "accessories") return ["quiver", "ring", "glove", "armguard", "thumb", "case", "belt"].some((kw) => slugTitle.includes(kw));
-      if (s === "arrows-shafts" || s === "arrows") return slugTitle.includes("arrow") || slugTitle.includes("shaft");
-      if (s === "training-kits") return slugTitle.includes("kit") || slugTitle.includes("practice");
-      if (s === "bows") return slugTitle.includes("bow");
+      if (targetWords.every((w) => slugTitle.includes(w))) {
+        return true;
+      }
     }
 
     return false;

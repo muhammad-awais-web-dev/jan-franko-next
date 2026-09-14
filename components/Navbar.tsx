@@ -385,9 +385,7 @@ function EquipmentDepartmentsGroup({
   const findWpCategory = (id?: number, slug?: string): TaxonomyTerm | undefined => {
     if (id && id > 0) return categories.find((c) => c.id === id);
     if (slug) {
-      return categories.find(
-        (c) => c.slug === slug || (slug === "accessories" && (c.slug === "quivers-accessories" || c.id === 108))
-      );
+      return categories.find((c) => c.slug === slug || c.slug.toLowerCase() === slug.toLowerCase());
     }
     return undefined;
   };
@@ -416,7 +414,7 @@ function EquipmentDepartmentsGroup({
       if (wpCat) {
         hasSub = getDirectChildren(wpCat.id).length > 0;
       } else {
-        if (slug === "bows" || slug === "accessories" || slug === "quivers-accessories") {
+        if (slug === "bows" || slug === "accessories") {
           hasSub = true;
         }
       }
@@ -427,18 +425,16 @@ function EquipmentDepartmentsGroup({
         catId: wpCat?.id,
         catSlug: wpCat?.slug || slug,
         catName: wpCat?.name || item.label,
-        onChevronClick: hasSub
+        onChevronClick: hasSub && wpCat
           ? (e: React.MouseEvent) => {
               e.preventDefault();
               e.stopPropagation();
-              const targetId = wpCat?.id || (slug === "bows" ? 104 : 108);
-              const targetSlug = wpCat?.slug || slug;
               setCategoryStack([
                 {
-                  id: targetId,
-                  name: wpCat?.name || item.label,
-                  slug: targetSlug,
-                  path: targetSlug,
+                  id: wpCat.id,
+                  name: wpCat.name || item.label,
+                  slug: wpCat.slug,
+                  path: wpCat.slug,
                 },
               ]);
             }
@@ -494,14 +490,14 @@ function EquipmentDepartmentsGroup({
           icon: Target,
           hasSubcategories: false,
         }));
-      } else if (currentCategory.slug === "accessories" || currentCategory.slug === "quivers-accessories") {
+      } else if (currentCategory.slug === "accessories") {
         const fallbackAccessories = [
-          { name: "Quivers", slug: "quivers", id: 106, hasSub: true },
-          { name: "Archery Belts", slug: "archery-belts", id: 173, hasSub: false },
-          { name: "Arm Guards", slug: "arm-guards", id: 169, hasSub: false },
-          { name: "Bow Cases", slug: "bow-cases", id: 172, hasSub: false },
-          { name: "Finger Tabs", slug: "finger-tabs", id: 170, hasSub: false },
-          { name: "Thumb Rings", slug: "thumb-rings", id: 171, hasSub: false },
+          { name: "Quivers", slug: "quivers", hasSub: true },
+          { name: "Archery Belts", slug: "archery-belts", hasSub: false },
+          { name: "Arm Guards", slug: "arm-guards", hasSub: false },
+          { name: "Bow Cases", slug: "bow-cases", hasSub: false },
+          { name: "Finger Tabs", slug: "finger-tabs", hasSub: false },
+          { name: "Thumb Rings", slug: "thumb-rings", hasSub: false },
         ];
         itemsToRender = fallbackAccessories.map((acc) => ({
           label: acc.name,
@@ -512,10 +508,11 @@ function EquipmentDepartmentsGroup({
             ? (e: React.MouseEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
+                const matchedWp = categories.find((c) => c.slug === acc.slug);
                 setCategoryStack((prev) => [
                   ...prev,
                   {
-                    id: acc.id,
+                    id: matchedWp?.id || 0,
                     name: acc.name,
                     slug: acc.slug,
                     path: `${currentCategory.path}/${acc.slug}`,
