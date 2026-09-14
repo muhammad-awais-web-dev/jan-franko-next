@@ -56,7 +56,7 @@ declare global {
 
 type MenuName = "academy" | "programs" | "equipment" | "knowledge" | "about" | "language" | null;
 type MobileSectionName = Exclude<MenuName, "language" | null> | null;
-type TaxonomyTerm = { id: number; name: string; slug: string; parent?: number };
+type TaxonomyTerm = { id: number; name: string; slug: string; parent?: number; count?: number; totalCount?: number };
 
 type MenuLink = {
   label: string;
@@ -371,6 +371,17 @@ type StackItem = {
   path: string;
 };
 
+function decodeHtmlEntities(str: string | undefined): string {
+  if (!str) return "";
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&#8220;/g, "“")
+    .replace(/&#8221;/g, "”")
+    .replace(/&#8211;/g, "–")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
 function EquipmentDepartmentsGroup({
   equipmentLinks,
   categories,
@@ -390,12 +401,11 @@ function EquipmentDepartmentsGroup({
     return undefined;
   };
 
-  const getDirectChildren = (parentId: number): TaxonomyTerm[] => {
-    return categories.filter((c) => c.parent === parentId);
-  };
-
-  const hasDirectSubcategories = (catId: number): boolean => {
-    return categories.some((c) => c.parent === catId);
+  // Get active (non-empty) direct child categories for a parent
+  const getActiveDirectChildren = (parentId: number): TaxonomyTerm[] => {
+    return categories.filter(
+      (c) => c.parent === parentId && (c.totalCount === undefined || c.totalCount > 0)
+    );
   };
 
   let itemsToRender: MenuLink[] = [];
@@ -403,28 +413,28 @@ function EquipmentDepartmentsGroup({
   if (!currentCategory) {
     itemsToRender = equipmentLinks.map((item) => {
       if (item.href === "/equipment") {
-        return { ...item, hasSubcategories: false };
+        return { ...item, label: decodeHtmlEntities(item.label), hasSubcategories: false };
       }
 
       const slugMatch = item.href.match(/category\/([^/]+)/);
       const slug = slugMatch ? slugMatch[1] : "";
       const wpCat = findWpCategory(undefined, slug);
 
-      let hasSub = false;
-      if (wpCat) {
-        hasSub = getDirectChildren(wpCat.id).length > 0;
-      } else {
-        if (slug === "bows" || slug === "accessories") {
-          hasSub = true;
-        }
+      const activeChildren = wpCat ? getActiveDirectChildren(wpCat.id) : [];
+      let hasSub = activeChildren.length > 0;
+      if (!wpCat && (slug === "bows" || slug === "accessories")) {
+        hasSub = true;
       }
+
+      const label = decodeHtmlEntities(wpCat?.name || item.label);
 
       return {
         ...item,
+        label,
         hasSubcategories: hasSub,
         catId: wpCat?.id,
         catSlug: wpCat?.slug || slug,
-        catName: wpCat?.name || item.label,
+        catName: label,
         onChevronClick: hasSub && wpCat
           ? (e: React.MouseEvent) => {
               e.preventDefault();
@@ -432,7 +442,7 @@ function EquipmentDepartmentsGroup({
               setCategoryStack([
                 {
                   id: wpCat.id,
-                  name: wpCat.name || item.label,
+                  name: label,
                   slug: wpCat.slug,
                   path: wpCat.slug,
                 },
@@ -442,21 +452,22 @@ function EquipmentDepartmentsGroup({
       };
     });
   } else {
-    const directChildren = getDirectChildren(currentCategory.id);
+    const activeDirectChildren = getActiveDirectChildren(currentCategory.id);
 
-    if (directChildren.length > 0) {
-      itemsToRender = directChildren.map((child) => {
-        const hasSub = hasDirectSubcategories(child.id);
+    if (activeDirectChildren.length > 0) {
+      itemsToRender = activeDirectChildren.map((child) => {
+        const hasSub = getActiveDirectChildren(child.id).length > 0;
         const childPath = `${currentCategory.path}/${child.slug}`;
+        const label = decodeHtmlEntities(child.name);
 
         return {
-          label: child.name,
+          label,
           href: `/equipment/category/${childPath}`,
           icon: currentCategory.slug === "bows" ? Target : SlidersHorizontal,
           hasSubcategories: hasSub,
           catId: child.id,
           catSlug: child.slug,
-          catName: child.name,
+          catName: label,
           onChevronClick: hasSub
             ? (e: React.MouseEvent) => {
                 e.preventDefault();
@@ -465,7 +476,7 @@ function EquipmentDepartmentsGroup({
                   ...prev,
                   {
                     id: child.id,
-                    name: child.name,
+                    name: label,
                     slug: child.slug,
                     path: childPath,
                   },
@@ -491,36 +502,28 @@ function EquipmentDepartmentsGroup({
           hasSubcategories: false,
         }));
       } else if (currentCategory.slug === "accessories") {
-        const fallbackAccessories = [
-          { name: "Quivers", slug: "quivers", hasSub: true },
-          { name: "Archery Belts", slug: "archery-belts", hasSub: false },
-          { name: "Arm Guards", slug: "arm-guards", hasSub: false },
-          { name: "Bow Cases", slug: "bow-cases", hasSub: false },
-          { name: "Finger Tabs", slug: "finger-tabs", hasSub: false },
-          { name: "Thumb Rings", slug: "thumb-rings", hasSub: false },
+        itemsToRender = [
+          {
+            label: "Quivers",
+            href: `/equipment/category/${currentCategory.path}/quivers`,
+            icon: SlidersHorizontal,
+            hasSubcategories: true,
+            onChevronClick: (e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const matchedWp = categories.find((c) => c.slug === "quivers");
+              setCategoryStack((prev) => [
+                ...prev,
+                {
+                  id: matchedWp?.id || 106,
+                  name: "Quivers",
+                  slug: "quivers",
+                  path: `${currentCategory.path}/quivers`,
+                },
+              ]);
+            },
+          },
         ];
-        itemsToRender = fallbackAccessories.map((acc) => ({
-          label: acc.name,
-          href: `/equipment/category/${currentCategory.path}/${acc.slug}`,
-          icon: SlidersHorizontal,
-          hasSubcategories: acc.hasSub,
-          onChevronClick: acc.hasSub
-            ? (e: React.MouseEvent) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const matchedWp = categories.find((c) => c.slug === acc.slug);
-                setCategoryStack((prev) => [
-                  ...prev,
-                  {
-                    id: matchedWp?.id || 0,
-                    name: acc.name,
-                    slug: acc.slug,
-                    path: `${currentCategory.path}/${acc.slug}`,
-                  },
-                ]);
-              }
-            : undefined,
-        }));
       } else if (currentCategory.slug === "quivers") {
         const fallbackQuivers = ["field-quivers", "horse-archery-quivers"];
         itemsToRender = fallbackQuivers.map((qSlug) => ({
@@ -924,19 +927,19 @@ export default function Navbar() {
     icon: MapPin,
   }));
   const activeRootCats = equipmentCategories.length > 0
-    ? equipmentCategories.filter((cat) => cat.parent === 0 && cat.id !== 28 && cat.slug !== "master-bowyers")
+    ? equipmentCategories.filter((cat) => cat.parent === 0 && cat.id !== 28 && cat.slug !== "master-bowyers" && (cat.totalCount === undefined || cat.totalCount > 0))
     : [];
 
   const dynamicCategoryLinks: MenuLink[] = activeRootCats.length > 0
     ? activeRootCats.map((cat) => ({
-        label: cat.name,
+        label: decodeHtmlEntities(cat.name),
         href: `/equipment/category/${cat.slug}`,
         icon: cat.slug === "bows" ? Target : cat.slug === "training-kits" ? GraduationCap : cat.slug === "targets" ? ShieldCheck : SlidersHorizontal,
       }))
     : EQUIPMENT_CATEGORIES
         .filter((category) => category.slug !== "master-bowyers")
         .map((category) => ({
-          label: category.name,
+          label: decodeHtmlEntities(category.name),
           href: `/equipment/category/${category.slug}`,
           icon: category.slug === "bows" ? Target : category.slug === "training-kits" ? GraduationCap : category.slug === "targets" ? ShieldCheck : SlidersHorizontal,
         }));
