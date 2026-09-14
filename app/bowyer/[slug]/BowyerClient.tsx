@@ -484,8 +484,8 @@ const BowyerProfileContent = () => {
         {productsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[380px] overflow-hidden flex flex-col shadow-sm animate-pulse">
-                <div className="bg-primary/10 h-[200px] w-full" />
+              <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[460px] overflow-hidden flex flex-col shadow-sm animate-pulse">
+                <div className="bg-primary/10 h-[280px] w-full" />
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
                     <div className="bg-primary/10 rounded h-3 w-1/4" />
@@ -513,9 +513,9 @@ const BowyerProfileContent = () => {
                 <Link
                   key={product.slug}
                   href={`/master-bower-product/${product.slug}`}
-                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[400px] cursor-pointer"
+                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[460px] cursor-pointer"
                 >
-                  <div className="relative w-full h-[200px] bg-primary/10 overflow-hidden">
+                  <div className="relative w-full h-[280px] bg-primary/10 overflow-hidden">
                     <img
                       src={product.image}
                       alt={product.title}
