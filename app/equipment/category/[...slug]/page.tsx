@@ -125,50 +125,28 @@ function filterProductsByCategorySlug(allProds: any[], target: string, allCats: 
   if (s === "empty-category") return [];
 
   // Dynamically locate target category term from WordPress categories
-  let targetCat = allCats.find((c: any) => c.slug?.toLowerCase() === s);
-  
-  // Fuzzy fallback if exact slug differs slightly
-  if (!targetCat) {
-    targetCat = allCats.find((c: any) => 
-      c.slug?.toLowerCase().includes(s) || s.includes(c.slug?.toLowerCase() || "")
-    );
-  }
+  const targetCat = allCats.find(
+    (c: any) => c.slug?.toLowerCase() === s || c.name?.toLowerCase() === s
+  );
 
-  const catId = targetCat ? targetCat.id : null;
+  // If category term is not in taxonomy at all, return empty
+  if (!targetCat) return [];
 
   // Dynamically collect target category ID + ALL recursive child/grandchild IDs from WordPress taxonomy tree
-  const descendantIds: number[] = [];
-  if (catId) {
-    descendantIds.push(catId);
-    const findChildren = (pid: number) => {
-      allCats.forEach((c: any) => {
-        if (c.parent === pid && !descendantIds.includes(c.id)) {
-          descendantIds.push(c.id);
-          findChildren(c.id);
-        }
-      });
-    };
-    findChildren(catId);
-  }
-
-  // Keywords derived dynamically from target category slug
-  const targetWords = s.split(/[-_]+/).filter((w) => w.length > 2);
+  const descendantIds: number[] = [targetCat.id];
+  const findChildren = (pid: number) => {
+    allCats.forEach((c: any) => {
+      if (c.parent === pid && !descendantIds.includes(c.id)) {
+        descendantIds.push(c.id);
+        findChildren(c.id);
+      }
+    });
+  };
+  findChildren(targetCat.id);
 
   return allProds.filter((p: any) => {
-    // 1. Direct WordPress category assignment match
-    if (descendantIds.length > 0 && p.categories?.some((id: number) => descendantIds.includes(id))) {
-      return true;
-    }
-
-    // 2. Dynamic keyword fallback for products without explicit category IDs set
-    if (targetWords.length > 0) {
-      const slugTitle = `${p.slug} ${p.title}`.toLowerCase();
-      if (targetWords.every((w) => slugTitle.includes(w))) {
-        return true;
-      }
-    }
-
-    return false;
+    // Match product's WooCommerce category IDs against target category & descendants
+    return descendantIds.length > 0 && p.categories?.some((id: number) => descendantIds.includes(id));
   });
 }
 

@@ -85,13 +85,8 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       let term = allCategories.find((c) => c.slug.toLowerCase() === s);
       if (term) return term.id.toString();
 
-      // Dynamic fuzzy match against category slug or name
-      term = allCategories.find(
-        (c) =>
-          c.slug.toLowerCase().includes(s) ||
-          c.name.toLowerCase().includes(s) ||
-          s.includes(c.slug.toLowerCase())
-      );
+      // Direct name match in taxonomy
+      term = allCategories.find((c) => c.name.toLowerCase() === s);
       if (term) return term.id.toString();
 
       if (s === "empty-category") return "9999";
