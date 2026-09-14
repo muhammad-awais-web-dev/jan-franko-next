@@ -10,6 +10,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Activity,
+  ArrowLeft,
   ArrowRight,
   Award,
   BookOpen,
@@ -63,6 +64,12 @@ type MenuLink = {
   icon?: LucideIcon;
   image?: string;
   protectedName?: boolean;
+  hasSubcategories?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
+  catId?: number;
+  catName?: string;
+  catSlug?: string;
+  subcategories?: MenuLink[];
 };
 
 const DEFAULT_PROGRAM_TYPES: TaxonomyTerm[] = [
@@ -274,13 +281,16 @@ function LanguageFlag({ code, className = "" }: { code: string; className?: stri
 function MenuItem({ item }: { item: MenuLink }) {
   const Icon = item.icon;
   const isExternal = item.href.startsWith("http");
+  const showChevron = item.hasSubcategories ?? (isExternal ? false : true);
+
   return (
     <li>
       <Link
         href={item.href}
+        onClick={item.onClick}
         target={isExternal ? "_blank" : undefined}
         rel={isExternal ? "noopener noreferrer" : undefined}
-        className="group/item flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1]"
+        className="group/item flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1] cursor-pointer"
       >
         <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#e8f2ed] text-[#0e624b] transition group-hover/item:bg-white">
           {item.image ? (
@@ -303,9 +313,9 @@ function MenuItem({ item }: { item: MenuLink }) {
         </span>
         {isExternal ? (
           <ExternalLink className="h-3.5 w-3.5 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
-        ) : (
+        ) : showChevron ? (
           <ChevronRight className="h-4 w-4 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
-        )}
+        ) : null}
       </Link>
     </li>
   );
@@ -319,6 +329,176 @@ function MenuGroup({ title, icon: Icon, children, className = "" }: { title: str
         <h3 className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#1d5b49]">{title}</h3>
       </div>
       {children}
+    </section>
+  );
+}
+
+function EquipmentDepartmentsGroup({
+  equipmentLinks,
+  categories,
+}: {
+  equipmentLinks: MenuLink[];
+  categories: TaxonomyTerm[];
+}) {
+  const [activeCategory, setActiveCategory] = useState<{
+    id: number;
+    name: string;
+    slug: string;
+    subcategories: MenuLink[];
+  } | null>(null);
+
+  const getSubcategoriesForRoot = (catId: number, catSlug: string): MenuLink[] => {
+    if (categories.length === 0) {
+      if (catSlug === "bows") {
+        return [
+          { label: "Asiatic Bows", href: "/equipment?category=asiatic-bows", icon: Target, hasSubcategories: false },
+          { label: "European Archery", href: "/equipment?category=european-archery", icon: Target, hasSubcategories: false },
+          { label: "Explorer Core Line", href: "/equipment?category=explorer-core-line", icon: Target, hasSubcategories: false },
+          { label: "Explorer Limited Editions", href: "/equipment?category=explorer-limited-editions", icon: Target, hasSubcategories: false },
+          { label: "Himalayan Archery", href: "/equipment?category=himalayan-archery", icon: Target, hasSubcategories: false },
+          { label: "Indigenous Archery Traditions", href: "/equipment?category=indigenous-archery-traditions", icon: Target, hasSubcategories: false },
+        ];
+      }
+      if (catSlug === "quivers-accessories" || catSlug === "accessories") {
+        return [
+          { label: "Field Quivers", href: "/equipment?category=field-quivers", icon: SlidersHorizontal, hasSubcategories: false },
+          { label: "Horse Archery Quivers", href: "/equipment?category=horse-archery-quivers", icon: SlidersHorizontal, hasSubcategories: false },
+        ];
+      }
+      return [];
+    }
+
+    const findDescendants = (parentId: number): TaxonomyTerm[] => {
+      let results: TaxonomyTerm[] = [];
+      const directChildren = categories.filter((c) => c.parent === parentId);
+      directChildren.forEach((child) => {
+        const grandChildren = findDescendants(child.id);
+        if (grandChildren.length > 0) {
+          results = results.concat(grandChildren);
+        } else {
+          results.push(child);
+        }
+      });
+      return results;
+    };
+
+    const descendants = findDescendants(catId);
+    return descendants.map((sub) => ({
+      label: sub.name,
+      href: `/equipment?category=${sub.slug}`,
+      icon: catSlug === "bows" ? Target : SlidersHorizontal,
+      hasSubcategories: false,
+    }));
+  };
+
+  const rootItems = equipmentLinks.map((item) => {
+    if (item.href === "/equipment") {
+      return { ...item, hasSubcategories: false };
+    }
+
+    const slugMatch = item.href.match(/category=([^&]+)/);
+    const slug = slugMatch ? slugMatch[1] : "";
+    let catObj = categories.find((c) => c.slug === slug);
+    if (!catObj && (slug === "quivers-accessories" || slug === "accessories")) {
+      catObj = categories.find((c) => c.slug === "accessories" || c.slug === "quivers" || c.id === 108 || c.id === 106);
+    }
+
+    const sublinks = catObj ? getSubcategoriesForRoot(catObj.id, slug) : getSubcategoriesForRoot(0, slug);
+    const hasSubcategories = sublinks.length > 1;
+
+    return {
+      ...item,
+      hasSubcategories,
+      catId: catObj?.id,
+      catSlug: slug,
+      catName: item.label,
+      subcategories: sublinks,
+    };
+  });
+
+  return (
+    <section className="min-w-0 rounded-2xl border border-[#0e3b2e]/10 bg-white p-3.5 relative overflow-hidden">
+      <div className="relative mb-2.5 flex items-center border-b border-[#0e3b2e]/10 px-1 pb-3 overflow-hidden h-9">
+        <div
+          className={`absolute inset-0 flex items-center gap-2 transition-all duration-300 ease-in-out ${
+            activeCategory ? "-translate-x-full opacity-0 pointer-events-none" : "translate-x-0 opacity-100"
+          }`}
+        >
+          <Target className="h-4 w-4 text-[#0e624b]" aria-hidden="true" />
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#1d5b49]">
+            Equipment Departments
+          </h3>
+        </div>
+
+        <div
+          className={`absolute inset-0 flex items-center gap-2 transition-all duration-300 ease-in-out ${
+            activeCategory ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
+          }`}
+        >
+          <Target className="h-4 w-4 text-[#0e624b]" aria-hidden="true" />
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#1d5b49]">
+            {activeCategory?.name}
+          </h3>
+        </div>
+      </div>
+
+      <div className="relative overflow-hidden min-h-[220px]">
+        <div
+          className={`w-full transition-all duration-300 ease-in-out ${
+            activeCategory
+              ? "-translate-x-full opacity-0 pointer-events-none absolute top-0 left-0"
+              : "translate-x-0 opacity-100 relative"
+          }`}
+        >
+          <ul className="space-y-1">
+            {rootItems.map((item) => (
+              <MenuItem
+                key={item.href}
+                item={{
+                  ...item,
+                  onClick: item.hasSubcategories
+                    ? (e) => {
+                        e.preventDefault();
+                        setActiveCategory({
+                          id: item.catId || 0,
+                          name: item.catName || item.label,
+                          slug: item.catSlug || "",
+                          subcategories: item.subcategories || [],
+                        });
+                      }
+                    : undefined,
+                }}
+              />
+            ))}
+          </ul>
+        </div>
+
+        <div
+          className={`w-full transition-all duration-300 ease-in-out ${
+            activeCategory
+              ? "translate-x-0 opacity-100 relative"
+              : "translate-x-full opacity-0 pointer-events-none absolute top-0 left-0"
+          }`}
+        >
+          <ul className="space-y-1">
+            <li>
+              <button
+                type="button"
+                onClick={() => setActiveCategory(null)}
+                className="group/item flex min-h-11 w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1] text-[#0e624b] font-bold text-xs border border-[#0e624b]/15 bg-[#e8f2ed]/60 mb-2 cursor-pointer"
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#0e624b] text-white">
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                </span>
+                <span>Back to Departments</span>
+              </button>
+            </li>
+            {activeCategory?.subcategories.map((subItem) => (
+              <MenuItem key={subItem.href} item={subItem} />
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }
@@ -717,7 +897,7 @@ export default function Navbar() {
                 footerHref="/equipment"
                 footerLabel="Equipment"
               >
-                <MenuGroup title="Equipment Departments" icon={Target}><ul className="space-y-1">{equipmentLinks.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
+                <EquipmentDepartmentsGroup equipmentLinks={equipmentLinks} categories={equipmentCategories} />
                 <MenuGroup title="Interactive Tools" icon={SlidersHorizontal}><ul className="space-y-1"><MenuItem item={{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }} /></ul></MenuGroup>
                 <MenuGroup title="Master Bowyers" icon={Hammer}><ul className="space-y-1">{BOWYER_LINKS.map((item) => <MenuItem key={item.href} item={item} />)}</ul></MenuGroup>
               </MegaPanel>
@@ -832,7 +1012,7 @@ export default function Navbar() {
             </MobileSection>
 
             <MobileSection id="equipment" label="Equipment" href="/equipment" open={mobileSection === "equipment"} active={pathname.startsWith("/equipment") || pathname.startsWith("/bowyer")} onToggle={toggleMobileSection}>
-              <MobileLinkGroup title="Equipment Departments" links={equipmentLinks} />
+              <EquipmentDepartmentsGroup equipmentLinks={equipmentLinks} categories={equipmentCategories} />
               <MobileLinkGroup title="Interactive Tools" links={[{ label: "Custom Arrow Builder", href: "/equipment/arrow-configurator", icon: SlidersHorizontal }]} />
               <MobileLinkGroup title="Master Bowyers" links={BOWYER_LINKS} />
             </MobileSection>
