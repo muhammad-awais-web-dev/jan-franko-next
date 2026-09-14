@@ -660,12 +660,27 @@ export default function ProgramsClient({
 
   const modalGalleryUrls = activeModalProgram ? getProgramGalleryUrls(activeModalProgram) : [];
 
-  const hasLocation = Boolean(activeModalProgram?.acf?.main_location || activeModalProgram?.acf?.country);
-  const hasArrival = Boolean(activeModalProgram?.acf?.closest_arrival_city);
-  const hasDuration = Boolean(activeModalProgram?.acf?.enable_duration_override ? activeModalProgram?.acf?.duration_overide : activeModalProgram?.acf?.duration);
-  const hasSeason = Boolean(activeModalProgram?.acf?.recommended_season);
-  const hasCapacity = Boolean(activeModalProgram?.acf?.group_size);
-  const hasElement = Boolean(activeModalProgram?.acf?.five_elements_connection);
+  const hasLocation = Boolean(
+    (activeModalProgram?.acf?.main_location && activeModalProgram.acf.main_location.trim() !== "") ||
+    (activeModalProgram?.acf?.country && activeModalProgram.acf.country.trim() !== "")
+  );
+  const hasArrival = Boolean(
+    activeModalProgram?.acf?.closest_arrival_city && activeModalProgram.acf.closest_arrival_city.trim() !== ""
+  );
+  const hasDuration = Boolean(
+    activeModalProgram?.acf?.enable_duration_override
+      ? activeModalProgram?.acf?.duration_overide && activeModalProgram.acf.duration_overide.trim() !== ""
+      : activeModalProgram?.acf?.duration && Number(activeModalProgram.acf.duration) > 0
+  );
+  const hasSeason = Boolean(
+    activeModalProgram?.acf?.recommended_season && activeModalProgram.acf.recommended_season.trim() !== ""
+  );
+  const hasCapacity = Boolean(
+    activeModalProgram?.acf?.group_size && activeModalProgram.acf.group_size.trim() !== ""
+  );
+  const hasElement = Boolean(
+    activeModalProgram?.acf?.five_elements_connection && activeModalProgram.acf.five_elements_connection.trim() !== ""
+  );
 
   const hasAnySpecs = hasLocation || hasArrival || hasDuration || hasSeason || hasCapacity || hasElement;
 
