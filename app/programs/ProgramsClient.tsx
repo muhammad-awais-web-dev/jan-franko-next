@@ -254,13 +254,12 @@ export default function ProgramsClient({
     ? Number(activeModalProgram.acf.difficulty_level) 
     : 0;
   
-  const isHighDifficulty = 
-    difficulty === 197 || 
-    difficulty === 198 ||
-    activeModalProgram?.skill_level?.includes(197) ||
-    activeModalProgram?.skill_level?.includes(198) ||
-    activeModalProgram?.title?.rendered.toLowerCase().includes("level 3") ||
-    activeModalProgram?.title?.rendered.toLowerCase().includes("level 4");
+  const isHighDifficulty = activeModalProgram
+    ? (activeModalProgram.acf?.difficulty_level ? Number(activeModalProgram.acf.difficulty_level) === 197 || Number(activeModalProgram.acf.difficulty_level) === 198 : false) ||
+      (activeModalProgram.skill_level ? activeModalProgram.skill_level.includes(197) || activeModalProgram.skill_level.includes(198) : false) ||
+      activeModalProgram.title?.rendered.toLowerCase().includes("level 3") ||
+      activeModalProgram.title?.rendered.toLowerCase().includes("level 4")
+    : false;
   const totalSteps = isHighDifficulty ? 5 : 4;
 
   const getSortedPrograms = () => {
@@ -379,7 +378,9 @@ export default function ProgramsClient({
     : -1;
 
   const getDifficultyIndex = (prog: Program) => {
+    if (!prog) return 0;
     const diffVal = prog.acf?.difficulty_level ? Number(prog.acf.difficulty_level) : 0;
+    if (diffVal >= 1 && diffVal <= 4) return diffVal;
     if (diffVal === 195) return 1;
     if (diffVal === 196) return 2;
     if (diffVal === 197) return 3;
@@ -390,12 +391,41 @@ export default function ProgramsClient({
     if (prog.skill_level?.includes(197)) return 3;
     if (prog.skill_level?.includes(198)) return 4;
     
+    if (prog.skill_level && Array.isArray(prog.skill_level)) {
+      for (const id of prog.skill_level) {
+        const match = skills.find((sk) => sk.id === id);
+        if (match) {
+          const nameLower = match.name.toLowerCase();
+          if (nameLower.includes("level 1") || nameLower.includes("novice") || nameLower.includes("foundation")) return 1;
+          if (nameLower.includes("level 2") || nameLower.includes("intermediate")) return 2;
+          if (nameLower.includes("level 3") || nameLower.includes("advanced") || nameLower.includes("expedition")) return 3;
+          if (nameLower.includes("level 4") || nameLower.includes("master") || nameLower.includes("apex")) return 4;
+        }
+      }
+    }
+
     const titleLower = prog.title.rendered.toLowerCase();
     if (titleLower.includes("level 1")) return 1;
     if (titleLower.includes("level 2")) return 2;
     if (titleLower.includes("level 3")) return 3;
     if (titleLower.includes("level 4")) return 4;
     return 0;
+  };
+
+  const getDifficultyLabel = (prog: Program): string | null => {
+    if (!prog) return null;
+    if (prog.skill_level && prog.skill_level.length > 0) {
+      const names = prog.skill_level
+        .map((id) => skills.find((sk) => sk.id === id)?.name)
+        .filter(Boolean);
+      if (names.length > 0) return names.join(" • ");
+    }
+    const levelIdx = getDifficultyIndex(prog);
+    if (levelIdx === 1) return "Level 1: Novice / Open Access";
+    if (levelIdx === 2) return "Level 2: Intermediate";
+    if (levelIdx === 3) return "Level 3: Advanced Expedition";
+    if (levelIdx === 4) return "Level 4: Master / High Altitude Apex";
+    return null;
   };
 
   const renderDifficultyMeter = (levelIndex: number) => {
@@ -662,6 +692,8 @@ export default function ProgramsClient({
   };
 
   const modalGalleryUrls = activeModalProgram ? getProgramGalleryUrls(activeModalProgram) : [];
+  const modalDifficultyLabel = activeModalProgram ? getDifficultyLabel(activeModalProgram) : null;
+  const modalDifficultyIdx = activeModalProgram ? getDifficultyIndex(activeModalProgram) : 0;
 
   const hasLocation = Boolean(
     (activeModalProgram?.acf?.main_location && activeModalProgram.acf.main_location.trim() !== "") ||
@@ -684,8 +716,11 @@ export default function ProgramsClient({
   const hasElement = Boolean(
     activeModalProgram?.acf?.five_elements_connection && activeModalProgram.acf.five_elements_connection.trim() !== ""
   );
+  const hasDifficulty = Boolean(
+    modalDifficultyLabel || modalDifficultyIdx > 0
+  );
 
-  const hasAnySpecs = hasLocation || hasArrival || hasDuration || hasSeason || hasCapacity || hasElement;
+  const hasAnySpecs = hasLocation || hasArrival || hasDuration || hasSeason || hasCapacity || hasElement || hasDifficulty;
 
   return (
     <div className="w-full min-h-screen bg-secondary text-primary select-text relative">
@@ -1009,9 +1044,14 @@ export default function ProgramsClient({
                       <div className="w-full h-full bg-primary/5" />
                     )}
                     {/* Difficulty Badge on Image */}
-                    {getDifficultyIndex(program) > 0 && (
+                    {(getDifficultyIndex(program) > 0 || getDifficultyLabel(program)) && (
                       <div className="absolute top-4 left-4 z-10 bg-secondary/95 border border-primary/15 rounded-full px-2.5 py-1 text-xs shadow-sm flex items-center gap-1">
                         {renderDifficultyMeter(getDifficultyIndex(program))}
+                        {getDifficultyIndex(program) === 0 && getDifficultyLabel(program) && (
+                          <span className="text-[9px] text-[#5c4629] font-bold uppercase tracking-wider font-sans">
+                            {getDifficultyLabel(program)}
+                          </span>
+                        )}
                       </div>
                     )}
                     {/* Status Badge */}
@@ -1030,11 +1070,15 @@ export default function ProgramsClient({
                   {/* Body Content */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div className="space-y-2">
-                      {typeName && (
-                        <span className="text-[9px] text-[#5c4629] font-bold tracking-widest uppercase font-serif block">
-                          {cleanTitle(typeName)}
-                        </span>
-                      )}
+                      <div className="flex items-center justify-between text-[9px] text-[#5c4629] font-bold tracking-widest uppercase font-serif">
+                        {typeName ? <span>{cleanTitle(typeName)}</span> : <span />}
+                        {getDifficultyLabel(program) && (
+                          <span className="flex items-center gap-1 text-accent font-sans normal-case tracking-normal font-semibold">
+                            <Target className="w-3 h-3 text-accent shrink-0" />
+                            {getDifficultyLabel(program)}
+                          </span>
+                        )}
+                      </div>
                       <h3 className="text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-2">
                         {cleanTitle(program.title.rendered)}
                       </h3>
@@ -1160,6 +1204,18 @@ export default function ProgramsClient({
                     </div>
                   )}
 
+                  {(modalDifficultyIdx > 0 || modalDifficultyLabel) && (
+                    <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/15 p-3 rounded-2xl">
+                      <Target className="w-5 h-5 text-accent shrink-0" />
+                      <div className="text-xs">
+                        <span className="block font-serif font-bold text-white">
+                          {modalDifficultyLabel || `Level ${modalDifficultyIdx}`}
+                        </span>
+                        <span className="text-[10px] text-white/70">Skill Level &amp; Difficulty</span>
+                      </div>
+                    </div>
+                  )}
+
                   {activeModalProgram.acf?.five_elements_connection && (
                     <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/15 p-3 rounded-2xl">
                       {getElementIcon(activeModalProgram.acf.five_elements_connection, "w-5 h-5 text-accent shrink-0")}
@@ -1187,7 +1243,7 @@ export default function ProgramsClient({
               <div className="w-full md:w-[65%] p-6 md:p-10 space-y-8 overflow-y-auto">
                 {!isApplying ? (
                   <>
-                    {/* 6 Core Specs Grid Header */}
+                    {/* Core Specs Grid Header */}
                     {hasAnySpecs && (
                       <div className="bg-primary/5 border border-primary/10 rounded-2xl p-5 mb-6">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-4">
@@ -1210,7 +1266,22 @@ export default function ProgramsClient({
                             </div>
                           )}
 
-                          {/* 2. Arrival Hub */}
+                          {/* 2. Difficulty / Skill Level */}
+                          {hasDifficulty && (
+                            <div className="flex items-start gap-2.5">
+                              <Target className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-[10px] font-serif uppercase tracking-wider text-[#5c4629] font-bold block">
+                                  Difficulty Level
+                                </span>
+                                <span className="text-xs font-semibold text-primary block leading-tight">
+                                  {modalDifficultyLabel || `Level ${modalDifficultyIdx}`}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 3. Arrival Hub */}
                           {hasArrival && (
                             <div className="flex items-start gap-2.5">
                               <Plane className="w-4 h-4 text-accent shrink-0 mt-0.5" />
@@ -1225,7 +1296,7 @@ export default function ProgramsClient({
                             </div>
                           )}
 
-                          {/* 3. Duration */}
+                          {/* 4. Duration */}
                           {hasDuration && (
                             <div className="flex items-start gap-2.5">
                               <Clock className="w-4 h-4 text-accent shrink-0 mt-0.5" />
@@ -1246,7 +1317,7 @@ export default function ProgramsClient({
                             </div>
                           )}
 
-                          {/* 4. Season */}
+                          {/* 5. Season */}
                           {hasSeason && (
                             <div className="flex items-start gap-2.5">
                               <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
@@ -1261,7 +1332,7 @@ export default function ProgramsClient({
                             </div>
                           )}
 
-                          {/* 5. Capacity */}
+                          {/* 6. Capacity */}
                           {hasCapacity && (
                             <div className="flex items-start gap-2.5">
                               <Users className="w-4 h-4 text-accent shrink-0 mt-0.5" />
@@ -1276,7 +1347,7 @@ export default function ProgramsClient({
                             </div>
                           )}
 
-                          {/* 6. Element */}
+                          {/* 7. Element */}
                           {hasElement && (
                             <div className="flex items-start gap-2.5">
                               {getElementIcon(activeModalProgram.acf?.five_elements_connection, "w-4 h-4 text-accent shrink-0 mt-0.5")}
