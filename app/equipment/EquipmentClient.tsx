@@ -75,26 +75,37 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
     return !exists;
   }, [initialCategorySlug, allCategories]);
 
-  // Initial Category Pre-selection from URL slug route
-  const getInitialSelectedCategory = () => {
-    if (!initialCategorySlug || allCategories.length === 0) return "";
-    let term = allCategories.find((c) => c.slug === initialCategorySlug);
-    if (!term) {
-      if (["quivers-accessories", "quivers", "accessories"].includes(initialCategorySlug)) {
-        term = allCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug)) ||
-               allCategories.find((c) => c.id === 108 || c.id === 106);
-      } else if (["arrows-shafts", "arrows"].includes(initialCategorySlug)) {
-        term = allCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug)) ||
-               allCategories.find((c) => c.id === 105);
-      } else if (initialCategorySlug === "targets") {
-        term = allCategories.find((c) => c.slug === "targets" || c.id === 107);
-      } else if (initialCategorySlug === "training-kits") {
-        term = allCategories.find((c) => c.slug === "training-kits" || c.id === 109);
-      } else if (initialCategorySlug === "bows") {
-        term = allCategories.find((c) => c.slug === "bows" || c.id === 104);
+  // Initial Category Pre-selection from URL slug route or query param
+  const resolveCategoryTerm = React.useCallback(
+    (slugToResolve: string | undefined): string => {
+      if (!slugToResolve || allCategories.length === 0) return "";
+      const s = slugToResolve.toLowerCase();
+
+      let term = allCategories.find((c) => c.slug.toLowerCase() === s);
+      if (!term) {
+        if (["quivers-accessories", "quivers", "accessories"].includes(s)) {
+          term =
+            allCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug.toLowerCase())) ||
+            allCategories.find((c) => c.id === 108 || c.id === 106);
+        } else if (["arrows-shafts", "arrows"].includes(s)) {
+          term =
+            allCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug.toLowerCase())) ||
+            allCategories.find((c) => c.id === 105);
+        } else if (s === "targets") {
+          term = allCategories.find((c) => c.slug === "targets" || c.id === 107);
+        } else if (s === "training-kits") {
+          term = allCategories.find((c) => c.slug === "training-kits" || c.id === 109);
+        } else if (s === "bows") {
+          term = allCategories.find((c) => c.slug === "bows" || c.id === 104);
+        }
       }
-    }
-    return term ? term.id.toString() : "";
+      return term ? term.id.toString() : "";
+    },
+    [allCategories]
+  );
+
+  const getInitialSelectedCategory = () => {
+    return resolveCategoryTerm(initialCategorySlug);
   };
 
   // Search & Filter States
@@ -136,41 +147,26 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
     }
   }, [initialProducts, initialCategories]);
 
-  // Sync URL search parameters on mount (e.g. from Mega Menu category link)
+  // Sync route parameters and search parameters on mount or category update
   useEffect(() => {
-    if (categories.length === 0) return;
+    if (allCategories.length === 0) return;
 
     const catParam = searchParams.get("category");
     const brandParam = searchParams.get("brand");
     const queryParam = searchParams.get("query");
 
-    if (catParam) {
-      let term = categories.find((c) => c.slug === catParam);
-      if (!term) {
-        if (["quivers-accessories", "quivers", "accessories"].includes(catParam)) {
-          term = categories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug)) ||
-                 categories.find((c) => c.id === 108 || c.id === 106);
-        } else if (["arrows-shafts", "arrows"].includes(catParam)) {
-          term = categories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug)) ||
-                 categories.find((c) => c.id === 105);
-        } else if (catParam === "targets") {
-          term = categories.find((c) => c.slug === "targets" || c.id === 107);
-        } else if (catParam === "training-kits") {
-          term = categories.find((c) => c.slug === "training-kits" || c.id === 109);
-        } else if (catParam === "bows") {
-          term = categories.find((c) => c.slug === "bows" || c.id === 104);
-        }
+    const targetSlug = initialCategorySlug || catParam || brandParam;
+    if (targetSlug) {
+      const resolvedId = resolveCategoryTerm(targetSlug);
+      if (resolvedId) {
+        setSelectedCategory(resolvedId);
       }
-      if (term) setSelectedCategory(term.id.toString());
     }
-    if (brandParam) {
-      const term = categories.find((c) => c.slug === brandParam);
-      if (term) setSelectedCategory(term.id.toString());
-    }
+
     if (queryParam) {
       setSearchQuery(queryParam);
     }
-  }, [searchParams, categories]);
+  }, [initialCategorySlug, searchParams, allCategories, resolveCategoryTerm]);
 
   // GSAP Stagger Entrance Animation for Product Cards
   useEffect(() => {
@@ -317,13 +313,33 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       // 1. Category Filter (deep match children + keyword fallback)
       if (selectedCategory) {
         const catId = parseInt(selectedCategory);
+        const targetTerm = allCategories.find((c) => c.id === catId);
         const allowedIds = getCategoryDescendants(catId);
+        const targetSlug = (targetTerm?.slug || initialCategorySlug || "").toLowerCase();
+
         const matchesCategory =
           product.categories.some((id) => allowedIds.includes(id)) ||
-          ((catId === 108 || catId === 106) &&
-            ["quiver", "ring", "glove", "armguard", "thumb", "case"].some((kw) =>
+          ((catId === 108 || catId === 106 || targetSlug.includes("quiver") || targetSlug.includes("accessori")) &&
+            ["quiver", "ring", "glove", "armguard", "thumb", "case", "accessory"].some((kw) =>
+              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
+            )) ||
+          ((catId === 107 || targetSlug.includes("target")) &&
+            ["target", "sur", "3d-target", "butt"].some((kw) =>
+              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
+            )) ||
+          ((catId === 105 || targetSlug.includes("arrow") || targetSlug.includes("shaft")) &&
+            ["arrow", "shaft", "fletching", "point", "broadhead", "nock"].some((kw) =>
+              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
+            )) ||
+          ((catId === 109 || targetSlug.includes("training") || targetSlug.includes("kit")) &&
+            ["kit", "practice", "training", "set", "first-step"].some((kw) =>
+              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
+            )) ||
+          ((catId === 104 || (targetSlug.includes("bow") && !targetSlug.includes("bowyer"))) &&
+            ["bow", "longbow", "recurve", "horsebow", "warbow", "self-bow", "composite"].some((kw) =>
               product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
             ));
+
         if (!matchesCategory) return false;
       }
 
