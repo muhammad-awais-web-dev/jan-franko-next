@@ -753,6 +753,146 @@ const BowyerProfileContent = () => {
           );
         })()}
 
+      {/* ── MR Bows Exclusive: Options & Riser Types ── */}
+      {(slug.toLowerCase().includes("mr-bows") ||
+        slug.toLowerCase().includes("misko") ||
+        slug.toLowerCase().includes("rovcanin") ||
+        bowyer.name.toLowerCase().includes("mr")) && (
+        <div className="py-14 md:py-20 border-t border-primary/10 bg-[#f9f6f0] space-y-16">
+          <div className="max-w-[1440px] mx-auto px-6 md:px-12 space-y-12">
+            <div className="text-center space-y-2 max-w-2xl mx-auto">
+              <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold">
+                Customization &amp; Materials
+              </span>
+              <h2 className="text-3xl md:text-5xl font-serif font-bold text-primary tracking-tight">
+                Options and Riser Types
+              </h2>
+              <p className="text-xs md:text-sm text-primary/70 font-sans leading-relaxed pt-1">
+                Handcrafted domestic and exotic timber risers alongside specialized historical limb and nock stylizations for MR Bows.
+              </p>
+              <div className="w-12 h-[1px] bg-[#c5a880]/40 mx-auto mt-4" />
+            </div>
+
+            {/* 1. RISER TYPES GRID */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="h-[1px] flex-1 bg-[#5c4629]/20" />
+                <h3 className="font-serif text-lg md:text-xl font-bold uppercase tracking-widest text-[#5c4629] px-4">
+                  Riser Types
+                </h3>
+                <div className="h-[1px] flex-1 bg-[#5c4629]/20" />
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {[
+                  { name: "Walnut", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_walnut.jpg" },
+                  { name: "Ash Tree", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_ash_tree.jpg" },
+                  { name: "Plum", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_plum.jpg" },
+                  { name: "Pear", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_pear.jpg" },
+                  { name: "Zebrawood", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_zebrawood.jpg" },
+                  { name: "Padauk", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_padauk.jpg" },
+                  { name: "Purple Heart", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_purple_heart.jpg" },
+                  { name: "Wenge", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_wenge.jpg" },
+                  { name: "Rosewood", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_riser_rosewood.jpeg" },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="group bg-white rounded-2xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
+                  >
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/5">
+                      <img
+                        src={item.url}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-3 text-center bg-white border-t border-primary/5">
+                      <span className="font-serif text-xs font-bold text-primary tracking-wide">
+                        {item.name}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. TIRON OPTIONS GRID */}
+            <div className="space-y-6 pt-6">
+              <div className="flex items-center gap-3">
+                <div className="h-[1px] flex-1 bg-[#5c4629]/20" />
+                <h3 className="font-serif text-lg md:text-xl font-bold uppercase tracking-widest text-[#5c4629] px-4">
+                  Tiron Options
+                </h3>
+                <div className="h-[1px] flex-1 bg-[#5c4629]/20" />
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+                {[
+                  { name: "Limbs Original", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_tiron_limbs_original.jpg" },
+                  { name: "Limbs Thin", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_tiron_limbs_thin.jpg" },
+                  { name: "Nock Fresco", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_tiron_nock_fresco.jpg" },
+                  { name: "Nock Thin", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_tiron_nock_thin.jpg" },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="group bg-white rounded-2xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
+                  >
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/5">
+                      <img
+                        src={item.url}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-3 text-center bg-white border-t border-primary/5">
+                      <span className="font-serif text-xs font-bold text-primary tracking-wide">
+                        {item.name}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. DESPOT OPTIONS GRID */}
+            <div className="space-y-6 pt-6">
+              <div className="flex items-center gap-3">
+                <div className="h-[1px] flex-1 bg-[#5c4629]/20" />
+                <h3 className="font-serif text-lg md:text-xl font-bold uppercase tracking-widest text-[#5c4629] px-4">
+                  Despot Options
+                </h3>
+                <div className="h-[1px] flex-1 bg-[#5c4629]/20" />
+              </div>
+
+              <div className="grid grid-cols-2 max-w-xl mx-auto gap-4 md:gap-6">
+                {[
+                  { name: "Nock Fresco", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_despot_nock_fresco.jpg" },
+                  { name: "Nock Thin", url: "https://janfranko.com/wp-content/uploads/2026/09/mrbows_despot_nock_thin.jpg" },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="group bg-white rounded-2xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
+                  >
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/5">
+                      <img
+                        src={item.url}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-3 text-center bg-white border-t border-primary/5">
+                      <span className="font-serif text-xs font-bold text-primary tracking-wide">
+                        {item.name}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Showcase Crafts Section (1440px container) */}
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-14 md:py-20 space-y-10">
         <div className="text-center space-y-2">
