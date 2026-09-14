@@ -22,6 +22,7 @@ import {
   GraduationCap,
   Hammer,
   Languages,
+  LayoutGrid,
   Mail,
   Map,
   MapPin,
@@ -54,7 +55,7 @@ declare global {
 
 type MenuName = "academy" | "programs" | "equipment" | "knowledge" | "about" | "language" | null;
 type MobileSectionName = Exclude<MenuName, "language" | null> | null;
-type TaxonomyTerm = { id: number; name: string; slug: string };
+type TaxonomyTerm = { id: number; name: string; slug: string; parent?: number };
 
 type MenuLink = {
   label: string;
@@ -491,6 +492,7 @@ export default function Navbar() {
   const [programTypes, setProgramTypes] = useState<TaxonomyTerm[]>(DEFAULT_PROGRAM_TYPES);
   const [skillLevels, setSkillLevels] = useState<TaxonomyTerm[]>(DEFAULT_SKILL_LEVELS);
   const [regions, setRegions] = useState<TaxonomyTerm[]>(DEFAULT_REGIONS);
+  const [equipmentCategories, setEquipmentCategories] = useState<TaxonomyTerm[]>([]);
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- overlays must close after route changes */
@@ -509,10 +511,17 @@ export default function Navbar() {
 
     const loadTaxonomies = async () => {
       try {
-        const data = await clientFetch<{ types?: TaxonomyTerm[]; skills?: TaxonomyTerm[]; regions?: TaxonomyTerm[] }>("/api/nav-taxonomies");
+        const [data, catRes] = await Promise.all([
+          clientFetch<{ types?: TaxonomyTerm[]; skills?: TaxonomyTerm[]; regions?: TaxonomyTerm[] }>("/api/nav-taxonomies"),
+          fetch("/api/equipment/categories")
+        ]);
         if (data.types?.length) setProgramTypes(data.types);
         if (data.skills?.length) setSkillLevels(data.skills);
         if (data.regions?.length) setRegions(data.regions);
+        if (catRes.ok) {
+          const cats = await catRes.json();
+          if (Array.isArray(cats) && cats.length > 0) setEquipmentCategories(cats);
+        }
       } catch {
         // The exact static menu from the pre-change build stays available offline.
       }
@@ -634,11 +643,32 @@ export default function Navbar() {
     href: `/programs?region=${term.slug}`,
     icon: MapPin,
   }));
-  const equipmentLinks: MenuLink[] = EQUIPMENT_CATEGORIES.filter((category) => category.slug !== "master-bowyers").map((category) => ({
-    label: category.name,
-    href: `/equipment?category=${category.slug}`,
-    icon: category.slug === "bows" ? Target : category.slug === "training-kits" ? GraduationCap : SlidersHorizontal,
-  }));
+  const activeRootCats = equipmentCategories.length > 0
+    ? equipmentCategories.filter((cat) => cat.parent === 0 && cat.id !== 28 && cat.slug !== "master-bowyers")
+    : [];
+
+  const dynamicCategoryLinks: MenuLink[] = activeRootCats.length > 0
+    ? activeRootCats.map((cat) => ({
+        label: cat.slug === "accessories" ? "Quivers & Accessories" : cat.name,
+        href: `/equipment?category=${cat.slug === "accessories" ? "quivers-accessories" : cat.slug}`,
+        icon: cat.slug === "bows" ? Target : cat.slug === "training-kits" ? GraduationCap : cat.slug === "targets" ? ShieldCheck : SlidersHorizontal,
+      }))
+    : EQUIPMENT_CATEGORIES
+        .filter((category) => category.slug !== "master-bowyers" && category.slug !== "arrows-shafts")
+        .map((category) => ({
+          label: category.name,
+          href: `/equipment?category=${category.slug}`,
+          icon: category.slug === "bows" ? Target : category.slug === "training-kits" ? GraduationCap : category.slug === "targets" ? ShieldCheck : SlidersHorizontal,
+        }));
+
+  const equipmentLinks: MenuLink[] = [
+    {
+      label: "All Equipment",
+      href: "/equipment",
+      icon: LayoutGrid,
+    },
+    ...dynamicCategoryLinks,
+  ];
   const activeLanguageName = SUPPORTED_LANGUAGES.find((language) => language.code === activeLanguage)?.label || "English";
 
   return (

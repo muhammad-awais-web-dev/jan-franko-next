@@ -79,7 +79,12 @@ const Footer = () => {
             Equipment
           </h3>
           <ul className="space-y-2 text-xs font-sans font-medium text-[#f0e9d9]/75">
-            {EQUIPMENT_CATEGORIES.map((category) => (
+            <li>
+              <Link href="/equipment" className="hover:text-accent font-semibold text-white transition-colors block py-0.5">
+                All Equipment
+              </Link>
+            </li>
+            {EQUIPMENT_CATEGORIES.filter((c) => c.slug !== "master-bowyers" && c.slug !== "arrows-shafts").map((category) => (
               <li key={category.slug}>
                 <Link href={`/equipment?category=${category.slug}`} className="hover:text-accent transition-colors block py-0.5">
                   {category.name}
