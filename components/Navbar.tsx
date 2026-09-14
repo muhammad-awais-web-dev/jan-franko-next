@@ -66,6 +66,7 @@ type MenuLink = {
   protectedName?: boolean;
   hasSubcategories?: boolean;
   onClick?: (e: React.MouseEvent) => void;
+  onChevronClick?: (e: React.MouseEvent) => void;
   catId?: number;
   catName?: string;
   catSlug?: string;
@@ -285,38 +286,68 @@ function MenuItem({ item }: { item: MenuLink }) {
 
   return (
     <li>
-      <Link
-        href={item.href}
-        onClick={item.onClick}
-        target={isExternal ? "_blank" : undefined}
-        rel={isExternal ? "noopener noreferrer" : undefined}
-        className="group/item flex min-h-12 items-center gap-3 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1] cursor-pointer"
-      >
-        <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#e8f2ed] text-[#0e624b] transition group-hover/item:bg-white">
-          {item.image ? (
-            <Image
-              src={item.image}
-              alt=""
-              width={36}
-              height={36}
-              className="h-full w-full object-cover object-center"
-            />
-          ) : Icon ? (
-            <Icon className="h-4 w-4" aria-hidden="true" />
-          ) : null}
-        </span>
-        <span
-          className={`min-w-0 flex-1 text-[13px] font-semibold leading-snug text-[#173b31] ${item.protectedName ? "notranslate" : ""}`}
-          translate={item.protectedName ? "no" : undefined}
+      <div className="group/item flex min-h-12 items-center justify-between gap-1.5 rounded-xl px-2.5 py-1.5 transition hover:bg-[#eef5f1]">
+        {/* Main Category Link (Icon & Text) */}
+        <Link
+          href={item.href}
+          onClick={item.onClick}
+          target={isExternal ? "_blank" : undefined}
+          rel={isExternal ? "noopener noreferrer" : undefined}
+          className="flex min-w-0 flex-1 items-center gap-3 py-1 cursor-pointer"
         >
-          {item.label}
-        </span>
+          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#e8f2ed] text-[#0e624b] transition group-hover/item:bg-white">
+            {item.image ? (
+              <Image
+                src={item.image}
+                alt=""
+                width={36}
+                height={36}
+                className="h-full w-full object-cover object-center"
+              />
+            ) : Icon ? (
+              <Icon className="h-4 w-4" aria-hidden="true" />
+            ) : null}
+          </span>
+          <span
+            className={`min-w-0 flex-1 text-[13px] font-semibold leading-snug text-[#173b31] ${item.protectedName ? "notranslate" : ""}`}
+            translate={item.protectedName ? "no" : undefined}
+          >
+            {item.label}
+          </span>
+        </Link>
+
+        {/* Separate Action: External Icon OR Distinct Subcategory Chevron Button */}
         {isExternal ? (
-          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
+          <Link
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1.5 text-[#69ad96] hover:text-[#0e624b]"
+          >
+            <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          </Link>
         ) : showChevron ? (
-          <ChevronRight className="h-4 w-4 shrink-0 text-[#69ad96] transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
+          item.onChevronClick ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                item.onChevronClick?.(e);
+              }}
+              title={`View ${item.label} subcategories`}
+              aria-label={`View ${item.label} subcategories`}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#0e624b]/15 bg-white text-[#0e624b] shadow-2xs transition-all hover:border-[#0e624b] hover:bg-[#0e624b] hover:text-white cursor-pointer"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          ) : (
+            <span className="p-1 text-[#69ad96]">
+              <ChevronRight className="h-4 w-4 shrink-0 transition-transform group-hover/item:translate-x-0.5" aria-hidden="true" />
+            </span>
+          )
         ) : null}
-      </Link>
+      </div>
     </li>
   );
 }
@@ -456,9 +487,11 @@ function EquipmentDepartmentsGroup({
                 key={item.href}
                 item={{
                   ...item,
-                  onClick: item.hasSubcategories
+                  onClick: undefined,
+                  onChevronClick: item.hasSubcategories
                     ? (e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         setActiveCategory({
                           id: item.catId || 0,
                           name: item.catName || item.label,
