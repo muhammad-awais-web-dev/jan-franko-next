@@ -471,11 +471,29 @@ const MACRO_REGIONS = {
           p.id.toString() === openSlug ||
           p.title.rendered.toLowerCase().includes(openSlug.toLowerCase())
       );
-      if (match) {
+      if (match && activeModalProgram?.id !== match.id) {
         setActiveModalProgram(match);
       }
     }
   }, [searchParams, isLoading, programs]);
+
+  // Bi-directionally sync activeModalProgram state with URL search param '?open=slug'
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (activeModalProgram) {
+      const slugOrId = activeModalProgram.slug || activeModalProgram.id.toString();
+      if (url.searchParams.get("open") !== slugOrId) {
+        url.searchParams.set("open", slugOrId);
+        window.history.replaceState(null, "", url.toString());
+      }
+    } else {
+      if (url.searchParams.has("open")) {
+        url.searchParams.delete("open");
+        window.history.replaceState(null, "", url.toString());
+      }
+    }
+  }, [activeModalProgram]);
 
   // Reset apply wizard states on program transition
   useEffect(() => {
@@ -599,20 +617,20 @@ const MACRO_REGIONS = {
   };
 
   // Helper to resolve element icons dynamically
-  const getElementIcon = (element?: string) => {
+  const getElementIcon = (element?: string, className: string = "w-6 h-6 text-accent mb-1.5") => {
     switch (element) {
       case "Wind":
-        return <Wind className="w-6 h-6 text-accent mb-1.5" />;
+        return <Wind className={className} />;
       case "Fire":
-        return <Flame className="w-6 h-6 text-accent mb-1.5" />;
+        return <Flame className={className} />;
       case "Water":
-        return <Droplets className="w-6 h-6 text-accent mb-1.5" />;
+        return <Droplets className={className} />;
       case "Earth":
-        return <Globe className="w-6 h-6 text-accent mb-1.5" />;
+        return <Globe className={className} />;
       case "Spirit":
-        return <Sparkles className="w-6 h-6 text-accent mb-1.5" />;
+        return <Sparkles className={className} />;
       default:
-        return <Compass className="w-6 h-6 text-accent mb-1.5" />;
+        return <Compass className={className} />;
     }
   };
 
@@ -1205,66 +1223,10 @@ const MACRO_REGIONS = {
                     </p>
                   )}
                   
-                  {/* Detailed Spec Block */}
-                  <div className="grid grid-cols-2 gap-4 border-t border-white/20 pt-4 text-xs font-normal">
-                    <div className="flex flex-col items-start">
-                      <MapPin className="w-6 h-6 text-accent mb-1.5" />
-                      <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Location</span>
-                      <span className="font-semibold text-white">
-                        {cleanTitle(
-                          activeModalProgram.acf?.main_location && activeModalProgram.acf?.country
-                            ? `${activeModalProgram.acf.main_location}, ${activeModalProgram.acf.country}`
-                            : activeModalProgram.acf?.country || "Worldwide"
-                        )}
-                      </span>
-                    </div>
-                    {activeModalProgram.acf?.closest_arrival_city && (
-                      <div className="flex flex-col items-start">
-                        <Plane className="w-6 h-6 text-accent mb-1.5" />
-                        <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Arrival Hub</span>
-                        <span className="font-semibold text-white">
-                          {cleanTitle(activeModalProgram.acf.closest_arrival_city)}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex flex-col items-start">
-                      <Calendar className="w-6 h-6 text-accent mb-1.5" />
-                      <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Duration</span>
-                      <span className="font-semibold text-white">
-                        {cleanTitle(
-                          activeModalProgram.acf?.enable_duration_override
-                            ? activeModalProgram.acf.duration_overide
-                            : activeModalProgram.acf?.duration
-                            ? `${activeModalProgram.acf.duration} Days`
-                            : "Standard Duration"
-                        )}
-                      </span>
-                    </div>
-                    {activeModalProgram.acf?.recommended_season && (
-                      <div className="flex flex-col items-start">
-                        <Compass className="w-6 h-6 text-accent mb-1.5" />
-                        <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Season</span>
-                        <span className="font-semibold text-white">
-                          {cleanTitle(activeModalProgram.acf.recommended_season)}
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex flex-col items-start">
-                      <Users className="w-6 h-6 text-accent mb-1.5" />
-                      <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Capacity</span>
-                      <span className="font-semibold text-white">
-                        {cleanTitle(activeModalProgram.acf?.group_size || "Standard Group")}
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-start">
-                      {getElementIcon(activeModalProgram.acf?.five_elements_connection)}
-                      <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Element</span>
-                      <span className="font-semibold text-accent">
-                        {cleanTitle(activeModalProgram.acf?.five_elements_connection || "None")}
-                      </span>
-                    </div>
+                  {/* Detailed Spec Block (Status & Difficulty) */}
+                  <div className="border-t border-white/20 pt-4 text-xs font-normal space-y-3">
                     {(activeModalProgram.acf?.event_status_label || activeModalProgram.acf?.event_date || activeModalProgram.program_status) && (
-                      <div className="flex flex-col items-start col-span-2">
+                      <div className="flex flex-col items-start">
                         <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Status &amp; Schedule</span>
                         <span className="font-semibold text-accent">
                           {cleanTitle(
@@ -1280,7 +1242,7 @@ const MACRO_REGIONS = {
                       </div>
                     )}
                     {getDifficultyIndex(activeModalProgram) > 0 && (
-                      <div className="flex flex-col items-start col-span-2">
+                      <div className="flex flex-col items-start">
                         <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-1 font-bold">Difficulty</span>
                         <div className="bg-white/5 border border-white/10 rounded-full px-3 py-1 flex items-center">
                           {renderDifficultyMeter(getDifficultyIndex(activeModalProgram))}
@@ -1317,6 +1279,62 @@ const MACRO_REGIONS = {
                 {!isApplying ? (
                   /* --- Standard Program Details View --- */
                   <>
+                    {/* Top 6 Key Specifications (3-Column x 2-Row Grid) */}
+                    <div className="bg-primary/5 p-4 md:p-5 rounded-2xl border border-primary/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-normal">
+                      <div className="flex flex-col items-start">
+                        <MapPin className="w-5 h-5 text-[#7d603a] mb-1" />
+                        <span className="block text-primary/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Location</span>
+                        <span className="font-semibold text-primary">
+                          {cleanTitle(
+                            activeModalProgram.acf?.main_location && activeModalProgram.acf?.country
+                              ? `${activeModalProgram.acf.main_location}, ${activeModalProgram.acf.country}`
+                              : activeModalProgram.acf?.country || "Worldwide"
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <Plane className="w-5 h-5 text-[#7d603a] mb-1" />
+                        <span className="block text-primary/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Arrival Hub</span>
+                        <span className="font-semibold text-primary">
+                          {cleanTitle(activeModalProgram.acf?.closest_arrival_city || "Flexible / N/A")}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <Calendar className="w-5 h-5 text-[#7d603a] mb-1" />
+                        <span className="block text-primary/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Duration</span>
+                        <span className="font-semibold text-primary">
+                          {cleanTitle(
+                            activeModalProgram.acf?.enable_duration_override
+                              ? activeModalProgram.acf.duration_overide
+                              : activeModalProgram.acf?.duration
+                              ? `${activeModalProgram.acf.duration} Days`
+                              : "Standard Duration"
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <Compass className="w-5 h-5 text-[#7d603a] mb-1" />
+                        <span className="block text-primary/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Season</span>
+                        <span className="font-semibold text-primary">
+                          {cleanTitle(activeModalProgram.acf?.recommended_season || "Year-round")}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <Users className="w-5 h-5 text-[#7d603a] mb-1" />
+                        <span className="block text-primary/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Capacity</span>
+                        <span className="font-semibold text-primary">
+                          {cleanTitle(activeModalProgram.acf?.group_size || "Standard Group")}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-start">
+                        {getElementIcon(activeModalProgram.acf?.five_elements_connection, "w-5 h-5 text-[#7d603a] mb-1")}
+                        <span className="block text-primary/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Element</span>
+                        <span className="font-semibold text-[#7d603a]">
+                          {cleanTitle(activeModalProgram.acf?.five_elements_connection || "None")}
+                        </span>
+                      </div>
+                    </div>
+
                     <div>
                       <h3 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold mb-1 flex items-center gap-2">
                         <Info className="w-4.5 h-4.5 text-[#7d603a]" />
