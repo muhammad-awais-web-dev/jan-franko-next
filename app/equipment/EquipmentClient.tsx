@@ -132,7 +132,7 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       }
     };
 
-    if (initialProducts.length === 0 || initialCategories.length === 0) {
+    if (initialCategories.length === 0) {
       void loadShopData();
     } else {
       setLoading(false);
@@ -297,35 +297,12 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   // Filter Logic
   const getFilteredProducts = () => {
     return products.filter((product) => {
-      // 1. Category Filter (deep match children + keyword fallback)
+      // 1. Category Filter (deep match target category + dynamic descendants)
       if (selectedCategory) {
         const catId = parseInt(selectedCategory);
-        const targetTerm = allCategories.find((c) => c.id === catId);
         const allowedIds = getCategoryDescendants(catId);
-        const targetSlug = (targetTerm?.slug || initialCategorySlug || "").toLowerCase();
 
-        const matchesCategory =
-          product.categories.some((id) => allowedIds.includes(id)) ||
-          ((catId === 108 || catId === 106 || targetSlug.includes("quiver") || targetSlug.includes("accessori")) &&
-            ["quiver", "ring", "glove", "armguard", "thumb", "case", "accessory"].some((kw) =>
-              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
-            )) ||
-          ((catId === 107 || targetSlug.includes("target")) &&
-            ["target", "sur", "3d-target", "butt"].some((kw) =>
-              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
-            )) ||
-          ((catId === 105 || targetSlug.includes("arrow") || targetSlug.includes("shaft")) &&
-            ["arrow", "shaft", "fletching", "point", "broadhead", "nock"].some((kw) =>
-              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
-            )) ||
-          ((catId === 109 || targetSlug.includes("training") || targetSlug.includes("kit")) &&
-            ["kit", "practice", "training", "set", "first-step"].some((kw) =>
-              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
-            )) ||
-          ((catId === 104 || (targetSlug.includes("bow") && !targetSlug.includes("bowyer"))) &&
-            ["bow", "longbow", "recurve", "horsebow", "warbow", "self-bow", "composite"].some((kw) =>
-              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
-            ));
+        const matchesCategory = product.categories.some((id) => allowedIds.includes(id));
 
         if (!matchesCategory) return false;
       }
