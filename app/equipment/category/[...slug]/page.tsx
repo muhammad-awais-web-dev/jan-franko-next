@@ -19,10 +19,20 @@ export async function generateStaticParams() {
     { slug: ["bows", "himalayan-archery"] },
     { slug: ["bows", "indigenous-archery-traditions"] },
     { slug: ["bows", "custom-bows"] },
+    { slug: ["accessories"] },
+    { slug: ["accessories", "field-quivers"] },
+    { slug: ["accessories", "horse-archery-quivers"] },
+    { slug: ["accessories", "arm-guards"] },
+    { slug: ["accessories", "thumb-rings"] },
     { slug: ["quivers-accessories"] },
     { slug: ["quivers-accessories", "field-quivers"] },
     { slug: ["quivers-accessories", "horse-archery-quivers"] },
     { slug: ["quivers-accessories", "arm-guards"] },
+    { slug: ["quivers-accessories", "thumb-rings"] },
+    { slug: ["arrows"] },
+    { slug: ["arrows", "bamboo-arrows"] },
+    { slug: ["arrows", "carbon-arrows"] },
+    { slug: ["arrows", "spruce-arrows"] },
     { slug: ["targets"] },
     { slug: ["targets", "3d-targets"] },
     { slug: ["training-kits"] },
@@ -145,16 +155,22 @@ function filterProductsByCategorySlug(allProds: any[], target: string, allCats: 
     findChildren(catId);
   }
 
+  const isTopLevelParent = ["bows", "accessories", "quivers", "quivers-accessories", "targets", "arrows", "arrows-shafts", "training-kits"].includes(s);
+
   return allProds.filter((p: any) => {
     if (descendantIds.length > 0 && p.categories?.some((id: number) => descendantIds.includes(id))) {
       return true;
     }
-    const slugTitle = `${p.slug} ${p.title}`.toLowerCase();
-    if (s === "targets" || s.includes("target")) return slugTitle.includes("target") || slugTitle.includes("sur");
-    if (s === "quivers-accessories" || s.includes("quiver") || s.includes("accessori")) return ["quiver", "ring", "glove", "armguard", "thumb", "case"].some((kw) => slugTitle.includes(kw));
-    if (s === "arrows-shafts" || s.includes("arrow")) return slugTitle.includes("arrow") || slugTitle.includes("shaft");
-    if (s === "training-kits" || s.includes("kit")) return slugTitle.includes("kit") || slugTitle.includes("practice");
-    if (s === "bows" || s.includes("bow")) return slugTitle.includes("bow");
+
+    if (isTopLevelParent) {
+      const slugTitle = `${p.slug} ${p.title}`.toLowerCase();
+      if (s === "targets" || s.includes("target")) return slugTitle.includes("target") || slugTitle.includes("sur");
+      if (s === "quivers-accessories" || s === "accessories" || s === "quivers") return ["quiver", "ring", "glove", "armguard", "thumb", "case"].some((kw) => slugTitle.includes(kw));
+      if (s === "arrows-shafts" || s === "arrows") return slugTitle.includes("arrow") || slugTitle.includes("shaft");
+      if (s === "training-kits") return slugTitle.includes("kit") || slugTitle.includes("practice");
+      if (s === "bows") return slugTitle.includes("bow");
+    }
+
     return false;
   });
 }
