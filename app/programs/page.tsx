@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import gsap from "gsap";
+import { cleanTitle } from "@/lib/text";
 import {
   MapPin,
   Calendar,
@@ -1020,7 +1021,7 @@ const MACRO_REGIONS = {
                     {bgUrl ? (
                       <Image
                         src={bgUrl}
-                        alt={program.title.rendered}
+                        alt={cleanTitle(program.title.rendered)}
                         fill
                         className="object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
                       />
@@ -1036,7 +1037,7 @@ const MACRO_REGIONS = {
                     {/* Status Badge */}
                     {statusName && (
                       <div className="absolute top-4 right-4 z-10 px-3.5 py-1.5 bg-secondary/95 border border-primary/15 rounded-full text-xs font-serif font-bold text-primary shadow-sm">
-                        {statusName}
+                        {cleanTitle(statusName)}
                       </div>
                     )}
                   </div>
@@ -1046,15 +1047,15 @@ const MACRO_REGIONS = {
                     <div className="space-y-2">
                       {typeName && (
                         <span className="text-[9px] text-[#5c4629] font-bold tracking-widest uppercase font-serif block">
-                          {typeName}
+                          {cleanTitle(typeName)}
                         </span>
                       )}
                       <h3 className="text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-2">
-                        {program.title.rendered}
+                        {cleanTitle(program.title.rendered)}
                       </h3>
                       {program.acf?.subtitle && (
                         <p className="text-xs text-primary/85 italic font-normal line-clamp-1">
-                          {program.acf.subtitle}
+                          {cleanTitle(program.acf.subtitle)}
                         </p>
                       )}
                     </div>
@@ -1064,9 +1065,11 @@ const MACRO_REGIONS = {
                       <span className="flex items-center gap-1.5 min-w-0 pr-4">
                         <MapPin className="w-4 h-4 text-[#5c4629] shrink-0" />
                         <span className="truncate">
-                          {program.acf?.main_location && program.acf?.country
-                            ? `${program.acf.main_location}, ${program.acf.country}`
-                            : program.acf?.country || "Worldwide"}
+                          {cleanTitle(
+                            program.acf?.main_location && program.acf?.country
+                              ? `${program.acf.main_location}, ${program.acf.country}`
+                              : program.acf?.country || "Worldwide"
+                          )}
                         </span>
                       </span>
                       <span className="text-[#5c4629] group-hover:text-accent font-bold font-serif uppercase tracking-wider transition-colors duration-300 whitespace-nowrap shrink-0">
@@ -1128,13 +1131,15 @@ const MACRO_REGIONS = {
                 {/* Left Panel Metadata */}
                 <div className="relative z-20 p-6 md:p-8 text-white space-y-4">
                   <span className="text-[10px] text-accent font-semibold tracking-widest uppercase font-serif">
-                    {activeModalProgram.program_type
-                      ?.map((id) => types.find((t) => t.id === id)?.name)
-                      .filter(Boolean)
-                      .join(" • ") || activeModalProgram.acf?.program_type}
+                    {cleanTitle(
+                      activeModalProgram.program_type
+                        ?.map((id) => types.find((t) => t.id === id)?.name)
+                        .filter(Boolean)
+                        .join(" • ") || activeModalProgram.acf?.program_type
+                    )}
                   </span>
                   <h2 className="text-2xl md:text-3xl font-serif font-bold leading-tight">
-                    {activeModalProgram.acf?.hero_headline_override || activeModalProgram.title.rendered}
+                    {cleanTitle(activeModalProgram.acf?.hero_headline_override || activeModalProgram.title.rendered)}
                   </h2>
                   
                   {/* Detailed Spec Block */}
@@ -1143,32 +1148,36 @@ const MACRO_REGIONS = {
                       <MapPin className="w-6 h-6 text-accent mb-1.5" />
                       <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Location</span>
                       <span className="font-semibold text-white">
-                        {activeModalProgram.acf?.main_location && activeModalProgram.acf?.country
-                          ? `${activeModalProgram.acf.main_location}, ${activeModalProgram.acf.country}`
-                          : activeModalProgram.acf?.country || "Worldwide"}
+                        {cleanTitle(
+                          activeModalProgram.acf?.main_location && activeModalProgram.acf?.country
+                            ? `${activeModalProgram.acf.main_location}, ${activeModalProgram.acf.country}`
+                            : activeModalProgram.acf?.country || "Worldwide"
+                        )}
                       </span>
                     </div>
                     <div className="flex flex-col items-start">
                       <Calendar className="w-6 h-6 text-accent mb-1.5" />
                       <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Duration</span>
                       <span className="font-semibold text-white">
-                        {activeModalProgram.acf?.enable_duration_override
-                          ? activeModalProgram.acf.duration_overide
-                          : "Standard Duration"}
+                        {cleanTitle(
+                          activeModalProgram.acf?.enable_duration_override
+                            ? activeModalProgram.acf.duration_overide
+                            : "Standard Duration"
+                        )}
                       </span>
                     </div>
                     <div className="flex flex-col items-start">
                       <Users className="w-6 h-6 text-accent mb-1.5" />
                       <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Capacity</span>
                       <span className="font-semibold text-white">
-                        {activeModalProgram.acf?.group_size || "Standard Group"}
+                        {cleanTitle(activeModalProgram.acf?.group_size || "Standard Group")}
                       </span>
                     </div>
                     <div className="flex flex-col items-start">
                       {getElementIcon(activeModalProgram.acf?.five_elements_connection)}
                       <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Element</span>
                       <span className="font-semibold text-accent">
-                        {activeModalProgram.acf?.five_elements_connection || "None"}
+                        {cleanTitle(activeModalProgram.acf?.five_elements_connection || "None")}
                       </span>
                     </div>
                     {getDifficultyIndex(activeModalProgram) > 0 && (
@@ -1215,10 +1224,10 @@ const MACRO_REGIONS = {
                         Overview
                       </h3>
                       <h4 className="text-xl font-serif font-bold text-primary mb-2">
-                        {activeModalProgram.acf?.subtitle || "Program Description"}
+                        {cleanTitle(activeModalProgram.acf?.subtitle || "Program Description")}
                       </h4>
                       <p className="text-sm text-primary/95 font-normal leading-relaxed">
-                        {activeModalProgram.acf?.short_description}
+                        {cleanTitle(activeModalProgram.acf?.short_description)}
                       </p>
                     </div>
 
@@ -1231,7 +1240,7 @@ const MACRO_REGIONS = {
                         </h5>
                         <div
                           className="text-sm text-primary/90 font-normal leading-relaxed space-y-3.5 prose select-text"
-                          dangerouslySetInnerHTML={{ __html: activeModalProgram.acf.full_introduction }}
+                          dangerouslySetInnerHTML={{ __html: cleanTitle(activeModalProgram.acf.full_introduction) }}
                         />
                       </div>
                     )}
@@ -1241,13 +1250,13 @@ const MACRO_REGIONS = {
                       <div className="bg-primary/5 p-5 rounded-2xl space-y-4">
                         <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold flex items-center gap-2">
                           <Target className="w-4.5 h-4.5 text-[#7d603a]" />
-                          {activeModalProgram.acf.activities_section_intro || "Core Activities"}
+                          {cleanTitle(activeModalProgram.acf.activities_section_intro || "Core Activities")}
                         </h5>
                         <div className="grid grid-cols-1 gap-4">
                           {activeModalProgram.acf.activities_list.map((act, index) => (
                             <div key={index} className="text-sm space-y-1">
-                              <span className="font-bold text-primary block">{act.activities_item_title}</span>
-                              <p className="text-primary/90 font-normal leading-relaxed">{act.activities_item_description}</p>
+                              <span className="font-bold text-primary block">{cleanTitle(act.activities_item_title)}</span>
+                              <p className="text-primary/90 font-normal leading-relaxed">{cleanTitle(act.activities_item_description)}</p>
                             </div>
                           ))}
                         </div>
@@ -1264,8 +1273,8 @@ const MACRO_REGIONS = {
                         <div className="grid grid-cols-1 gap-4">
                           {activeModalProgram.acf.training_focus.map((focus, index) => (
                             <div key={index} className="text-sm space-y-1">
-                              <span className="font-bold text-primary block">{focus.training_focus_title}</span>
-                              <p className="text-primary/90 font-normal leading-relaxed">{focus.training_focus_description}</p>
+                              <span className="font-bold text-primary block">{cleanTitle(focus.training_focus_title)}</span>
+                              <p className="text-primary/90 font-normal leading-relaxed">{cleanTitle(focus.training_focus_description)}</p>
                             </div>
                           ))}
                         </div>
@@ -1281,7 +1290,7 @@ const MACRO_REGIONS = {
                         </h5>
                         <ul className="list-disc pl-5 text-sm text-primary/95 font-normal space-y-1.5">
                           {activeModalProgram.acf.ideal_participant_for_list.map((item, index) => (
-                            <li key={index}>{item.ideal_participant_item}</li>
+                            <li key={index}>{cleanTitle(item.ideal_participant_item)}</li>
                           ))}
                         </ul>
                       </div>
@@ -1326,7 +1335,7 @@ const MACRO_REGIONS = {
                     <div className="space-y-2">
                       <h3 className="text-2xl font-serif font-bold text-primary">Application Received</h3>
                       <p className="text-sm text-primary/80 font-normal max-w-md leading-relaxed">
-                        Thank you for applying for the <strong>{activeModalProgram.title.rendered}</strong>.
+                        Thank you for applying for the <strong>{cleanTitle(activeModalProgram.title.rendered)}</strong>.
                       </p>
                       <p className="text-xs text-primary/70 font-normal max-w-sm leading-relaxed mx-auto pt-2 border-t border-primary/5">
                         Our Okinawan admission ecosystem is built around quality and alignment. We will review your background and reach out to you within 2–3 business days.
@@ -1346,7 +1355,7 @@ const MACRO_REGIONS = {
                     <div className="border-b border-primary/10 pb-4">
                       <h3 className="text-lg font-serif font-bold text-primary flex items-center gap-2">
                         <FileText className="w-5 h-5 text-[#7d603a]" />
-                        Apply for {activeModalProgram.title.rendered}
+                        Apply for {cleanTitle(activeModalProgram.title.rendered)}
                       </h3>
                       
                       {/* Form Steps Progress Indicator */}
