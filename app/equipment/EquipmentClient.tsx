@@ -289,7 +289,7 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       const slugSegment = cat.slug === "accessories" ? "quivers-accessories" : cat.slug;
       cumulativePath = cumulativePath ? `${cumulativePath}/${slugSegment}` : slugSegment;
       items.push({
-        name: cat.name === "accessories" ? "Quivers & Accessories" : cat.name,
+        name: cat.name,
         slug: cat.slug,
         path: cumulativePath,
       });
@@ -421,7 +421,7 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   }, [initialCategorySlug, categoryPathSegments, selectedCategory, allCategories]);
 
   const heroTitle = activeCategoryObj
-    ? cleanTitle(activeCategoryObj.name.toLowerCase() === "accessories" ? "Quivers & Accessories" : activeCategoryObj.name)
+    ? cleanTitle(activeCategoryObj.name)
     : "Equipment & Bowyer Gear";
 
   const heroDescription = React.useMemo(() => {

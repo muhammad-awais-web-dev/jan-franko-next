@@ -110,13 +110,13 @@ async function getEquipmentData(): Promise<{ initialProducts: Product[]; initial
         }))
       : [];
 
-    if (!allCategories.some((c) => c.slug === "quivers-accessories")) {
+    if (!allCategories.some((c) => c.id === 108)) {
       allCategories.push({
         id: 108,
         name: "Quivers & Accessories",
-        slug: "quivers-accessories",
+        slug: "accessories",
         parent: 0,
-        description: "Quivers, arm guards, thumb rings, and leather accessories",
+        description: "Authentic gear and essential accoutrements, meticulously crafted to complement your traditional bow and elevate your historical archery experience.",
       });
     }
 
