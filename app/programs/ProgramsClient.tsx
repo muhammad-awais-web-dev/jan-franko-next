@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -37,7 +37,9 @@ import {
   AlertCircle,
   DollarSign,
   Clock,
-  Scroll
+  Scroll,
+  XCircle,
+  Check
 } from "lucide-react";
 
 export interface Program {
@@ -168,6 +170,89 @@ const MACRO_REGIONS = {
     countries: ["USA / Canada", "Brazil"],
     programIds: [4692, 4563]
   }
+};
+
+const PROGRAM_THEMATIC_GALLERIES: Record<number, string[]> = {
+  4753: [
+    "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4750: [
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4747: [
+    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4744: [
+    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4740: [
+    "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4728: [
+    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4724: [
+    "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4719: [
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4717: [
+    "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4713: [
+    "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4701: [
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4695: [
+    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4692: [
+    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4678: [
+    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4616: [
+    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+  ],
+  4563: [
+    "https://images.unsplash.com/photo-1511497584788-876761c119ef?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=80"
+  ]
 };
 
 export default function ProgramsClient({
@@ -419,6 +504,27 @@ export default function ProgramsClient({
     );
   };
 
+  // Helper to resolve unique, high-res gallery images for each program
+  const getProgramGalleryImages = (prog: Program): string[] => {
+    const customMediaUrls: string[] = [];
+    if (prog.acf?.supplementary_images && Array.isArray(prog.acf.supplementary_images)) {
+      prog.acf.supplementary_images.forEach((id) => {
+        // Filter out duplicate generic placeholder 3309 if present
+        if (id !== 3309 && media[id]) {
+          customMediaUrls.push(media[id]);
+        }
+      });
+    }
+    if (customMediaUrls.length >= 2) {
+      return customMediaUrls;
+    }
+    return PROGRAM_THEMATIC_GALLERIES[prog.id] || [
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
+    ];
+  };
+
   // GSAP Entrance Animations for Program Cards
   useEffect(() => {
     if (!isLoading && programs.length > 0) {
@@ -470,7 +576,7 @@ export default function ProgramsClient({
     setHasInitializedParams(true);
   }, [searchParams, types, statuses, skills, regions, hasInitializedParams]);
 
-  const initialOpenHandledRef = React.useRef(false);
+  const initialOpenHandledRef = useRef(false);
 
   // Helper to open/close/change program modal and sync URL state cleanly
   const handleSelectProgram = (program: Program | null) => {
@@ -483,7 +589,7 @@ export default function ProgramsClient({
       } else {
         url.searchParams.delete("open");
       }
-      window.history.replaceState(null, "", url.toString());
+      window.history.replaceState(null, "", url.pathname + url.search);
     }
   };
 
@@ -545,84 +651,6 @@ export default function ProgramsClient({
       }));
     }
   }, [activeModalProgram]);
-
-  // Fallback client-side fetch if server pre-fetch was empty
-  useEffect(() => {
-    if (programs.length > 0) return;
-
-    const fetchAllData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const [progRes, typeRes, statusRes, skillRes, regionRes] = await Promise.all([
-          fetch("https://janfranko.com/wp-json/wp/v2/program?per_page=100"),
-          fetch("https://janfranko.com/wp-json/wp/v2/program_type?per_page=100"),
-          fetch("https://janfranko.com/wp-json/wp/v2/program_status?per_page=100"),
-          fetch("https://janfranko.com/wp-json/wp/v2/skill_level?per_page=100"),
-          fetch("https://janfranko.com/wp-json/wp/v2/region?per_page=100"),
-        ]);
-
-        if (!progRes.ok) throw new Error("Failed to load programs");
-
-        const rawProgData: Program[] = await progRes.json();
-        const progData: Program[] = rawProgData.map((prog) => ({
-          ...prog,
-          acf: {
-            ...prog.acf,
-            event_status_label: "Date to be confirmed",
-            event_date: ""
-          }
-        }));
-
-        const typeData: Term[] = typeRes.ok ? await typeRes.json() : [];
-        const statusData: Term[] = statusRes.ok ? await statusRes.json() : [];
-        const skillData: Term[] = skillRes.ok ? await skillRes.json() : [];
-        const regionData: Term[] = regionRes.ok ? await regionRes.json() : [];
-
-        setTypes(typeData);
-        setStatuses(statusData);
-        setSkills(skillData);
-        setRegions(regionData);
-
-        const mediaIdsToFetch = new Set<number>();
-        progData.forEach((prog) => {
-          if (prog.acf?.background_image) mediaIdsToFetch.add(prog.acf.background_image);
-          if (prog.acf?.supplementary_images && Array.isArray(prog.acf.supplementary_images)) {
-            prog.acf.supplementary_images.forEach((id) => mediaIdsToFetch.add(id));
-          }
-        });
-
-        const mediaMap: Record<number, string> = {};
-        if (mediaIdsToFetch.size > 0) {
-          const idsString = Array.from(mediaIdsToFetch).join(",");
-          const mediaRes = await fetch(`https://janfranko.com/wp-json/wp/v2/media?include=${idsString}&per_page=100`);
-          if (mediaRes.ok) {
-            const mediaData = await mediaRes.json();
-            if (Array.isArray(mediaData)) {
-              mediaData.forEach((item: any) => {
-                mediaMap[item.id] = item.source_url;
-              });
-            }
-          }
-        }
-
-        if (mediaMap[3309] || progData.some((p) => p.id === 4744)) {
-          mediaMap[3309] = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80";
-        }
-
-        setPrograms(progData);
-        setMedia(mediaMap);
-      } catch (err: any) {
-        console.error("Client fetch error:", err);
-        setError(err.message || "An error occurred while fetching programs.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllData();
-  }, [programs.length]);
 
   const resetFilters = () => {
     setSelectedType("");
@@ -1012,7 +1040,7 @@ export default function ProgramsClient({
         ) : (
           /* Programs Card Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getSortedPrograms().map((program) => {
+            {visiblePrograms.map((program) => {
               const bgUrl = program.acf?.background_image ? media[program.acf.background_image] : null;
               const typeName = program.program_type
                 ?.map((id) => types.find((t) => t.id === id)?.name)
@@ -1137,12 +1165,12 @@ export default function ProgramsClient({
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Left Column: Image and Core Metadata */}
-              <div className="w-full md:w-[35%] relative min-h-[250px] md:min-h-auto bg-primary/20 flex flex-col justify-end">
+              {/* Left Column: Image Banner and Core Metadata */}
+              <div className="w-full md:w-[35%] relative min-h-[300px] md:min-h-auto bg-primary/20 flex flex-col justify-end">
                 {activeModalProgram.acf?.background_image && media[activeModalProgram.acf.background_image] ? (
                   <Image
                     src={media[activeModalProgram.acf.background_image]}
-                    alt={activeModalProgram.title.rendered}
+                    alt={cleanTitle(activeModalProgram.title.rendered)}
                     fill
                     className="object-cover z-0"
                   />
@@ -1155,14 +1183,21 @@ export default function ProgramsClient({
                 <div className="relative z-20 p-6 md:p-8 space-y-4 text-white">
                   <div className="space-y-1">
                     <span className="text-[10px] font-serif font-bold uppercase tracking-widest text-accent">
-                      {activeModalProgram.program_type
-                        ?.map((id) => types.find((t) => t.id === id)?.name)
-                        .filter(Boolean)
-                        .join(" • ") || activeModalProgram.acf?.program_type || "Program Detail"}
+                      {cleanTitle(
+                        activeModalProgram.program_type
+                          ?.map((id) => types.find((t) => t.id === id)?.name)
+                          .filter(Boolean)
+                          .join(" • ") || activeModalProgram.acf?.program_type || "Program Detail"
+                      )}
                     </span>
                     <h3 className="text-2xl md:text-3xl font-serif font-bold leading-tight">
-                      {cleanTitle(activeModalProgram.title.rendered)}
+                      {cleanTitle(activeModalProgram.acf?.hero_headline_override || activeModalProgram.title.rendered)}
                     </h3>
+                    {activeModalProgram.acf?.subtitle && (
+                      <p className="text-xs text-white/85 italic font-normal">
+                        {cleanTitle(activeModalProgram.acf.subtitle)}
+                      </p>
+                    )}
                   </div>
 
                   {/* Program Status & Schedule */}
@@ -1301,25 +1336,84 @@ export default function ProgramsClient({
                       </div>
                     </div>
 
-                    {/* Overview & Intro */}
+                    {/* Overview & Full Introduction */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629]">
-                        Overview
+                      <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
+                        <BookOpen className="w-4 h-4 text-accent" />
+                        Overview &amp; Program Scope
                       </h4>
                       <div
                         className="text-xs md:text-sm text-primary/85 leading-relaxed space-y-3 prose font-normal max-w-none"
                         dangerouslySetInnerHTML={{
-                          __html: activeModalProgram.acf?.full_introduction || activeModalProgram.content.rendered
+                          __html: cleanTitle(activeModalProgram.acf?.full_introduction || activeModalProgram.content.rendered)
                         }}
                       />
                     </div>
+
+                    {/* Environment & Location Details */}
+                    {(activeModalProgram.acf?.terrain_description || activeModalProgram.acf?.climate_notes || activeModalProgram.acf?.closest_arrival_city) && (
+                      <div className="bg-primary/5 p-5 rounded-2xl space-y-3 border border-primary/10">
+                        <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
+                          <Mountain className="w-4 h-4 text-accent" />
+                          Environment &amp; Terrain Details
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                          {activeModalProgram.acf?.terrain_description && (
+                            <div className="sm:col-span-2">
+                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Terrain</span>
+                              <p className="text-primary/85 font-normal leading-relaxed mt-0.5">
+                                {cleanTitle(activeModalProgram.acf.terrain_description)}
+                              </p>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.climate_notes && (
+                            <div className="sm:col-span-2">
+                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Climate &amp; Weather</span>
+                              <p className="text-primary/85 font-normal leading-relaxed mt-0.5">
+                                {cleanTitle(activeModalProgram.acf.climate_notes)}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Preparation & Equipment Logistics */}
+                    {(activeModalProgram.acf?.travel_notes || activeModalProgram.acf?.equipment_notes || activeModalProgram.acf?.physical_preparation_notes) && (
+                      <div className="bg-primary/5 p-5 rounded-2xl space-y-3 border border-primary/10">
+                        <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
+                          <Compass className="w-4 h-4 text-accent" />
+                          Logistics &amp; Preparation
+                        </h4>
+                        <div className="space-y-3 text-xs">
+                          {activeModalProgram.acf?.equipment_notes && (
+                            <div>
+                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Equipment Requirements</span>
+                              <p className="text-primary/85 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.equipment_notes)}</p>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.physical_preparation_notes && (
+                            <div>
+                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Physical Preparation</span>
+                              <p className="text-primary/85 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.physical_preparation_notes)}</p>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.travel_notes && (
+                            <div>
+                              <span className="font-bold text-primary block text-[10px] uppercase tracking-wider">Travel &amp; Logistics Notes</span>
+                              <p className="text-primary/85 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.travel_notes)}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Training Focus */}
                     {activeModalProgram.acf?.training_focus && activeModalProgram.acf.training_focus.length > 0 && (
                       <div className="space-y-4 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <Target className="w-4 h-4 text-accent" />
-                          Training Focus
+                          Training Focus &amp; Competencies
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {activeModalProgram.acf.training_focus.map((item, idx) => (
@@ -1341,7 +1435,7 @@ export default function ProgramsClient({
                       <div className="space-y-4 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <Award className="w-4 h-4 text-accent" />
-                          Curriculum &amp; Activities
+                          Curriculum &amp; Core Activities
                         </h4>
                         <div className="space-y-3">
                           {activeModalProgram.acf.activities_list.map((act, idx) => (
@@ -1361,37 +1455,176 @@ export default function ProgramsClient({
                       </div>
                     )}
 
-                    {/* Supplementary Images Gallery */}
-                    {activeModalProgram.acf?.supplementary_images && activeModalProgram.acf.supplementary_images.length > 0 && (
+                    {/* Program Stages & Itinerary */}
+                    {activeModalProgram.acf?.program_stages__schedule && activeModalProgram.acf.program_stages__schedule.length > 0 && (
+                      <div className="space-y-4 pt-4 border-t border-primary/10">
+                        <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-accent" />
+                          Expedition Schedule &amp; Stages
+                        </h4>
+                        <div className="space-y-3">
+                          {activeModalProgram.acf.program_stages__schedule.map((stage, idx) => (
+                            <div key={idx} className="bg-white/60 border border-primary/5 p-4 rounded-2xl space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-serif font-bold text-primary block">
+                                  {cleanTitle(stage.stage_title || `Stage ${idx + 1}`)}
+                                </span>
+                                {stage.stage_duration && (
+                                  <span className="text-[10px] font-sans font-medium text-accent bg-[#0e3b2e]/10 px-2.5 py-0.5 rounded-full">
+                                    {cleanTitle(stage.stage_duration)}
+                                  </span>
+                                )}
+                              </div>
+                              {stage.stage_description && (
+                                <p className="text-xs text-primary/80 font-normal leading-relaxed">
+                                  {cleanTitle(stage.stage_description)}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Who This Is For */}
+                    {(activeModalProgram.acf?.ideal_participant_for_list || activeModalProgram.acf?.not_suitable_for_list) && (
+                      <div className="space-y-4 pt-4 border-t border-primary/10">
+                        <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
+                          <Users className="w-4 h-4 text-accent" />
+                          Participant Profile &amp; Suitability
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {activeModalProgram.acf?.ideal_participant_for_list && (
+                            <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-2xl space-y-2">
+                              <span className="text-xs font-serif font-bold text-emerald-800 flex items-center gap-1.5">
+                                <Check className="w-4 h-4 text-emerald-700" />
+                                Ideal Candidate
+                              </span>
+                              <ul className="space-y-1.5 text-xs text-primary/85">
+                                {activeModalProgram.acf.ideal_participant_for_list.map((item, idx) => (
+                                  <li key={idx} className="flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
+                                    <span>{cleanTitle(item.ideal_participant_item)}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {activeModalProgram.acf?.not_suitable_for_list && (
+                            <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-2xl space-y-2">
+                              <span className="text-xs font-serif font-bold text-amber-800 flex items-center gap-1.5">
+                                <XCircle className="w-4 h-4 text-amber-700" />
+                                Not Suitable For
+                              </span>
+                              <ul className="space-y-1.5 text-xs text-primary/85">
+                                {activeModalProgram.acf.not_suitable_for_list.map((item, idx) => (
+                                  <li key={idx} className="flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-600 mt-1.5 shrink-0" />
+                                    <span>{cleanTitle(item.not_suitable_for_item)}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Standards & Expectations */}
+                    {activeModalProgram.acf?.standards_list && activeModalProgram.acf.standards_list.length > 0 && (
+                      <div className="space-y-3 pt-4 border-t border-primary/10">
+                        <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-accent" />
+                          Code of Practice &amp; Standards
+                        </h4>
+                        <div className="space-y-2">
+                          {activeModalProgram.acf.standards_list.map((std, idx) => (
+                            <div key={idx} className="text-xs text-primary/85 flex items-start gap-2 bg-white/40 p-3 rounded-xl border border-primary/5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0" />
+                              <span>{cleanTitle(std.standards_list_item)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Archer's Oath */}
+                    {(activeModalProgram.acf?.archers_oath || activeModalProgram.acf?.["archer’s_oath"]) && (
+                      <div className="bg-[#0e3b2e]/5 border border-[#0e3b2e]/15 p-5 rounded-2xl space-y-2 italic text-xs text-primary/90 font-serif">
+                        <span className="not-italic text-[10px] font-bold uppercase tracking-widest text-accent block">
+                          The Archer's Oath
+                        </span>
+                        <p className="leading-relaxed">
+                          "{cleanTitle(activeModalProgram.acf.archers_oath || activeModalProgram.acf["archer’s_oath"] || "")}"
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Investment & Pricing */}
+                    {activeModalProgram.acf?.enable_pricing && (
+                      <div className="bg-[#0e3b2e] text-white p-6 rounded-2xl space-y-4 shadow-md">
+                        <div className="flex items-center justify-between border-b border-white/15 pb-3">
+                          <span className="text-xs font-serif font-bold uppercase tracking-widest text-accent flex items-center gap-1.5">
+                            <DollarSign className="w-4 h-4" />
+                            Program Investment
+                          </span>
+                          {activeModalProgram.acf?.base_price && (
+                            <span className="text-xl font-serif font-bold text-white">
+                              {cleanTitle(activeModalProgram.acf.base_price)}
+                            </span>
+                          )}
+                        </div>
+
+                        {activeModalProgram.acf?.investment_intro && (
+                          <p className="text-xs text-white/85 font-normal leading-relaxed">
+                            {cleanTitle(activeModalProgram.acf.investment_intro)}
+                          </p>
+                        )}
+
+                        {activeModalProgram.acf?.investment_includes && activeModalProgram.acf.investment_includes.length > 0 && (
+                          <div className="space-y-2">
+                            <span className="text-[10px] font-serif uppercase tracking-widest text-accent block">Investment Includes:</span>
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-white/90">
+                              {activeModalProgram.acf.investment_includes.map((inc, idx) => (
+                                <li key={idx} className="flex items-center gap-2">
+                                  <Check className="w-3.5 h-3.5 text-accent shrink-0" />
+                                  <span>{cleanTitle(inc.investment_includes_items || "")}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Curated Distinct Field Gallery */}
+                    {getProgramGalleryImages(activeModalProgram).length > 0 && (
                       <div className="space-y-3 pt-4 border-t border-primary/10">
                         <h4 className="text-sm font-serif font-bold uppercase tracking-widest text-[#5c4629] flex items-center gap-2">
                           <ImageIcon className="w-4 h-4 text-accent" />
                           Field Gallery
                         </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {activeModalProgram.acf.supplementary_images.map((imgId, idx) => {
-                            const imgSrc = media[imgId];
-                            if (!imgSrc) return null;
-                            return (
-                              <div
-                                key={idx}
-                                onClick={() => setLightboxImage(imgSrc)}
-                                className="relative h-28 rounded-xl overflow-hidden bg-primary/10 cursor-pointer group border border-primary/10 shadow-xs hover:border-accent transition-all duration-300"
-                              >
-                                <Image
-                                  src={imgSrc}
-                                  alt="Expedition Field Image"
-                                  fill
-                                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                  <span className="text-[10px] text-white font-serif uppercase tracking-wider font-bold bg-primary/80 px-2 py-1 rounded-md">
-                                    Enlarge
-                                  </span>
-                                </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {getProgramGalleryImages(activeModalProgram).map((imgSrc, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => setLightboxImage(imgSrc)}
+                              className="relative h-32 rounded-xl overflow-hidden bg-primary/10 cursor-pointer group border border-primary/10 shadow-xs hover:border-accent transition-all duration-300"
+                            >
+                              <Image
+                                src={imgSrc}
+                                alt={`Field Gallery Image ${idx + 1}`}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <span className="text-[10px] text-white font-serif uppercase tracking-wider font-bold bg-primary/80 px-2.5 py-1 rounded-md">
+                                  Enlarge
+                                </span>
                               </div>
-                            );
-                          })}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
