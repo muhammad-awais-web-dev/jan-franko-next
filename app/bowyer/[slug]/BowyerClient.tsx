@@ -46,7 +46,7 @@ const DEFAULT_BOWYERS: BowyerDetails[] = [
     heading: "Custom laminated longbows handcrafted on the family farm in South Africa.",
     story: "I have been obsessed with making bows since I was 4 years old and have never stopped making them year in and year out. I got my first plastic bow with those arrows with the rubber plunger that sticks to windows on my 4th birthday. One day I decided to pull the rubber plunger off my arrows and I ended up shooting my mom between the eyes... As a result, the bow was confiscated, and I got a massive hiding. The next day when my parents went to work, I went to my dad's cupboard and stole his shoelace of his running shoes, I went to the garden and chopped down a stick and make my first bow using my dad's shoelace as the bow string. And that's how it all started. I would say my passion for bow making is an obsession, I strive to be known as one of the best custom bow makers in the world.",
     philosophy: "Every bow requires an average of 50 hours of dedicated hand craftsmanship, blending spalted bamboo cores with exotic burl hardwoods and natural horn overlays.",
-    image: "/images/wp-assets/warrick-harvey.webp",
+    image: "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg",
     process: [
       { step_title: "Wood Selection & Stabilization", step_description: "Hand-selecting spalted bamboo cores and exotic burls, stabilizing timber for extreme weather resilience." },
       { step_title: "Precision Lamination", step_description: "Laminating custom limb profiles under controlled heat and pressure to ensure maximum energy transfer." },
@@ -61,7 +61,7 @@ const DEFAULT_BOWYERS: BowyerDetails[] = [
     heading: "Fiberglass-laminated bows made in Serbia for recreation, physical and mental development, competition, and historical practice.",
     story: "Archery, a dream from the boy's days, has found its way. After completing the training, talking and socializing with both professional and amateur archers, learning from experienced bowyers and following the Internet, my archery begins. I strive to bring life back to the old craft and tradition. With many years of experience, with constant study and improvement, I have tried to make the bows that will meet the expectations of customers, whether it is just recreation, developing physical and mental strength that instinctive archery requires or for competition. Following and respecting world business standards, providing quality and endurance, I have gained a reputation and many satisfied customers. I do business in Serbia and around the world. I try to make a satisfied customer my best recommendation. Find something for you from my range of bows, order and see the quality of the bows for yourself.\n\nBy choosing quality materials, I make fiberglass laminated arches using: Fiberglass (transparent and black), Stable core, Micarta, Epoxy resin, Dacron for tendons. The variety of wood, both from the domestic and exotic terrain, provides the possibility of making it according to the customer's wishes. Ash is the primary material used as a base for making limbs, very elastic and resistant. For handrails I use: Walnut, Ash, Plum, Pear, Cherry... and of the exotic species there are: Zebra, Wenge, Paduk, Olive, Purple Heart... You can find several different models in the offer, some of which are based on their technical characteristics and historical replica records. Other models are constructed by arbitrary personal experience and ideas. I make bows with a strength from 25-150 pounds.",
     philosophy: "Combining historical bow craftsmanship with modern fiberglass lamination, creating robust traditional bows with draw weights from 25 to 150 lbs.",
-    image: "/images/wp-assets/mr-bows.webp",
+    image: "https://janfranko.com/wp-content/uploads/2026/04/16864081_1249414485136489_6658590496747384211_n.jpg",
     process: [
       { step_title: "Core Shaping & Material Selection", step_description: "Selecting elastic ash wood cores and high-density Micarta/epoxy matrix materials." },
       { step_title: "Glass Lamination", step_description: "Applying transparent or black fiberglass laminates under uniform pressure for consistent arrow speed." },
@@ -76,7 +76,7 @@ const DEFAULT_BOWYERS: BowyerDetails[] = [
     heading: "Handcrafted traditional hunting and competition recurves and longbows.",
     story: "KadysBows was founded in 2011 by Sergey Tolochko and is currently one of the leading traditional bow makers in the region. Products are used across the countries of the former CIS, as well as Poland, Turkey, Greece, China, South Korea, Cyprus, Malaysia, Malta, and the USA.",
     philosophy: "Focused on individual commissions and traditional shooting performance, trusted by archers across Europe, Asia, and North America.",
-    image: "/images/wp-assets/kadys-bows.webp",
+    image: "https://janfranko.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-12-at-11.23.29-PM.jpeg",
     process: [
       { step_title: "Bespoke Limb Geometry", step_description: "Custom shaping limb profiles for smooth draw cycles without stacking." },
       { step_title: "Hardwood Riser Construction", step_description: "Hand-carving ergonomic risers designed for instinctive target and field shooting." },
