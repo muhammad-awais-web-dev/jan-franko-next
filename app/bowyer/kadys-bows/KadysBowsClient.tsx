@@ -14,7 +14,11 @@ import {
   ChevronRight,
   ShieldCheck,
   CheckCircle2,
-  X
+  X,
+  Package,
+  Truck,
+  Tag,
+  Info
 } from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
 import { MASTER_BOWYERS } from "@/data/bowyers";
@@ -46,6 +50,95 @@ interface BowyerInfo {
   sourceUrl: string;
   sourceLabel: string;
 }
+
+export interface KadysComponent {
+  id: string;
+  name: string;
+  category: "Timber & Risers" | "Fiberglass Laminates" | "Arrows & Accessories" | "Strings";
+  priceEUR: number;
+  isCapped?: boolean;
+  spec: string;
+  sizes?: string[];
+  sourceUrl: string;
+  sourceUsdPrice: string;
+  image: string;
+}
+
+export const KADYS_COMPONENTS: KadysComponent[] = [
+  {
+    id: "walnut",
+    name: "American Walnut (Riser Timber)",
+    category: "Timber & Risers",
+    priceEUR: 141,
+    spec: "45 × 50 × 500 mm hand-selected timber block",
+    sourceUrl: "https://en.kadysbows.com/shop/zebrano",
+    sourceUsdPrice: "$50.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/1a1b21ce-d09b-4a40-b7a3-2f72b23fb4a8/original"
+  },
+  {
+    id: "wenge",
+    name: "Wenge (Exotic Hardwood Riser Block)",
+    category: "Timber & Risers",
+    priceEUR: 114,
+    spec: "45 × 50 × 500 mm dense exotic timber block",
+    sourceUrl: "https://en.kadysbows.com/shop/venge",
+    sourceUsdPrice: "$40.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/5363fb41-0a06-47e3-8d03-67eb0714b631/original"
+  },
+  {
+    id: "colored-fiberglass",
+    name: "Colored Fiberglass Lamination",
+    category: "Fiberglass Laminates",
+    priceEUR: 57,
+    spec: "High-strength limb protective lamination fiberglass",
+    sizes: ["1500 / 40 / 1 mm", "1500 / 45 / 1 mm", "1840 / 40 / 1 mm", "1840 / 45 / 1 mm"],
+    sourceUrl: "https://en.kadysbows.com/shop/skloplastik-prozorij-1",
+    sourceUsdPrice: "$20.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/85036f49-fb6f-4fd7-b006-bc47ce9f603c/original"
+  },
+  {
+    id: "amaranth",
+    name: "Amaranth / Purpleheart Timber Block",
+    category: "Timber & Risers",
+    priceEUR: 141,
+    spec: "45 × 50 × 500 mm premium dense exotic timber block",
+    sourceUrl: "https://en.kadysbows.com/shop/derevyani-strili-kolorovi",
+    sourceUsdPrice: "$50.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/cc30af97-1196-4c8e-b22c-25898713db93/original"
+  },
+  {
+    id: "transparent-fiberglass",
+    name: "Transparent Fiberglass Lamination",
+    category: "Fiberglass Laminates",
+    priceEUR: 42,
+    spec: "High-transparency limb protective lamination fiberglass",
+    sizes: ["1500 / 40 / 1 mm", "1500 / 45 / 1 mm", "1840 / 40 / 1 mm", "1840 / 45 / 1 mm"],
+    sourceUrl: "https://en.kadysbows.com/shop/skloplastik-prozorij",
+    sourceUsdPrice: "$14.50 USD",
+    image: "https://e-c.storage.googleapis.com/res/997b0413-baec-4775-9a2c-fc2ab7e0c2f9/original"
+  },
+  {
+    id: "colored-arrows",
+    name: "Colored Traditional Wooden Arrows",
+    category: "Arrows & Accessories",
+    priceEUR: 28,
+    spec: "Shaft diameter 5/16″ (7.9 mm), spine 35#–45#, pine shaft material with feather fletching",
+    sourceUrl: "https://en.kadysbows.com/shop/derevyani-strili",
+    sourceUsdPrice: "$10.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/7a65d531-e085-43d8-9051-183bf9b6ebef/original"
+  },
+  {
+    id: "flemish-string",
+    name: "Flemish / Endless Loop Bowstring",
+    category: "Strings",
+    priceEUR: 25,
+    isCapped: true,
+    spec: "FastFlight (FF+) material matrix, length range 58″ – 68″",
+    sourceUrl: "https://en.kadysbows.com/shop/tyativa-neskinchenna-petlya-1",
+    sourceUsdPrice: "$15.00 USD (Capped Rate)",
+    image: "https://e-c.storage.googleapis.com/res/a0883cd1-7ae8-48ca-9896-08905e923f75/original"
+  }
+];
 
 const kadysMaster = MASTER_BOWYERS.find((b) => b.slug === "kadys-bows");
 
@@ -340,6 +433,93 @@ export default function KadysBowsClient() {
                   <p className="text-xs text-primary/85 font-sans leading-relaxed">
                     {mat}
                   </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── WORKSHOP MATERIALS & COMPONENTS PRICING ── */}
+          <div className="space-y-6 border-t border-primary/10 pt-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block flex items-center gap-1.5">
+                  <Package className="w-3.5 h-3.5 text-accent" />
+                  Workshop Component Pricing
+                </span>
+                <h3 className="text-xl md:text-2xl font-serif font-bold text-primary">
+                  Raw Materials &amp; Workshop Component Supplies
+                </h3>
+                <p className="text-xs text-primary/70 font-sans leading-relaxed max-w-3xl">
+                  Verified raw materials, timber blocks, limb lamination fiberglass, arrows, and bowstrings sourced directly from Sergey Tolochko&apos;s workshop. Prices reflect calculated base rate (excluding standard insured shipping).
+                </p>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#f0e9d9]/60 border border-primary/10 rounded-xl text-xs font-sans text-primary/80 shrink-0 shadow-xs">
+                <Truck className="w-4 h-4 text-[#0e3b2e]" />
+                <span className="font-semibold">+ Standard Insured Shipping</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {KADYS_COMPONENTS.map((comp) => (
+                <div
+                  key={comp.id}
+                  className="bg-white border border-primary/10 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-accent/40 transition-all duration-300 flex flex-col justify-between group"
+                >
+                  <div className="space-y-3">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/5">
+                      <img
+                        src={comp.image}
+                        alt={comp.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-[#0e3b2e] text-white text-[9px] font-serif font-bold uppercase tracking-wider rounded-full shadow-xs">
+                        {comp.category}
+                      </span>
+                    </div>
+
+                    <div className="px-4 space-y-2">
+                      <h4 className="font-serif font-bold text-sm text-primary group-hover:text-accent transition-colors leading-snug">
+                        {comp.name}
+                      </h4>
+                      <p className="text-xs font-sans text-primary/75 leading-relaxed">
+                        {comp.spec}
+                      </p>
+
+                      {comp.sizes && comp.sizes.length > 0 && (
+                        <div className="space-y-1 pt-1">
+                          <span className="text-[10px] font-serif uppercase tracking-wider text-[#7d603a] font-bold block">
+                            Available Size Options:
+                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {comp.sizes.map((sz, i) => (
+                              <span key={i} className="text-[10px] font-sans px-2 py-0.5 bg-secondary/80 border border-primary/10 rounded-md text-primary/80">
+                                {sz}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-4 pt-3 mt-3 border-t border-primary/5 flex items-center justify-between bg-[#fbf9f5]/50">
+                    <div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-serif font-bold text-lg text-primary">€{comp.priceEUR}</span>
+                        <span className="text-[10px] font-sans text-primary/60 font-medium">+ shipping</span>
+                      </div>
+                      <span className="text-[9px] font-sans text-primary/40 block">Catalog Source: {comp.sourceUsdPrice}</span>
+                    </div>
+                    <a
+                      href={comp.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-xl bg-primary/5 hover:bg-[#0e3b2e] text-primary hover:text-white transition-all cursor-pointer inline-flex items-center justify-center"
+                      title="View on Sergey's official workshop website"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>

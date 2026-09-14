@@ -533,17 +533,17 @@ const BowyerProductContent = () => {
           )}
 
           {/* DYNAMIC CONFIGURATOR FIELDS SECTION (ACF Repeater) */}
-          <div className="detail-fade-in space-y-6 pt-4">
-            <div className="flex items-center justify-between border-b border-primary/10 pb-3">
-              <h3 className="text-sm font-serif font-bold uppercase tracking-widest text-[#7d603a] flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-accent" />
-                Custom Options Configurator
-              </h3>
-              <span className="text-[10px] font-sans text-primary/50">Tailor your bow build</span>
-            </div>
+          {Array.isArray(product.acf?.configurator_fields) && product.acf.configurator_fields.length > 0 && (
+            <div className="detail-fade-in space-y-6 pt-4">
+              <div className="flex items-center justify-between border-b border-primary/10 pb-3">
+                <h3 className="text-sm font-serif font-bold uppercase tracking-widest text-[#7d603a] flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-accent" />
+                  Custom Options Configurator
+                </h3>
+                <span className="text-[10px] font-sans text-primary/50">Tailor your bow build</span>
+              </div>
 
-            {/* Render List of Dynamic Configurator Fields */}
-            {Array.isArray(product.acf?.configurator_fields) && product.acf.configurator_fields.length > 0 ? (
+              {/* Render List of Dynamic Configurator Fields */}
               <div className="space-y-5 bg-white/80 border border-primary/10 p-6 rounded-2xl shadow-sm">
                 {product.acf.configurator_fields.map((field) => {
                   const fieldId = field.field_id;
@@ -680,12 +680,8 @@ const BowyerProductContent = () => {
                   );
                 })}
               </div>
-            ) : (
-              <div className="text-xs font-sans italic text-primary/60 bg-white/40 p-4 rounded-xl border border-primary/5">
-                Standard baseline configurator active. Submit your inquiry to discuss custom specifications directly with the Master Bowyer.
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Action Callouts */}
           <div className="detail-fade-in pt-4 space-y-4">
