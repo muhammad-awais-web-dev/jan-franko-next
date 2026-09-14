@@ -538,7 +538,15 @@ const MACRO_REGIONS = {
           throw new Error("Failed to load programs matching the selected filter options.");
         }
 
-        const progData: Program[] = await progRes.json();
+        const rawProgData: Program[] = await progRes.json();
+        const progData: Program[] = rawProgData.map((prog) => ({
+          ...prog,
+          acf: {
+            ...prog.acf,
+            event_status_label: "Date to be confirmed",
+            event_date: ""
+          }
+        }));
 
         // Gather unique media IDs to resolve URLs in a batch query
         const mediaIdsToFetch = new Set<number>();
