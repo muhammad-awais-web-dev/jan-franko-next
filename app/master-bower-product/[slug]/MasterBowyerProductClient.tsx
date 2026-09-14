@@ -167,7 +167,7 @@ const BowyerProductContent = () => {
 
   // Configurator selections state (handles multiple choices for checkboxes, files, texts)
   const [selections, setSelections] = useState<Record<string, any>>(() => {
-    if (!initialFallback?.acf?.configurator_fields) return {};
+    if (!Array.isArray(initialFallback?.acf?.configurator_fields)) return {};
     const defaults: Record<string, any> = {};
     initialFallback.acf.configurator_fields.forEach((field) => {
       if (field.field_type === "select" && field.field_options?.length) {
@@ -207,21 +207,23 @@ const BowyerProductContent = () => {
 
         // Prepopulate default selections
         const defaults: Record<string, any> = {};
-        data.acf?.configurator_fields?.forEach((field) => {
-          if (field.field_type === "select" && field.field_options?.length) {
-            defaults[field.field_id] = field.field_options[0].option_label;
-          } else if (field.field_type === "radio" && field.field_options?.length) {
-            defaults[field.field_id] = field.field_options[0].option_label;
-          } else if (field.field_type === "checkbox") {
-            defaults[field.field_id] = [];
-          } else if (field.field_type === "range" && field.constraints?.min_val) {
-            defaults[field.field_id] = Number(field.constraints.min_val);
-          } else if (field.field_type === "number" && field.constraints?.min_val) {
-            defaults[field.field_id] = Number(field.constraints.min_val);
-          } else {
-            defaults[field.field_id] = "";
-          }
-        });
+        if (Array.isArray(data.acf?.configurator_fields)) {
+          data.acf.configurator_fields.forEach((field) => {
+            if (field.field_type === "select" && field.field_options?.length) {
+              defaults[field.field_id] = field.field_options[0].option_label;
+            } else if (field.field_type === "radio" && field.field_options?.length) {
+              defaults[field.field_id] = field.field_options[0].option_label;
+            } else if (field.field_type === "checkbox") {
+              defaults[field.field_id] = [];
+            } else if (field.field_type === "range" && field.constraints?.min_val) {
+              defaults[field.field_id] = Number(field.constraints.min_val);
+            } else if (field.field_type === "number" && field.constraints?.min_val) {
+              defaults[field.field_id] = Number(field.constraints.min_val);
+            } else {
+              defaults[field.field_id] = "";
+            }
+          });
+        }
         setSelections(defaults);
       } catch (err: any) {
         console.error("Error loading product details:", err);
@@ -283,20 +285,22 @@ const BowyerProductContent = () => {
     const formattedSelections: Record<string, any> = {};
     const selectionSummaryLines: string[] = [];
 
-    product?.acf?.configurator_fields?.forEach((configField) => {
-      const val = selections[configField.field_id];
-      if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
-        const label = configField.field_label || configField.field_id;
-        const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
-        formattedSelections[label] = formattedVal;
-        selectionSummaryLines.push(`${label}: ${formattedVal}`);
-      }
-    });
+    if (Array.isArray(product?.acf?.configurator_fields)) {
+      product.acf.configurator_fields.forEach((configField) => {
+        const val = selections[configField.field_id];
+        if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
+          const label = configField.field_label || configField.field_id;
+          const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
+          formattedSelections[label] = formattedVal;
+          selectionSummaryLines.push(`${label}: ${formattedVal}`);
+        }
+      });
+    }
 
     // Capture any additional custom selection keys
     Object.entries(selections).forEach(([key, val]) => {
       if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
-        const isKnownField = product?.acf?.configurator_fields?.some((f) => f.field_id === key);
+        const isKnownField = Array.isArray(product?.acf?.configurator_fields) && product.acf.configurator_fields.some((f) => f.field_id === key);
         if (!isKnownField) {
           const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
           if (!formattedSelections[key]) {
@@ -511,7 +515,7 @@ const BowyerProductContent = () => {
           </div>
 
           {/* Fixed Static Specifications (If present in ACF) */}
-          {product.acf?.specifications && product.acf.specifications.length > 0 && (
+          {Array.isArray(product.acf?.specifications) && product.acf.specifications.length > 0 && (
             <div className="detail-fade-in space-y-3">
               <h3 className="text-xs font-serif uppercase tracking-widest text-[#5c4629] font-bold flex items-center gap-1.5">
                 <List className="w-4 h-4 text-accent" />
@@ -539,7 +543,7 @@ const BowyerProductContent = () => {
             </div>
 
             {/* Render List of Dynamic Configurator Fields */}
-            {product.acf?.configurator_fields && product.acf.configurator_fields.length > 0 ? (
+            {Array.isArray(product.acf?.configurator_fields) && product.acf.configurator_fields.length > 0 ? (
               <div className="space-y-5 bg-white/80 border border-primary/10 p-6 rounded-2xl shadow-sm">
                 {product.acf.configurator_fields.map((field) => {
                   const fieldId = field.field_id;
