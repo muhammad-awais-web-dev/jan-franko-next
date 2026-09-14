@@ -45,6 +45,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function BowyerProfilePage() {
+import KadysBowsClient from "../kadys-bows/KadysBowsClient";
+
+export default async function BowyerProfilePage({ params }: PageProps) {
+  const { slug } = await params;
+  const s = slug.toLowerCase();
+  
+  if (s === "kadys-bows" || s === "sergey-tolochko") {
+    return <KadysBowsClient />;
+  }
+  
   return <BowyerClient />;
 }
