@@ -29,7 +29,15 @@ import {
   ChevronRight,
   ClipboardList,
   FileText,
-  Search
+  Search,
+  Plane,
+  Mountain,
+  Thermometer,
+  ShieldAlert,
+  AlertCircle,
+  DollarSign,
+  Clock,
+  Scroll
 } from "lucide-react";
 
 interface Program {
@@ -50,6 +58,8 @@ interface Program {
     short_description?: string;
     full_introduction?: string;
     status?: number;
+    event_status_label?: string;
+    event_date?: string;
     five_elements_connection?: string;
     hero_headline_override?: string;
     hero_intro_text?: string;
@@ -83,9 +93,38 @@ interface Program {
       training_focus_title: string;
       training_focus_description: string;
     }>;
+    "enable_schedule_&_itinerary"?: boolean;
+    program_stages__schedule?: Array<{
+      stage_title?: string;
+      stage_subtitle?: string;
+      stage_duration?: string;
+      stage_location?: string;
+      stage_image?: number;
+      stage_description?: string;
+      stage_activities?: string;
+    }>;
+    who_this_is_for_intro?: string;
     ideal_participant_for_list?: Array<{
       ideal_participant_item: string;
     }>;
+    not_suitable_for_list?: Array<{
+      not_suitable_for_item: string;
+    }>;
+    standards_intro?: string;
+    standards_list?: Array<{
+      standards_list_item: string;
+    }>;
+    "archer’s_oath"?: string;
+    archers_oath?: string;
+    enable_pricing?: boolean;
+    investment_intro?: string;
+    base_price?: string;
+    payment_plan_note?: string;
+    investment_includes?: Array<{
+      investment_includes_items?: string;
+    }>;
+    cta_headline?: string;
+    cta_supporting_text?: string;
   };
 }
 
@@ -1147,6 +1186,11 @@ const MACRO_REGIONS = {
                   <h2 className="text-2xl md:text-3xl font-serif font-bold leading-tight">
                     {cleanTitle(activeModalProgram.acf?.hero_headline_override || activeModalProgram.title.rendered)}
                   </h2>
+                  {activeModalProgram.acf?.hero_intro_text && (
+                    <p className="text-xs text-white/85 font-normal italic leading-relaxed">
+                      {cleanTitle(activeModalProgram.acf.hero_intro_text)}
+                    </p>
+                  )}
                   
                   {/* Detailed Spec Block */}
                   <div className="grid grid-cols-2 gap-4 border-t border-white/20 pt-4 text-xs font-normal">
@@ -1161,6 +1205,15 @@ const MACRO_REGIONS = {
                         )}
                       </span>
                     </div>
+                    {activeModalProgram.acf?.closest_arrival_city && (
+                      <div className="flex flex-col items-start">
+                        <Plane className="w-6 h-6 text-accent mb-1.5" />
+                        <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Arrival Hub</span>
+                        <span className="font-semibold text-white">
+                          {cleanTitle(activeModalProgram.acf.closest_arrival_city)}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex flex-col items-start">
                       <Calendar className="w-6 h-6 text-accent mb-1.5" />
                       <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Duration</span>
@@ -1168,10 +1221,21 @@ const MACRO_REGIONS = {
                         {cleanTitle(
                           activeModalProgram.acf?.enable_duration_override
                             ? activeModalProgram.acf.duration_overide
+                            : activeModalProgram.acf?.duration
+                            ? `${activeModalProgram.acf.duration} Days`
                             : "Standard Duration"
                         )}
                       </span>
                     </div>
+                    {activeModalProgram.acf?.recommended_season && (
+                      <div className="flex flex-col items-start">
+                        <Compass className="w-6 h-6 text-accent mb-1.5" />
+                        <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Season</span>
+                        <span className="font-semibold text-white">
+                          {cleanTitle(activeModalProgram.acf.recommended_season)}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex flex-col items-start">
                       <Users className="w-6 h-6 text-accent mb-1.5" />
                       <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Capacity</span>
@@ -1186,6 +1250,15 @@ const MACRO_REGIONS = {
                         {cleanTitle(activeModalProgram.acf?.five_elements_connection || "None")}
                       </span>
                     </div>
+                    {activeModalProgram.acf?.event_status_label && (
+                      <div className="flex flex-col items-start col-span-2">
+                        <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Status &amp; Schedule</span>
+                        <span className="font-semibold text-accent">
+                          {cleanTitle(activeModalProgram.acf.event_status_label)}
+                          {activeModalProgram.acf.event_date ? ` (${cleanTitle(activeModalProgram.acf.event_date)})` : ""}
+                        </span>
+                      </div>
+                    )}
                     {getDifficultyIndex(activeModalProgram) > 0 && (
                       <div className="flex flex-col items-start col-span-2">
                         <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-1 font-bold">Difficulty</span>
@@ -1251,6 +1324,72 @@ const MACRO_REGIONS = {
                       </div>
                     )}
 
+                    {/* Location & Environmental Conditions */}
+                    {(activeModalProgram.acf?.terrain_description || activeModalProgram.acf?.climate_notes || activeModalProgram.acf?.closest_arrival_city || activeModalProgram.acf?.recommended_season) && (
+                      <div className="bg-primary/5 p-5 rounded-2xl space-y-3.5 border border-primary/5">
+                        <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold flex items-center gap-2">
+                          <Mountain className="w-4.5 h-4.5 text-[#7d603a]" />
+                          Environment &amp; Location Details
+                        </h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                          {activeModalProgram.acf?.closest_arrival_city && (
+                            <div>
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Arrival City / Hub</span>
+                              <span className="text-primary/90 font-normal">{cleanTitle(activeModalProgram.acf.closest_arrival_city)}</span>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.recommended_season && (
+                            <div>
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Recommended Season</span>
+                              <span className="text-primary/90 font-normal">{cleanTitle(activeModalProgram.acf.recommended_season)}</span>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.terrain_description && (
+                            <div className="col-span-1 sm:col-span-2">
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Terrain Description</span>
+                              <p className="text-primary/90 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.terrain_description)}</p>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.climate_notes && (
+                            <div className="col-span-1 sm:col-span-2">
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Climate &amp; Weather Notes</span>
+                              <p className="text-primary/90 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.climate_notes)}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Preparation & Equipment Logistics */}
+                    {(activeModalProgram.acf?.travel_notes || activeModalProgram.acf?.equipment_notes || activeModalProgram.acf?.physical_preparation_notes) && (
+                      <div className="bg-primary/5 p-5 rounded-2xl space-y-3.5 border border-primary/5">
+                        <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold flex items-center gap-2">
+                          <Compass className="w-4.5 h-4.5 text-[#7d603a]" />
+                          Preparation &amp; Equipment Logistics
+                        </h5>
+                        <div className="space-y-3 text-xs">
+                          {activeModalProgram.acf?.travel_notes && (
+                            <div>
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Travel &amp; Logistics Notes</span>
+                              <p className="text-primary/90 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.travel_notes)}</p>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.equipment_notes && (
+                            <div>
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Equipment Requirements</span>
+                              <p className="text-primary/90 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.equipment_notes)}</p>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.physical_preparation_notes && (
+                            <div>
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Physical Preparation</span>
+                              <p className="text-primary/90 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.physical_preparation_notes)}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Core Activities Repeater */}
                     {activeModalProgram.acf?.enable_activities && activeModalProgram.acf?.activities_list && (
                       <div className="bg-primary/5 p-5 rounded-2xl space-y-4">
@@ -1287,18 +1426,159 @@ const MACRO_REGIONS = {
                       </div>
                     )}
 
-                    {/* Target Audience List */}
-                    {activeModalProgram.acf?.ideal_participant_for_list && (
-                      <div className="border-t border-primary/5 pt-4">
-                        <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold mb-2 flex items-center gap-2">
-                          <CheckCircle2 className="w-4.5 h-4.5 text-[#7d603a]" />
-                          Ideal Participants
+                    {/* Schedule & Itinerary Repeater */}
+                    {activeModalProgram.acf?.program_stages__schedule && activeModalProgram.acf.program_stages__schedule.length > 0 && activeModalProgram.acf.program_stages__schedule.some(s => s.stage_title || s.stage_description) && (
+                      <div className="bg-primary/5 p-5 rounded-2xl space-y-4 border border-primary/5">
+                        <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold flex items-center gap-2">
+                          <Clock className="w-4.5 h-4.5 text-[#7d603a]" />
+                          Program Schedule &amp; Stages
                         </h5>
-                        <ul className="list-disc pl-5 text-sm text-primary/95 font-normal space-y-1.5">
-                          {activeModalProgram.acf.ideal_participant_for_list.map((item, index) => (
-                            <li key={index}>{cleanTitle(item.ideal_participant_item)}</li>
-                          ))}
-                        </ul>
+                        <div className="space-y-4">
+                          {activeModalProgram.acf.program_stages__schedule.map((stage, idx) => {
+                            if (!stage.stage_title && !stage.stage_description) return null;
+                            return (
+                              <div key={idx} className="border-l-2 border-accent pl-4 space-y-1">
+                                {stage.stage_title && (
+                                  <span className="font-bold text-primary block text-sm">{cleanTitle(stage.stage_title)}</span>
+                                )}
+                                {stage.stage_subtitle && (
+                                  <span className="text-xs text-[#7d603a] font-serif italic block">{cleanTitle(stage.stage_subtitle)}</span>
+                                )}
+                                {(stage.stage_duration || stage.stage_location) && (
+                                  <div className="flex gap-3 text-[11px] text-primary/70 font-semibold uppercase tracking-wider">
+                                    {stage.stage_duration && <span>{cleanTitle(stage.stage_duration)}</span>}
+                                    {stage.stage_location && <span>• {cleanTitle(stage.stage_location)}</span>}
+                                  </div>
+                                )}
+                                {stage.stage_description && (
+                                  <p className="text-xs text-primary/90 font-normal leading-relaxed pt-1">{cleanTitle(stage.stage_description)}</p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Suitability & Standards */}
+                    {(activeModalProgram.acf?.who_this_is_for_intro || activeModalProgram.acf?.ideal_participant_for_list || activeModalProgram.acf?.not_suitable_for_list || activeModalProgram.acf?.standards_list || activeModalProgram.acf?.["archer’s_oath"] || activeModalProgram.acf?.archers_oath) && (
+                      <div className="space-y-4 border-t border-primary/5 pt-4">
+                        {activeModalProgram.acf?.who_this_is_for_intro && (
+                          <div>
+                            <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold mb-1 flex items-center gap-2">
+                              <Users className="w-4.5 h-4.5 text-[#7d603a]" />
+                              Who This Is For
+                            </h5>
+                            <p className="text-sm text-primary/90 font-normal leading-relaxed">{cleanTitle(activeModalProgram.acf.who_this_is_for_intro)}</p>
+                          </div>
+                        )}
+
+                        {/* Target Audience List */}
+                        {activeModalProgram.acf?.ideal_participant_for_list && (
+                          <div>
+                            <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold mb-2 flex items-center gap-2">
+                              <CheckCircle2 className="w-4.5 h-4.5 text-[#7d603a]" />
+                              Ideal Participants
+                            </h5>
+                            <ul className="list-disc pl-5 text-sm text-primary/95 font-normal space-y-1.5">
+                              {activeModalProgram.acf.ideal_participant_for_list.map((item, index) => (
+                                <li key={index}>{cleanTitle(item.ideal_participant_item)}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Not Suitable For List */}
+                        {activeModalProgram.acf?.not_suitable_for_list && activeModalProgram.acf.not_suitable_for_list.length > 0 && (
+                          <div>
+                            <h5 className="text-xs uppercase tracking-widest text-red-700 font-serif font-bold mb-2 flex items-center gap-2">
+                              <AlertCircle className="w-4.5 h-4.5 text-red-700" />
+                              Not Suitable For
+                            </h5>
+                            <ul className="list-disc pl-5 text-sm text-primary/90 font-normal space-y-1.5 text-red-900/90">
+                              {activeModalProgram.acf.not_suitable_for_list.map((item, index) => (
+                                <li key={index}>{cleanTitle(item.not_suitable_for_item)}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Standards & Code of Conduct */}
+                        {activeModalProgram.acf?.standards_list && activeModalProgram.acf.standards_list.length > 0 && (
+                          <div>
+                            <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold mb-2 flex items-center gap-2">
+                              <ShieldAlert className="w-4.5 h-4.5 text-[#7d603a]" />
+                              Program Code &amp; Ethics Standards
+                            </h5>
+                            {activeModalProgram.acf.standards_intro && (
+                              <p className="text-xs text-primary/85 font-normal mb-2 leading-relaxed">{cleanTitle(activeModalProgram.acf.standards_intro)}</p>
+                            )}
+                            <ul className="list-disc pl-5 text-sm text-primary/95 font-normal space-y-1.5">
+                              {activeModalProgram.acf.standards_list.map((item, index) => (
+                                <li key={index}>{cleanTitle(item.standards_list_item)}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Archer's Oath */}
+                        {(activeModalProgram.acf?.["archer’s_oath"] || activeModalProgram.acf?.archers_oath) && (
+                          <div className="bg-[#0e3b2e] text-[#f0e9d9] p-5 rounded-2xl border border-accent/30 space-y-2">
+                            <h5 className="text-xs uppercase tracking-widest text-accent font-serif font-bold flex items-center gap-2">
+                              <Scroll className="w-4.5 h-4.5 text-accent" />
+                              Archer's Oath &amp; Pledge
+                            </h5>
+                            <blockquote className="text-xs font-serif italic text-white/90 leading-relaxed border-l-2 border-accent pl-3">
+                              "{cleanTitle(activeModalProgram.acf["archer’s_oath"] || activeModalProgram.acf.archers_oath)}"
+                            </blockquote>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Investment & Pricing Section */}
+                    {(activeModalProgram.acf?.base_price || activeModalProgram.acf?.payment_plan_note || (activeModalProgram.acf?.investment_includes && activeModalProgram.acf.investment_includes.some(i => i.investment_includes_items))) && (
+                      <div className="bg-primary/5 p-5 rounded-2xl space-y-3 border border-primary/10">
+                        <h5 className="text-xs uppercase tracking-widest text-[#7d603a] font-serif font-bold flex items-center gap-2">
+                          <DollarSign className="w-4.5 h-4.5 text-[#7d603a]" />
+                          Investment &amp; Program Logistics
+                        </h5>
+                        {activeModalProgram.acf?.investment_intro && (
+                          <p className="text-xs text-primary/90 font-normal leading-relaxed">{cleanTitle(activeModalProgram.acf.investment_intro)}</p>
+                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
+                          {activeModalProgram.acf?.base_price && (
+                            <div>
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Base Price / Tuition</span>
+                              <span className="text-accent font-serif font-bold text-sm">{cleanTitle(activeModalProgram.acf.base_price)}</span>
+                            </div>
+                          )}
+                          {activeModalProgram.acf?.payment_plan_note && (
+                            <div>
+                              <span className="font-bold text-primary block text-[11px] uppercase tracking-wider">Payment &amp; Format Note</span>
+                              <span className="text-primary/90 font-normal">{cleanTitle(activeModalProgram.acf.payment_plan_note)}</span>
+                            </div>
+                          )}
+                        </div>
+                        {activeModalProgram.acf?.investment_includes && activeModalProgram.acf.investment_includes.some(i => i.investment_includes_items) && (
+                          <div className="pt-2 border-t border-primary/5">
+                            <span className="font-bold text-primary block text-[11px] uppercase tracking-wider mb-1.5">What Is Included:</span>
+                            <ul className="list-disc pl-5 text-xs text-primary/90 space-y-1">
+                              {activeModalProgram.acf.investment_includes.map((item, idx) => {
+                                if (!item.investment_includes_items) return null;
+                                return <li key={idx}>{cleanTitle(item.investment_includes_items)}</li>;
+                              })}
+                            </ul>
+                          </div>
+                        )}
+                        {activeModalProgram.acf?.cta_headline && (
+                          <div className="pt-3 border-t border-primary/10">
+                            <span className="font-serif font-bold text-primary text-sm block">{cleanTitle(activeModalProgram.acf.cta_headline)}</span>
+                            {activeModalProgram.acf?.cta_supporting_text && (
+                              <p className="text-xs text-primary/80 font-normal leading-relaxed mt-0.5">{cleanTitle(activeModalProgram.acf.cta_supporting_text)}</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
