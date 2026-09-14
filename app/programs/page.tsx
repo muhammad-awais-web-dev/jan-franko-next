@@ -163,7 +163,6 @@ const ProgramsContent = () => {
 
   // Modal & Apply Wizard States
   const [activeModalProgram, setActiveModalProgram] = useState<Program | null>(null);
-  const [isPlaceholderDismissed, setIsPlaceholderDismissed] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [formStep, setFormStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -602,8 +601,23 @@ const MACRO_REGIONS = {
           mediaMap[3309] = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80";
         }
 
+        // Resolve initial 'open' parameter directly before ending the loading transition
+        const openSlug = searchParams.get("open");
+        if (openSlug && progData.length > 0) {
+          const match = progData.find(
+            (p) =>
+              p.slug === openSlug ||
+              p.id.toString() === openSlug ||
+              p.title.rendered.toLowerCase().includes(openSlug.toLowerCase())
+          );
+          if (match) {
+            setActiveModalProgram(match);
+          }
+        }
+
         setPrograms(progData);
         setMedia(mediaMap);
+        setHasDoneInitialOpenCheck(true);
       } catch (err: any) {
         console.error("Filter request error:", err);
         setError(err.message || "An error occurred while fetching programs.");
@@ -1165,90 +1179,13 @@ const MACRO_REGIONS = {
           </div>
         )}
 
-        {/* Dynamic Quick View Modal Popup OR Skeleton Placeholder Modal */}
-        {(activeModalProgram || (isLoading && searchParams.get("open") && !isPlaceholderDismissed)) && (
+        {/* Dynamic Quick View Modal Popup */}
+        {activeModalProgram && (
           <div
             className="fixed inset-0 bg-[#0e3b2e]/60 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-6 select-text overflow-y-auto"
-            onClick={() => {
-              setActiveModalProgram(null);
-              setIsPlaceholderDismissed(true);
-              if (typeof window !== "undefined") {
-                const url = new URL(window.location.href);
-                if (url.searchParams.has("open")) {
-                  url.searchParams.delete("open");
-                  window.history.replaceState(null, "", url.toString());
-                }
-              }
-            }}
+            onClick={() => setActiveModalProgram(null)}
           >
-            {isLoading && !activeModalProgram ? (
-              /* --- Skeleton Placeholder Modal while program data is loading --- */
-              <div
-                className="bg-secondary text-primary rounded-3xl w-full max-w-6xl max-h-[85vh] overflow-y-auto flex flex-col md:flex-row relative border border-primary/10 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Close Button */}
-                <button
-                  onClick={() => {
-                    setIsPlaceholderDismissed(true);
-                    if (typeof window !== "undefined") {
-                      const url = new URL(window.location.href);
-                      if (url.searchParams.has("open")) {
-                        url.searchParams.delete("open");
-                        window.history.replaceState(null, "", url.toString());
-                      }
-                    }
-                  }}
-                  className="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-secondary/90 border border-primary/10 flex items-center justify-center text-primary hover:text-accent hover:border-accent/40 shadow-sm transition-all duration-300 cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-
-                {/* Left Column Skeleton */}
-                <div className="w-full md:w-[35%] relative min-h-[300px] md:min-h-auto bg-[#0e3b2e] p-6 md:p-8 text-white flex flex-col justify-end space-y-4">
-                  <div className="h-3 w-28 bg-white/20 rounded animate-pulse" />
-                  <div className="h-8 w-3/4 bg-white/20 rounded animate-pulse" />
-                  <div className="h-4 w-1/2 bg-white/20 rounded animate-pulse" />
-                  <div className="border-t border-white/20 pt-4 space-y-3">
-                    <div className="h-3 w-24 bg-white/20 rounded animate-pulse" />
-                    <div className="h-4 w-36 bg-accent/40 rounded animate-pulse" />
-                  </div>
-                  <div className="pt-2">
-                    <div className="h-11 w-full bg-accent/30 rounded-full animate-pulse" />
-                  </div>
-                </div>
-
-                {/* Right Column Skeleton */}
-                <div className="w-full md:w-[65%] p-6 md:p-8 space-y-6 overflow-y-auto max-h-[85vh]">
-                  {/* Top 6 Specs Grid Skeleton */}
-                  <div className="bg-primary/5 p-5 rounded-2xl border border-primary/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div key={i} className="space-y-2">
-                        <div className="h-4 w-4 bg-primary/10 rounded animate-pulse" />
-                        <div className="h-2.5 w-16 bg-primary/10 rounded animate-pulse" />
-                        <div className="h-3.5 w-24 bg-primary/15 rounded animate-pulse" />
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Overview Content Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-3 w-24 bg-primary/10 rounded animate-pulse" />
-                    <div className="h-6 w-1/2 bg-primary/15 rounded animate-pulse" />
-                    <div className="h-4 w-full bg-primary/10 rounded animate-pulse" />
-                    <div className="h-4 w-5/6 bg-primary/10 rounded animate-pulse" />
-                    <div className="h-4 w-4/6 bg-primary/10 rounded animate-pulse" />
-                  </div>
-
-                  <div className="bg-primary/5 p-5 rounded-2xl border border-primary/5 space-y-3">
-                    <div className="h-3.5 w-40 bg-primary/10 rounded animate-pulse" />
-                    <div className="h-3.5 w-3/4 bg-primary/10 rounded animate-pulse" />
-                  </div>
-                </div>
-              </div>
-            ) : activeModalProgram ? (
-              <>
-                {/* Left Chevron Button */}
+            {/* Left Chevron Button */}
             {!isApplying && (
               <button
                 disabled={currentIndex === 0}
@@ -2302,8 +2239,6 @@ const MACRO_REGIONS = {
                 <ChevronRight className="w-8 h-8" />
               </button>
             )}
-          </>
-        ) : null}
           </div>
         )}
 
