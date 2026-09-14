@@ -513,9 +513,9 @@ const BowyerProfileContent = () => {
                 <Link
                   key={product.slug}
                   href={`/master-bower-product/${product.slug}`}
-                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[460px] cursor-pointer"
+                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[560px] cursor-pointer"
                 >
-                  <div className="relative w-full h-[280px] bg-primary/10 overflow-hidden">
+                  <div className="relative w-full min-h-[380px] bg-primary/10 overflow-hidden">
                     <img
                       src={product.image}
                       alt={product.title}
@@ -550,6 +550,106 @@ const BowyerProfileContent = () => {
           </div>
         )}
       </div>
+
+      {/* ── Harvey Archery Exclusive: YouTube Videos ── */}
+      {slug.toLowerCase().includes("harvey") && (() => {
+
+        const HARVEY_VIDEOS: { id: string; title: string; description: string }[] = [
+          {
+            id: "IBk75THON80",
+            title: "Behind the Build — Harvey Archery at Work",
+            description:
+              "Warrick Harvey walks through his bow-making process on the Tuli Circle family farm in South Africa — from raw timber selection to the final tiller pull. Watch how 50+ hours of handcraft go into every single limb.",
+          },
+          {
+            id: "oS6FHsegl6o",
+            title: "Field Session — The Raptor in Action",
+            description:
+              "A live field shooting session with the Harvey Archery Raptor — a 57-inch super-hybrid built for 3D target and hunting. Aggressive reflex-deflex geometry meets a whisper-quiet release cycle.",
+          },
+          {
+            id: "bLWOHgmMJzE",
+            title: "Craftsmanship Up Close — Exotic Materials & Finishing",
+            description:
+              "A detailed look at the exotic materials that define every Harvey bow: spalted bamboo cores, stabilised burl hardwood risers, and natural kudu/gemsbok horn tip overlays, finished by hand under the South African sky.",
+          },
+        ];
+
+        // ── Harvey Archery Exclusive: Additional Images ──
+        // Add image URLs to this array when ready — each will appear as a card in the gallery grid.
+        const HARVEY_GALLERY_IMAGES: string[] = [
+          // e.g. "https://janfranko.com/wp-content/uploads/2026/04/harvey-example-1.jpg",
+        ];
+
+        return (
+          <>
+            {/* Video Sections */}
+            <div className="max-w-5xl mx-auto px-6 md:px-12 pb-10 space-y-20">
+              {HARVEY_VIDEOS.map((video) => (
+                <div key={video.id} className="space-y-6">
+                  {/* Section Header */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
+                      Harvey Archery — Field & Workshop
+                    </span>
+                    <h2 className="text-xl md:text-3xl font-serif font-bold text-primary tracking-tight">
+                      {video.title}
+                    </h2>
+                    <div className="w-10 h-[1px] bg-[#c5a880]/40" />
+                  </div>
+
+                  {/* YouTube Embed */}
+                  <div className="relative w-full rounded-2xl overflow-hidden border border-primary/10 shadow-lg bg-primary/5" style={{ paddingBottom: "56.25%" }}>
+                    <iframe
+                      className="absolute inset-0 w-full h-full"
+                      src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
+                      title={video.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+
+                  {/* Video Description */}
+                  <p className="text-sm font-sans text-primary/75 leading-relaxed max-w-3xl">
+                    {video.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Image Gallery — only renders when HARVEY_GALLERY_IMAGES has entries */}
+            {HARVEY_GALLERY_IMAGES.length > 0 && (
+              <div className="max-w-[1440px] mx-auto px-6 md:px-12 pb-16 space-y-10">
+                <div className="text-center space-y-2">
+                  <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
+                    Workshop & Field
+                  </span>
+                  <h2 className="text-2xl md:text-4xl font-serif font-bold text-primary tracking-tight">
+                    Harvey Archery — Photo Gallery
+                  </h2>
+                  <div className="w-10 h-[1px] bg-[#c5a880]/30 mx-auto mt-3" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {HARVEY_GALLERY_IMAGES.map((src, idx) => (
+                    <div
+                      key={idx}
+                      className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-primary/10 shadow-sm bg-primary/5 group"
+                    >
+                      <img
+                        src={src}
+                        alt={`Harvey Archery gallery image ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        );
+      })()}
+
 
       {/* Interactive Bowyer Commission & Consultation Request Modal */}
       {commissionModalOpen && (
