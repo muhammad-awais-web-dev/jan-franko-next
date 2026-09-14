@@ -469,44 +469,65 @@ export default function ProgramsClient({
     setHasInitializedParams(true);
   }, [searchParams, types, statuses, skills, regions, hasInitializedParams]);
 
-  const [hasDoneInitialOpenCheck, setHasDoneInitialOpenCheck] = useState(false);
+  const initialOpenHandledRef = React.useRef(false);
 
-  // Listen to the 'open' query parameter to directly activate a program card modal
+  // Helper to open/close/change program modal and sync URL state cleanly
+  const handleSelectProgram = (program: Program | null) => {
+    setActiveModalProgram(program);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (program) {
+        const slugOrId = program.slug || program.id.toString();
+        url.searchParams.set("open", slugOrId);
+      } else {
+        url.searchParams.delete("open");
+      }
+      window.history.replaceState(null, "", url.toString());
+    }
+  };
+
+  // Initial load check for 'open' query parameter (runs once when programs are available)
   useEffect(() => {
+    if (initialOpenHandledRef.current) return;
+    if (programs.length === 0) return;
+
     const openSlug = searchParams.get("open");
-    if (openSlug && programs.length > 0) {
+    if (openSlug) {
       const match = programs.find(
         (p) =>
           p.slug === openSlug ||
           p.id.toString() === openSlug ||
           p.title.rendered.toLowerCase().includes(openSlug.toLowerCase())
       );
-      if (match && activeModalProgram?.id !== match.id) {
+      if (match) {
         setActiveModalProgram(match);
       }
     }
-    if (programs.length > 0) {
-      setHasDoneInitialOpenCheck(true);
-    }
-  }, [searchParams, programs, activeModalProgram]);
+    initialOpenHandledRef.current = true;
+  }, [searchParams, programs]);
 
-  // Bi-directionally sync activeModalProgram state with URL search param '?open=slug'
+  // Handle browser back/forward navigation
   useEffect(() => {
-    if (typeof window === "undefined" || isLoading || !hasDoneInitialOpenCheck) return;
-    const url = new URL(window.location.href);
-    if (activeModalProgram) {
-      const slugOrId = activeModalProgram.slug || activeModalProgram.id.toString();
-      if (url.searchParams.get("open") !== slugOrId) {
-        url.searchParams.set("open", slugOrId);
-        window.history.replaceState(null, "", url.toString());
+    const handlePopState = () => {
+      if (typeof window === "undefined") return;
+      const params = new URLSearchParams(window.location.search);
+      const openSlug = params.get("open");
+      if (openSlug && programs.length > 0) {
+        const match = programs.find(
+          (p) =>
+            p.slug === openSlug ||
+            p.id.toString() === openSlug ||
+            p.title.rendered.toLowerCase().includes(openSlug.toLowerCase())
+        );
+        setActiveModalProgram(match || null);
+      } else {
+        setActiveModalProgram(null);
       }
-    } else {
-      if (url.searchParams.has("open")) {
-        url.searchParams.delete("open");
-        window.history.replaceState(null, "", url.toString());
-      }
-    }
-  }, [activeModalProgram, isLoading, hasDoneInitialOpenCheck]);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [programs]);
 
   // Reset apply wizard states on program transition
   useEffect(() => {
@@ -1005,7 +1026,7 @@ export default function ProgramsClient({
               return (
                 <div
                   key={program.id}
-                  onClick={() => setActiveModalProgram(program)}
+                  onClick={() => handleSelectProgram(program)}
                   className="program-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[400px] cursor-pointer opacity-100"
                 >
                   {/* Top Image Banner */}
@@ -1084,7 +1105,7 @@ export default function ProgramsClient({
         {activeModalProgram && (
           <div
             className="fixed inset-0 bg-[#0e3b2e]/60 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-6 select-text overflow-y-auto"
-            onClick={() => setActiveModalProgram(null)}
+            onClick={() => handleSelectProgram(null)}
           >
             {/* Left Chevron Button */}
             {!isApplying && (
@@ -1092,7 +1113,7 @@ export default function ProgramsClient({
                 disabled={currentIndex === 0}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActiveModalProgram(programs[currentIndex - 1]);
+                  handleSelectProgram(programs[currentIndex - 1]);
                 }}
                 className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-secondary/90 border border-primary/10 flex items-center justify-center text-primary hover:text-[#7d603a] hover:border-accent/40 shadow-lg cursor-pointer transition-all duration-300 disabled:opacity-20 disabled:pointer-events-none z-30"
               >
@@ -1107,7 +1128,7 @@ export default function ProgramsClient({
             >
               {/* Close Button */}
               <button
-                onClick={() => setActiveModalProgram(null)}
+                onClick={() => handleSelectProgram(null)}
                 className="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-secondary/90 border border-primary/10 flex items-center justify-center text-primary hover:text-accent hover:border-accent/40 shadow-sm transition-all duration-300 cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -1687,7 +1708,7 @@ export default function ProgramsClient({
                 disabled={currentIndex === programs.length - 1}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActiveModalProgram(programs[currentIndex + 1]);
+                  handleSelectProgram(programs[currentIndex + 1]);
                 }}
                 className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-secondary/90 border border-primary/10 flex items-center justify-center text-primary hover:text-[#7d603a] hover:border-accent/40 shadow-lg cursor-pointer transition-all duration-300 disabled:opacity-20 disabled:pointer-events-none z-30"
               >
