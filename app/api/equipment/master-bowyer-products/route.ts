@@ -15,9 +15,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Missing query parameter (bowyer or slug)" }, { status: 400 });
     }
 
-    // Fetch master bowyer products from WordPress (10 mins cache)
+    // Fetch master bowyer products from WordPress (revalidate 0 for instant sync)
     const res = await fetch(queryUrl, {
-      next: { revalidate: 600 } // 10 minutes cache
+      next: { revalidate: 0 }
     });
 
     if (!res.ok) {
