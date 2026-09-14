@@ -44,3 +44,8 @@ next-env.d.ts
 wordpress-snippets/
 *.php
 
+# scratch & scraping workspace
+scratch/
+scraper/
+scraping/
+
