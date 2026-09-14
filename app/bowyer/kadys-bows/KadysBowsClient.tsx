@@ -77,6 +77,33 @@ const SUB_CATEGORIES = [
   "Exclusive Bows"
 ];
 
+export function getKadysSubCategory(rawTitle: string, rawSlug: string): string {
+  const t = (rawTitle || "").toLowerCase();
+  const s = (rawSlug || "").toLowerCase();
+
+  if (t.includes("hunting") || t.includes("leon") || t.includes("lynx")) {
+    return "Hunting Bows";
+  }
+  if (t.includes("amaranth") || t.includes("puzzle") || t.includes("exclusive")) {
+    return "Exclusive Bows";
+  }
+  if (
+    t.includes("longbow") ||
+    t.includes("long bow") ||
+    t.includes("aspid") ||
+    t.includes("pioneer") ||
+    t.includes("nail") ||
+    t.includes("mlb") ||
+    t.includes("mamba") ||
+    t.includes("richard") ||
+    t.includes("bb") ||
+    s.includes("bb")
+  ) {
+    return "Longbows";
+  }
+  return "Recurve Bows";
+}
+
 export default function KadysBowsClient() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,7 +159,7 @@ export default function KadysBowsClient() {
 
   const filteredProducts = products.filter((p) => {
     const titleMatch = cleanTitle(p.title).toLowerCase().includes(searchQuery.toLowerCase());
-    const pSubCat = p.acf?.sub_category || "Recurve Bows";
+    const pSubCat = p.acf?.sub_category || getKadysSubCategory(p.title, p.slug);
     
     if (activeCategory === "All Models") return titleMatch;
     return titleMatch && pSubCat.toLowerCase() === activeCategory.toLowerCase();
@@ -140,7 +167,10 @@ export default function KadysBowsClient() {
 
   const getSubCatCount = (catName: string) => {
     if (catName === "All Models") return products.length;
-    return products.filter((p) => (p.acf?.sub_category || "Recurve Bows").toLowerCase() === catName.toLowerCase()).length;
+    return products.filter((p) => {
+      const pSubCat = p.acf?.sub_category || getKadysSubCategory(p.title, p.slug);
+      return pSubCat.toLowerCase() === catName.toLowerCase();
+    }).length;
   };
 
   const handleCommissionSubmit = async (e: React.FormEvent) => {
@@ -411,7 +441,7 @@ export default function KadysBowsClient() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <span className="absolute top-3 left-3 px-3 py-1 bg-[#0e3b2e] text-white text-[10px] font-serif font-bold uppercase tracking-widest rounded-full shadow-sm">
-                    {product.acf?.sub_category || "Recurve Bows"}
+                    {product.acf?.sub_category || getKadysSubCategory(product.title, product.slug)}
                   </span>
                 </div>
 
