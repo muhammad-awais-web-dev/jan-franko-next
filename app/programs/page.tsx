@@ -461,6 +461,8 @@ const MACRO_REGIONS = {
     setHasInitializedParams(true);
   }, [searchParams, types, statuses, skills, regions, hasInitializedParams]);
 
+  const [hasDoneInitialOpenCheck, setHasDoneInitialOpenCheck] = useState(false);
+
   // Listen to the 'open' query parameter to directly activate a program card modal
   useEffect(() => {
     const openSlug = searchParams.get("open");
@@ -475,11 +477,14 @@ const MACRO_REGIONS = {
         setActiveModalProgram(match);
       }
     }
-  }, [searchParams, isLoading, programs]);
+    if (!isLoading && programs.length > 0) {
+      setHasDoneInitialOpenCheck(true);
+    }
+  }, [searchParams, isLoading, programs, activeModalProgram]);
 
   // Bi-directionally sync activeModalProgram state with URL search param '?open=slug'
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || isLoading || !hasDoneInitialOpenCheck) return;
     const url = new URL(window.location.href);
     if (activeModalProgram) {
       const slugOrId = activeModalProgram.slug || activeModalProgram.id.toString();
@@ -493,7 +498,7 @@ const MACRO_REGIONS = {
         window.history.replaceState(null, "", url.toString());
       }
     }
-  }, [activeModalProgram]);
+  }, [activeModalProgram, isLoading, hasDoneInitialOpenCheck]);
 
   // Reset apply wizard states on program transition
   useEffect(() => {
