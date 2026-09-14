@@ -364,6 +364,13 @@ function MenuGroup({ title, icon: Icon, children, className = "" }: { title: str
   );
 }
 
+type StackItem = {
+  id: number;
+  name: string;
+  slug: string;
+  path: string;
+};
+
 function EquipmentDepartmentsGroup({
   equipmentLinks,
   categories,
@@ -371,89 +378,170 @@ function EquipmentDepartmentsGroup({
   equipmentLinks: MenuLink[];
   categories: TaxonomyTerm[];
 }) {
-  const [activeCategory, setActiveCategory] = useState<{
-    id: number;
-    name: string;
-    slug: string;
-    subcategories: MenuLink[];
-  } | null>(null);
+  const [categoryStack, setCategoryStack] = useState<StackItem[]>([]);
 
-  const getSubcategoriesForRoot = (catId: number, catSlug: string): MenuLink[] => {
-    const parentSegment = catSlug;
-    if (categories.length === 0) {
-      if (catSlug === "bows") {
-        return [
-          { label: "Asiatic Bows", href: "/equipment/category/bows/asiatic-bows", icon: Target, hasSubcategories: false },
-          { label: "European Archery", href: "/equipment/category/bows/european-archery", icon: Target, hasSubcategories: false },
-          { label: "Explorer Core Line", href: "/equipment/category/bows/explorer-core-line", icon: Target, hasSubcategories: false },
-          { label: "Explorer Limited Editions", href: "/equipment/category/bows/explorer-limited-editions", icon: Target, hasSubcategories: false },
-          { label: "Himalayan Archery", href: "/equipment/category/bows/himalayan-archery", icon: Target, hasSubcategories: false },
-          { label: "Indigenous Archery Traditions", href: "/equipment/category/bows/indigenous-archery-traditions", icon: Target, hasSubcategories: false },
-        ];
-      }
-      if (catSlug === "accessories" || catSlug === "quivers" || catSlug === "quivers-accessories") {
-        return [
-          { label: "Field Quivers", href: "/equipment/category/accessories/field-quivers", icon: SlidersHorizontal, hasSubcategories: false },
-          { label: "Horse Archery Quivers", href: "/equipment/category/accessories/horse-archery-quivers", icon: SlidersHorizontal, hasSubcategories: false },
-        ];
-      }
-      return [];
+  const currentCategory = categoryStack.length > 0 ? categoryStack[categoryStack.length - 1] : null;
+
+  const findWpCategory = (id?: number, slug?: string): TaxonomyTerm | undefined => {
+    if (id && id > 0) return categories.find((c) => c.id === id);
+    if (slug) {
+      return categories.find(
+        (c) => c.slug === slug || (slug === "accessories" && (c.slug === "quivers-accessories" || c.id === 108))
+      );
     }
-
-    const findDescendants = (parentId: number): TaxonomyTerm[] => {
-      let results: TaxonomyTerm[] = [];
-      const directChildren = categories.filter((c) => c.parent === parentId);
-      directChildren.forEach((child) => {
-        const grandChildren = findDescendants(child.id);
-        if (grandChildren.length > 0) {
-          results = results.concat(grandChildren);
-        } else {
-          results.push(child);
-        }
-      });
-      return results;
-    };
-
-    const descendants = findDescendants(catId);
-    return descendants.map((sub) => ({
-      label: sub.name,
-      href: `/equipment/category/${parentSegment}/${sub.slug}`,
-      icon: catSlug === "bows" ? Target : SlidersHorizontal,
-      hasSubcategories: false,
-    }));
+    return undefined;
   };
 
-  const rootItems = equipmentLinks.map((item) => {
-    if (item.href === "/equipment") {
-      return { ...item, hasSubcategories: false };
+  const getDirectChildren = (parentId: number): TaxonomyTerm[] => {
+    return categories.filter((c) => c.parent === parentId);
+  };
+
+  const hasDirectSubcategories = (catId: number): boolean => {
+    return categories.some((c) => c.parent === catId);
+  };
+
+  let itemsToRender: MenuLink[] = [];
+
+  if (!currentCategory) {
+    itemsToRender = equipmentLinks.map((item) => {
+      if (item.href === "/equipment") {
+        return { ...item, hasSubcategories: false };
+      }
+
+      const slugMatch = item.href.match(/category\/([^/]+)/);
+      const slug = slugMatch ? slugMatch[1] : "";
+      const wpCat = findWpCategory(undefined, slug);
+
+      let hasSub = false;
+      if (wpCat) {
+        hasSub = getDirectChildren(wpCat.id).length > 0;
+      } else {
+        if (slug === "bows" || slug === "accessories" || slug === "quivers-accessories") {
+          hasSub = true;
+        }
+      }
+
+      return {
+        ...item,
+        hasSubcategories: hasSub,
+        catId: wpCat?.id,
+        catSlug: wpCat?.slug || slug,
+        catName: wpCat?.name || item.label,
+        onChevronClick: hasSub
+          ? (e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const targetId = wpCat?.id || (slug === "bows" ? 104 : 108);
+              const targetSlug = wpCat?.slug || slug;
+              setCategoryStack([
+                {
+                  id: targetId,
+                  name: wpCat?.name || item.label,
+                  slug: targetSlug,
+                  path: targetSlug,
+                },
+              ]);
+            }
+          : undefined,
+      };
+    });
+  } else {
+    const directChildren = getDirectChildren(currentCategory.id);
+
+    if (directChildren.length > 0) {
+      itemsToRender = directChildren.map((child) => {
+        const hasSub = hasDirectSubcategories(child.id);
+        const childPath = `${currentCategory.path}/${child.slug}`;
+
+        return {
+          label: child.name,
+          href: `/equipment/category/${childPath}`,
+          icon: currentCategory.slug === "bows" ? Target : SlidersHorizontal,
+          hasSubcategories: hasSub,
+          catId: child.id,
+          catSlug: child.slug,
+          catName: child.name,
+          onChevronClick: hasSub
+            ? (e: React.MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCategoryStack((prev) => [
+                  ...prev,
+                  {
+                    id: child.id,
+                    name: child.name,
+                    slug: child.slug,
+                    path: childPath,
+                  },
+                ]);
+              }
+            : undefined,
+        };
+      });
+    } else {
+      if (currentCategory.slug === "bows") {
+        const fallbackBows = [
+          "asiatic-bows",
+          "european-archery",
+          "explorer-core-line",
+          "explorer-limited-editions",
+          "himalayan-archery",
+          "indigenous-archery-traditions",
+        ];
+        itemsToRender = fallbackBows.map((subSlug) => ({
+          label: subSlug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+          href: `/equipment/category/bows/${subSlug}`,
+          icon: Target,
+          hasSubcategories: false,
+        }));
+      } else if (currentCategory.slug === "accessories" || currentCategory.slug === "quivers-accessories") {
+        const fallbackAccessories = [
+          { name: "Quivers", slug: "quivers", id: 106, hasSub: true },
+          { name: "Archery Belts", slug: "archery-belts", id: 173, hasSub: false },
+          { name: "Arm Guards", slug: "arm-guards", id: 169, hasSub: false },
+          { name: "Bow Cases", slug: "bow-cases", id: 172, hasSub: false },
+          { name: "Finger Tabs", slug: "finger-tabs", id: 170, hasSub: false },
+          { name: "Thumb Rings", slug: "thumb-rings", id: 171, hasSub: false },
+        ];
+        itemsToRender = fallbackAccessories.map((acc) => ({
+          label: acc.name,
+          href: `/equipment/category/${currentCategory.path}/${acc.slug}`,
+          icon: SlidersHorizontal,
+          hasSubcategories: acc.hasSub,
+          onChevronClick: acc.hasSub
+            ? (e: React.MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setCategoryStack((prev) => [
+                  ...prev,
+                  {
+                    id: acc.id,
+                    name: acc.name,
+                    slug: acc.slug,
+                    path: `${currentCategory.path}/${acc.slug}`,
+                  },
+                ]);
+              }
+            : undefined,
+        }));
+      } else if (currentCategory.slug === "quivers") {
+        const fallbackQuivers = ["field-quivers", "horse-archery-quivers"];
+        itemsToRender = fallbackQuivers.map((qSlug) => ({
+          label: qSlug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+          href: `/equipment/category/${currentCategory.path}/${qSlug}`,
+          icon: SlidersHorizontal,
+          hasSubcategories: false,
+        }));
+      }
     }
-
-    const slugMatch = item.href.match(/category\/([^/]+)/);
-    const slug = slugMatch ? slugMatch[1] : "";
-    let catObj = categories.find((c) => c.slug === slug);
-    if (!catObj && (slug === "quivers-accessories" || slug === "accessories")) {
-      catObj = categories.find((c) => c.slug === "accessories" || c.slug === "quivers" || c.id === 108 || c.id === 106);
-    }
-
-    const sublinks = catObj ? getSubcategoriesForRoot(catObj.id, slug) : getSubcategoriesForRoot(0, slug);
-    const hasSubcategories = sublinks.length > 1;
-
-    return {
-      ...item,
-      hasSubcategories,
-      catId: catObj?.id,
-      catSlug: slug,
-      catName: item.label,
-      subcategories: sublinks,
-    };
-  });
+  }
 
   return (
     <section className="min-w-0 rounded-2xl border border-[#0e3b2e]/10 bg-white p-3.5 relative overflow-hidden">
       <div className="relative mb-2.5 flex items-center border-b border-[#0e3b2e]/10 px-1 pb-3 overflow-hidden h-9">
         <div
           className={`absolute inset-0 flex items-center gap-2 transition-all duration-300 ease-in-out ${
-            activeCategory ? "-translate-x-full opacity-0 pointer-events-none" : "translate-x-0 opacity-100"
+            currentCategory ? "-translate-x-full opacity-0 pointer-events-none" : "translate-x-0 opacity-100"
           }`}
         >
           <Target className="h-4 w-4 text-[#0e624b]" aria-hidden="true" />
@@ -464,85 +552,52 @@ function EquipmentDepartmentsGroup({
 
         <div
           className={`absolute inset-0 flex items-center gap-2 transition-all duration-300 ease-in-out ${
-            activeCategory ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
+            currentCategory ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
           }`}
         >
           <Target className="h-4 w-4 text-[#0e624b]" aria-hidden="true" />
           <h3 className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#1d5b49]">
-            {activeCategory?.name}
+            {currentCategory?.name}
           </h3>
         </div>
       </div>
 
       <div className="relative overflow-hidden min-h-[220px]">
         <div
-          className={`w-full transition-all duration-300 ease-in-out ${
-            activeCategory
-              ? "-translate-x-full opacity-0 pointer-events-none absolute top-0 left-0"
-              : "translate-x-0 opacity-100 relative"
-          }`}
+          key={currentCategory ? currentCategory.path : "root"}
+          className="w-full transition-all duration-300 ease-in-out relative"
         >
           <ul className="space-y-1">
-            {rootItems.map((item) => (
-              <MenuItem
-                key={item.href}
-                item={{
-                  ...item,
-                  onClick: undefined,
-                  onChevronClick: item.hasSubcategories
-                    ? (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setActiveCategory({
-                          id: item.catId || 0,
-                          name: item.catName || item.label,
-                          slug: item.catSlug || "",
-                          subcategories: item.subcategories || [],
-                        });
-                      }
-                    : undefined,
-                }}
-              />
-            ))}
-          </ul>
-        </div>
-
-        <div
-          className={`w-full transition-all duration-300 ease-in-out ${
-            activeCategory
-              ? "translate-x-0 opacity-100 relative"
-              : "translate-x-full opacity-0 pointer-events-none absolute top-0 left-0"
-          }`}
-        >
-          <ul className="space-y-1">
-            <li>
-              <button
-                type="button"
-                onClick={() => setActiveCategory(null)}
-                className="group/item flex min-h-10 w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1] text-[#0e624b] font-bold text-xs border border-[#0e624b]/15 bg-[#e8f2ed]/60 mb-1.5 cursor-pointer"
-              >
-                <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-[#0e624b] text-white">
-                  <ArrowLeft className="h-3 w-3" />
-                </span>
-                <span>Back</span>
-              </button>
-            </li>
-            {activeCategory && (
-              <li>
-                <Link
-                  href={`/equipment/category/${activeCategory.slug}`}
-                  className="group/item flex min-h-10 w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-bold text-[#0e624b] border border-[#0e624b]/20 bg-[#0e624b]/10 transition hover:bg-[#0e624b] hover:text-white mb-2 cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <LayoutGrid className="h-3.5 w-3.5 text-[#0e624b] group-hover/item:text-white" />
-                    <span>View All in {activeCategory.name}</span>
-                  </span>
-                  <ArrowRight className="h-3.5 w-3.5 opacity-70 group-hover/item:translate-x-0.5 transition-transform" />
-                </Link>
-              </li>
+            {currentCategory && (
+              <>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryStack((prev) => prev.slice(0, -1))}
+                    className="group/item flex min-h-10 w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition hover:bg-[#eef5f1] focus-visible:bg-[#eef5f1] text-[#0e624b] font-bold text-xs border border-[#0e624b]/15 bg-[#e8f2ed]/60 mb-1.5 cursor-pointer"
+                  >
+                    <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-[#0e624b] text-white">
+                      <ArrowLeft className="h-3 w-3" />
+                    </span>
+                    <span>Back</span>
+                  </button>
+                </li>
+                <li>
+                  <Link
+                    href={`/equipment/category/${currentCategory.path}`}
+                    className="group/item flex min-h-10 w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-bold text-[#0e624b] border border-[#0e624b]/20 bg-[#0e624b]/10 transition hover:bg-[#0e624b] hover:text-white mb-2 cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <LayoutGrid className="h-3.5 w-3.5 text-[#0e624b] group-hover/item:text-white" />
+                      <span>View All in {currentCategory.name}</span>
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 opacity-70 group-hover/item:translate-x-0.5 transition-transform" />
+                  </Link>
+                </li>
+              </>
             )}
-            {activeCategory?.subcategories.map((subItem) => (
-              <MenuItem key={subItem.href} item={subItem} />
+            {itemsToRender.map((item) => (
+              <MenuItem key={item.href} item={item} />
             ))}
           </ul>
         </div>

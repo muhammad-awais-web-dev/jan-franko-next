@@ -148,8 +148,8 @@ export const EQUIPMENT_CATEGORIES = [
     description: "Matched shaft and arrow configurations for specific bows and shooting styles.",
   },
   {
-    slug: "quivers-accessories",
-    name: "Quivers & Accessories",
+    slug: "accessories",
+    name: "Accessories",
     description: "Quivers, armguards, gloves, thumb rings, and field accessories.",
   },
   {
