@@ -9,7 +9,8 @@ export function decodeHtmlEntities(raw: string | undefined | null): string {
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'")
     .replace(/&nbsp;/gi, " ")
-    .replace(/&#038;/g, "&");
+    .replace(/&#038;/g, "&")
+    .replace(/\bMr\.\s*Bows\b/gi, "MR Bows");
 }
 
 export const cleanTitle = decodeHtmlEntities;

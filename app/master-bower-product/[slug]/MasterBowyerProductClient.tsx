@@ -154,7 +154,7 @@ const BowyerProductContent = () => {
     } else if (product?.acf?.bowyer_name) {
       const bn = product.acf.bowyer_name.toLowerCase();
       if (bn.includes("harvey")) bowyerTabName = "Harvey Archery";
-      else if (bn.includes("rovčanin") || bn.includes("rovcanin") || bn.includes("mr. bows")) bowyerTabName = "MR Bows";
+      else if (bn.includes("rovčanin") || bn.includes("rovcanin") || bn.includes("mr. bows") || bn.includes("mr bows") || bn.includes("mr.bows")) bowyerTabName = "MR Bows";
       else if (bn.includes("tolochko") || bn.includes("kadys")) bowyerTabName = "Kadys Bows";
     }
 
