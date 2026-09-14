@@ -85,10 +85,16 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       let term = allCategories.find((c) => c.slug.toLowerCase() === s);
       if (term) return term.id.toString();
 
-      // Known category aliases mapping
-      if (["quivers-accessories", "quivers", "accessories"].includes(s) || s.includes("quiver") || s.includes("accessori")) {
-        term = allCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug.toLowerCase())) ||
-               allCategories.find((c) => c.id === 108 || c.id === 106);
+      // Known category aliases mapping (only when direct slug match is not found)
+      if (s === "quivers") {
+        term = allCategories.find((c) => c.slug === "quivers" || c.id === 106);
+        if (term) return term.id.toString();
+        return "106";
+      }
+
+      if (["quivers-accessories", "accessories"].includes(s) || s.includes("accessori")) {
+        term = allCategories.find((c) => ["accessories", "quivers-accessories"].includes(c.slug.toLowerCase())) ||
+               allCategories.find((c) => c.id === 108);
         if (term) return term.id.toString();
         return "108";
       }
@@ -249,8 +255,12 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   // Helper to recursively get all subcategory IDs for deep matching
   const getCategoryDescendants = (catId: number): number[] => {
     const ids = [catId];
-    if (catId === 108 || catId === 106) {
+    if (catId === 108) {
       [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => {
+        if (!ids.includes(id)) ids.push(id);
+      });
+    } else if (catId === 106) {
+      [106, 120, 121].forEach((id) => {
         if (!ids.includes(id)) ids.push(id);
       });
     }

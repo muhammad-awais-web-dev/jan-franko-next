@@ -126,16 +126,18 @@ function filterProductsByCategorySlug(allProds: any[], target: string, allCats: 
 
   let targetCat = allCats.find((c: any) => c.slug?.toLowerCase() === s);
   if (!targetCat) {
-    if (["quivers-accessories", "quivers", "accessories"].includes(s)) {
-      targetCat = allCats.find((c: any) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug?.toLowerCase())) || { id: 108 };
+    if (s === "quivers") {
+      targetCat = allCats.find((c: any) => c.slug?.toLowerCase() === "quivers" || c.id === 106) || { id: 106 };
+    } else if (["quivers-accessories", "accessories"].includes(s)) {
+      targetCat = allCats.find((c: any) => ["accessories", "quivers-accessories"].includes(c.slug?.toLowerCase()) || c.id === 108) || { id: 108 };
     } else if (["arrows-shafts", "arrows"].includes(s)) {
-      targetCat = allCats.find((c: any) => ["arrows", "arrows-shafts"].includes(c.slug?.toLowerCase())) || { id: 105 };
+      targetCat = allCats.find((c: any) => ["arrows", "arrows-shafts"].includes(c.slug?.toLowerCase()) || c.id === 105) || { id: 105 };
     } else if (s === "targets") {
-      targetCat = allCats.find((c: any) => c.slug === "targets") || { id: 107 };
+      targetCat = allCats.find((c: any) => c.slug === "targets" || c.id === 107) || { id: 107 };
     } else if (s === "training-kits") {
-      targetCat = allCats.find((c: any) => c.slug === "training-kits") || { id: 109 };
+      targetCat = allCats.find((c: any) => c.slug === "training-kits" || c.id === 109) || { id: 109 };
     } else if (s === "bows") {
-      targetCat = allCats.find((c: any) => c.slug === "bows") || { id: 104 };
+      targetCat = allCats.find((c: any) => c.slug === "bows" || c.id === 104) || { id: 104 };
     }
   }
 
@@ -144,7 +146,8 @@ function filterProductsByCategorySlug(allProds: any[], target: string, allCats: 
   const descendantIds: number[] = [];
   if (catId) {
     descendantIds.push(catId);
-    if (catId === 108 || catId === 106) [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => descendantIds.push(id));
+    if (catId === 108) [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => descendantIds.push(id));
+    if (catId === 106) [106, 120, 121].forEach((id) => descendantIds.push(id));
     if (catId === 107) [107, 178, 179, 177, 176, 174, 175, 180].forEach((id) => descendantIds.push(id));
     if (catId === 105) [105, 118, 168, 167, 119].forEach((id) => descendantIds.push(id));
     if (catId === 109) [109, 183, 181, 182].forEach((id) => descendantIds.push(id));
@@ -171,7 +174,8 @@ function filterProductsByCategorySlug(allProds: any[], target: string, allCats: 
     if (isTopLevelParent) {
       const slugTitle = `${p.slug} ${p.title}`.toLowerCase();
       if (s === "targets" || s.includes("target")) return slugTitle.includes("target") || slugTitle.includes("sur");
-      if (s === "quivers-accessories" || s === "accessories" || s === "quivers") return ["quiver", "ring", "glove", "armguard", "thumb", "case"].some((kw) => slugTitle.includes(kw));
+      if (s === "quivers") return slugTitle.includes("quiver");
+      if (s === "quivers-accessories" || s === "accessories") return ["quiver", "ring", "glove", "armguard", "thumb", "case", "belt"].some((kw) => slugTitle.includes(kw));
       if (s === "arrows-shafts" || s === "arrows") return slugTitle.includes("arrow") || slugTitle.includes("shaft");
       if (s === "training-kits") return slugTitle.includes("kit") || slugTitle.includes("practice");
       if (s === "bows") return slugTitle.includes("bow");
