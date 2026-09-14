@@ -348,11 +348,47 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       .replace(/&amp;/g, "&");
   };
 
+  // Helper to strip HTML tags and decode entities for category description
+  const cleanDescription = (raw: string | undefined) => {
+    if (!raw) return "";
+    return raw
+      .replace(/<[^>]*>/g, "")
+      .replace(/&#8220;/g, "“")
+      .replace(/&#8221;/g, "”")
+      .replace(/&#8211;/g, "–")
+      .replace(/&amp;/g, "&")
+      .trim();
+  };
+
   // Helper to strip HTML tags for card excerpt
   const cleanExcerpt = (rawHtml: string) => {
     const textOnly = rawHtml.replace(/<[^>]*>/g, "");
     return textOnly.length > 120 ? textOnly.slice(0, 120) + "..." : textOnly;
   };
+
+  const activeCategoryObj = React.useMemo(() => {
+    if (!selectedCategory) return null;
+    return allCategories.find((c) => c.id.toString() === selectedCategory) || null;
+  }, [selectedCategory, allCategories]);
+
+  const activeParentCategoryObj = React.useMemo(() => {
+    if (!activeCategoryObj || activeCategoryObj.parent === 0) return null;
+    return allCategories.find((c) => c.id === activeCategoryObj.parent) || null;
+  }, [activeCategoryObj, allCategories]);
+
+  const heroBadge = activeParentCategoryObj
+    ? `Academy Armory • ${cleanTitle(activeParentCategoryObj.name)}`
+    : activeCategoryObj
+    ? "Academy Armory • Department"
+    : "Academy Armory";
+
+  const heroTitle = activeCategoryObj
+    ? cleanTitle(activeCategoryObj.name)
+    : "Equipment & Bowyer Gear";
+
+  const heroDescription = activeCategoryObj && activeCategoryObj.description
+    ? cleanDescription(activeCategoryObj.description)
+    : "Discover premium, handcrafted bows, traditional arrows, and leather accessories sourced from master bowyers and regional craftsmen.";
 
   // Category Not Found (404) Full Page View
   if (isCategoryNotFound) {
@@ -493,13 +529,13 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
         
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4">
           <span className="inline-block px-4 py-1.5 bg-[#c5a880]/10 border border-[#c5a880]/30 rounded-full text-[10px] md:text-xs font-serif font-semibold tracking-widest uppercase text-accent">
-            Academy Armory
+            {heroBadge}
           </span>
           <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight text-white leading-tight">
-            Equipment &amp; Bowyer Gear
+            {heroTitle}
           </h1>
           <p className="text-sm md:text-base text-white/80 font-normal max-w-2xl mx-auto leading-relaxed">
-            Discover premium, handcrafted bows, traditional arrows, and leather accessories sourced from master bowyers and regional craftsmen.
+            {heroDescription}
           </p>
           <div className="pt-2 flex justify-center">
             <div className="w-12 h-[1px] bg-[#c5a880]/30" />

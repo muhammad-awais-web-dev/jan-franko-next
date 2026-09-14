@@ -153,14 +153,24 @@ function filterProductsByCategorySlug(allProds: any[], target: string, allCats: 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const targetSlug = slug && slug.length > 0 ? slug[slug.length - 1] : "";
-  const formattedTitle = targetSlug
+  const { categories } = await fetchEquipmentData();
+  const targetCat = categories.find(
+    (c: any) => c.slug?.toLowerCase() === targetSlug.toLowerCase() || c.name?.toLowerCase() === targetSlug.toLowerCase()
+  );
+
+  const rawTitle = targetCat ? targetCat.name : targetSlug
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
+  const cleanTitle = rawTitle.replace(/&amp;/g, "&");
+  const description = targetCat?.description
+    ? targetCat.description.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&")
+    : `Explore historical and functional ${cleanTitle} equipment listings verified by Jan Franko Traditional Archery Academy.`;
+
   return constructMetadata({
-    title: `${formattedTitle} | Equipment Armory Catalog - Jan Franko`,
-    description: `Explore historical and functional ${formattedTitle} equipment listings verified by Jan Franko Traditional Archery Academy.`,
+    title: `${cleanTitle} | Equipment Armory Catalog - Jan Franko`,
+    description,
     canonicalUrl: `https://janfranko.com/equipment/category/${slug.join("/")}`,
   });
 }
