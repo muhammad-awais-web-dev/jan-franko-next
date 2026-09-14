@@ -282,7 +282,7 @@ function LanguageFlag({ code, className = "" }: { code: string; className?: stri
 function MenuItem({ item }: { item: MenuLink }) {
   const Icon = item.icon;
   const isExternal = item.href.startsWith("http");
-  const showChevron = item.hasSubcategories ?? (isExternal ? false : true);
+  const showChevron = Boolean(item.hasSubcategories);
 
   return (
     <li>
