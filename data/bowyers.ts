@@ -84,7 +84,11 @@ export const MASTER_BOWYERS: MasterBowyer[] = [
       "Walnut, ash, plum, pear, and cherry among the domestic handle woods.",
       "Zebrawood, wenge, padauk, olive, and purpleheart among the exotic handle woods.",
     ],
-    models: [],
+    models: [
+      { name: "Tiron", description: "Traditional fiberglass-laminated recurve bow designed for fast arrow flight and smooth draw cycle." },
+      { name: "Spartak", description: "High-performance competition recurve model crafted with exotic hardwood handle and stabilized ash core." },
+      { name: "Scythian Replica", description: "Historical composite replica model based on ancient nomad geometry and technical replica records." },
+    ],
     photos: [
       { src: "https://janfranko.com/wp-content/uploads/2026/04/16864081_1249414485136489_6658590496747384211_n.jpg", alt: "Miško Rovčanin of MR Bows", caption: "Miško Rovčanin / MR Bows — Jan Franko media library." },
       { src: "https://janfranko.com/wp-content/uploads/2026/03/tiron-scaled-1-1024x768.jpg", alt: "MR Bows Tiron bow", caption: "Tiron — MR Bows product photograph in the Jan Franko media library." },
@@ -107,8 +111,16 @@ export const MASTER_BOWYERS: MasterBowyer[] = [
       "Kadys Bows focuses on traditional bows and individual commissions.",
       "Its bows are used in countries across Europe, Asia, and the United States.",
     ],
-    materials: [],
-    models: [],
+    materials: [
+      "High-elasticity ash wood limbs with clear or black protective fiberglass lamination.",
+      "Ergonomic hand-carved risers crafted from natural domestic and exotic timbers.",
+      "Dacron string matrix with reinforced tip nocks.",
+      "Custom draw weights tillered individually to order.",
+    ],
+    models: [
+      { name: "Leon", description: "Handcrafted traditional hunting recurve bow featuring ergonomic hardwood grip and smooth draw." },
+      { name: "Hoder Hungarian", description: "Asiatic/Hungarian historical recurve bow designed for instinctive field target and mounted archery." },
+    ],
     photos: [
       { src: "https://janfranko.com/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-12-at-11.23.29-PM.jpeg", alt: "Sergey Tolochko of Kadys Bows with traditional bows", caption: "Sergey Tolochko / Kadys Bows — Jan Franko media library." },
       { src: "https://janfranko.com/wp-content/uploads/2026/03/kadys-leon.jpg", alt: "Kadys Bows Leon hunting bow", caption: "Leon hunting bow — Kadys Bows product photograph in the Jan Franko media library." },

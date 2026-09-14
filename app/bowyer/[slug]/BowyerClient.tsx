@@ -3,8 +3,9 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Sparkles, Star, Loader2, X, ShieldCheck, CheckCircle, MessageSquare } from "lucide-react";
+import { ArrowLeft, Sparkles, Star, Loader2, X, ShieldCheck, CheckCircle, MessageSquare, ExternalLink } from "lucide-react";
 import { clientFetch } from "@/data/clientFetch";
+import { findMasterBowyer } from "@/data/bowyers";
 
 interface BowyerDetails {
   id: number;
@@ -95,6 +96,7 @@ function findDefaultBowyer(slug: string): BowyerDetails {
 const BowyerProfileContent = () => {
   const params = useParams();
   const slug = (params.slug as string) || "warrick-harvey";
+  const masterBowyerData = findMasterBowyer(slug);
 
   // Prepopulate initial bowyer synchronously to ensure 0 loading screen / 0 layout shift
   const [bowyer, setBowyer] = useState<BowyerDetails>(() => findDefaultBowyer(slug));
@@ -323,6 +325,106 @@ const BowyerProfileContent = () => {
           </div>
         </div>
       </div>
+
+      {/* Workshop Heritage, Core Materials & Signature Models */}
+      {masterBowyerData && (
+        <div className="bg-white border-t border-b border-primary/10 py-12 md:py-16">
+          <div className="max-w-[1440px] mx-auto px-6 md:px-12 space-y-12">
+            
+            {/* 1. Workshop Heritage & Background Facts */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <div className="lg:col-span-4 space-y-2">
+                <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
+                  Craftsman Heritage
+                </span>
+                <h3 className="text-2xl font-serif font-bold text-primary">
+                  Background &amp; Sourcing
+                </h3>
+                <p className="text-xs text-primary/70 font-sans leading-relaxed">
+                  Verified background metrics, workshop origins, and international distribution verified directly from the master bowyer's official channels.
+                </p>
+                {masterBowyerData.sourceUrl && (
+                  <a
+                    href={masterBowyerData.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7d603a] hover:text-primary transition-colors font-sans pt-2"
+                  >
+                    <span>{masterBowyerData.sourceLabel || "Official Bowyer Website"}</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
+              <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {masterBowyerData.background.map((fact, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl bg-[#f0e9d9]/30 border border-primary/5 space-y-1">
+                    <div className="text-[10px] font-serif font-bold uppercase tracking-widest text-[#5c4629]">
+                      Fact #{idx + 1}
+                    </div>
+                    <p className="text-xs text-primary/80 font-sans leading-relaxed">
+                      {fact}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. Core Materials & Construction */}
+            {masterBowyerData.materials && masterBowyerData.materials.length > 0 && (
+              <div className="space-y-4 border-t border-primary/10 pt-10">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
+                    Material Science
+                  </span>
+                  <h3 className="text-xl font-serif font-bold text-primary">
+                    Core Materials &amp; Construction Specs
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {masterBowyerData.materials.map((mat, idx) => (
+                    <div key={idx} className="p-4 rounded-2xl bg-white border border-primary/10 space-y-1.5 shadow-xs">
+                      <div className="w-2 h-2 rounded-full bg-accent" />
+                      <p className="text-xs text-primary/85 font-sans leading-relaxed">
+                        {mat}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3. Signature Bow Models */}
+            {masterBowyerData.models && masterBowyerData.models.length > 0 && (
+              <div className="space-y-4 border-t border-primary/10 pt-10">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block">
+                    Master Catalog
+                  </span>
+                  <h3 className="text-xl font-serif font-bold text-primary">
+                    Signature Bow Models
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {masterBowyerData.models.map((model, idx) => (
+                    <div key={idx} className="p-5 rounded-2xl bg-[#0e3b2e]/5 border border-[#c5a880]/30 space-y-2">
+                      <div className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold">
+                        Signature Model
+                      </div>
+                      <h4 className="notranslate font-serif text-base font-bold text-primary" translate="no">
+                        {model.name}
+                      </h4>
+                      <p className="text-xs text-primary/75 font-sans leading-relaxed">
+                        {model.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
 
       {/* Crafting Process Section (1440px container) */}
       {bowyer.process && bowyer.process.length > 0 && (
