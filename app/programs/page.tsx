@@ -234,9 +234,16 @@ const MACRO_REGIONS = {
           return MACRO_REGIONS.eurasia.programIds.includes(p.id) ||
                  ["mongolia", "kyrgyzstan", "inner mongolia"].some((c) => (p.acf?.country || "").toLowerCase().includes(c));
         }
-        if (reg === "americas" || reg === "north-america" || reg === "south-america") {
+        if (reg === "americas") {
           return MACRO_REGIONS.americas.programIds.includes(p.id) ||
                  ["usa", "canada", "brazil"].some((c) => (p.acf?.country || "").toLowerCase().includes(c));
+        }
+        if (reg === "north-america") {
+          return [4692].includes(p.id) ||
+                 ["usa", "canada"].some((c) => (p.acf?.country || "").toLowerCase().includes(c));
+        }
+        if (reg === "south-america" || reg === "brazil") {
+          return p.id === 4563 || (p.acf?.country || "").toLowerCase().includes("brazil");
         }
         
         // Sub-region slug / keyword match
@@ -247,7 +254,6 @@ const MACRO_REGIONS = {
         if (reg === "mongolia") return [4717, 4713].includes(p.id) || (p.acf?.country || "").includes("Mongolia");
         if (reg === "kyrgyzstan") return p.id === 4701 || (p.acf?.country || "").includes("Kyrgyzstan");
         if (reg === "inner-mongolia") return p.id === 4753 || (p.acf?.country || "").includes("Inner Mongolia");
-        if (reg === "brazil") return p.id === 4563 || (p.acf?.country || "").includes("Brazil");
 
         // Numeric taxonomy ID fallback
         const taxId = Number(reg);
