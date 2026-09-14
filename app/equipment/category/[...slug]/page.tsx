@@ -2,6 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import { constructMetadata } from "@/lib/seo";
 import EquipmentClient from "@/app/equipment/EquipmentClient";
+import { CATEGORY_DESCRIPTIONS } from "@/data/categoryDescriptions";
 
 export const revalidate = 600;
 
@@ -52,7 +53,7 @@ async function fetchEquipmentData() {
   try {
     const [prodRes, catRes] = await Promise.all([
       fetch("https://janfranko.com/wp-json/wp/v2/product?per_page=100&_embed", { next: { revalidate: 600 } }),
-      fetch("https://janfranko.com/wp-json/wp/v2/product_cat?per_page=100", { next: { revalidate: 86400 } })
+      fetch("https://janfranko.com/wp-json/wp/v2/product_cat?per_page=100", { next: { revalidate: 60 } })
     ]);
 
     const prods = prodRes.ok ? await prodRes.json() : [];
@@ -108,7 +109,7 @@ async function fetchEquipmentData() {
       name: c.name,
       slug: c.slug,
       parent: c.parent,
-      description: c.description || "",
+      description: c.description || CATEGORY_DESCRIPTIONS[c.id] || "",
     }));
 
     return { products, categories };

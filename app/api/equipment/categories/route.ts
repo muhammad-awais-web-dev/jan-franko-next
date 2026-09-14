@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { CATEGORY_DESCRIPTIONS } from "@/data/categoryDescriptions";
 
 export async function GET() {
   try {
     const [catRes, prodRes] = await Promise.all([
-      fetch("https://janfranko.com/wp-json/wp/v2/product_cat?per_page=100", { next: { revalidate: 86400 } }),
+      fetch("https://janfranko.com/wp-json/wp/v2/product_cat?per_page=100", { next: { revalidate: 60 } }),
       fetch("https://janfranko.com/wp-json/wp/v2/product?per_page=100", { next: { revalidate: 600 } })
     ]);
 
@@ -40,7 +41,7 @@ export async function GET() {
       name: (c.name || "").replace(/&amp;/g, "&"),
       slug: c.slug,
       parent: c.parent,
-      description: c.description || "",
+      description: c.description || CATEGORY_DESCRIPTIONS[c.id] || "",
       count: directCounts[c.id] || 0,
       totalCount: getTotalCount(c.id),
     }));

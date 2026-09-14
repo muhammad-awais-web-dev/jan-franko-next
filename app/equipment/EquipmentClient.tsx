@@ -10,6 +10,7 @@ import ProductComparisonModal, {
   FloatingCompareBar,
   ComparisonProduct,
 } from "@/components/equipment/ProductComparisonModal";
+import { CATEGORY_DESCRIPTIONS } from "@/data/categoryDescriptions";
 
 export interface Product {
   id: number;
@@ -423,9 +424,15 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
     ? cleanTitle(activeCategoryObj.name.toLowerCase() === "accessories" ? "Quivers & Accessories" : activeCategoryObj.name)
     : "Equipment & Bowyer Gear";
 
-  const heroDescription = activeCategoryObj && activeCategoryObj.description
-    ? cleanDescription(activeCategoryObj.description)
-    : "Discover premium, handcrafted bows, traditional arrows, and leather accessories sourced from master bowyers and regional craftsmen.";
+  const heroDescription = React.useMemo(() => {
+    if (!activeCategoryObj) {
+      return "Discover premium, handcrafted bows, traditional arrows, and leather accessories sourced from master bowyers and regional craftsmen.";
+    }
+    const rawDesc = activeCategoryObj.description || CATEGORY_DESCRIPTIONS[activeCategoryObj.id];
+    return rawDesc
+      ? cleanDescription(rawDesc)
+      : "Discover premium, handcrafted bows, traditional arrows, and leather accessories sourced from master bowyers and regional craftsmen.";
+  }, [activeCategoryObj]);
 
   // Category Not Found (404) Full Page View
   if (isCategoryNotFound) {
