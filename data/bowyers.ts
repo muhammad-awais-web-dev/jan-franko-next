@@ -87,7 +87,6 @@ export const MASTER_BOWYERS: MasterBowyer[] = [
     models: [
       { name: "Tiron", description: "Traditional fiberglass-laminated recurve bow designed for fast arrow flight and smooth draw cycle." },
       { name: "Spartak", description: "High-performance competition recurve model crafted with exotic hardwood handle and stabilized ash core." },
-      { name: "Scythian Replica", description: "Historical composite replica model based on ancient nomad geometry and technical replica records." },
     ],
     photos: [
       { src: "https://janfranko.com/wp-content/uploads/2026/04/16864081_1249414485136489_6658590496747384211_n.jpg", alt: "Miško Rovčanin of MR Bows", caption: "Miško Rovčanin / MR Bows — Jan Franko media library." },
