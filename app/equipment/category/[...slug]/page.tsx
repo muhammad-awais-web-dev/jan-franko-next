@@ -18,11 +18,17 @@ export async function generateStaticParams() {
     { slug: ["bows", "explorer-limited-editions"] },
     { slug: ["bows", "himalayan-archery"] },
     { slug: ["bows", "indigenous-archery-traditions"] },
+    { slug: ["bows", "custom-bows"] },
     { slug: ["quivers-accessories"] },
     { slug: ["quivers-accessories", "field-quivers"] },
     { slug: ["quivers-accessories", "horse-archery-quivers"] },
+    { slug: ["quivers-accessories", "arm-guards"] },
     { slug: ["targets"] },
+    { slug: ["targets", "3d-targets"] },
     { slug: ["training-kits"] },
+    { slug: ["training-kits", "starter-archery-kits"] },
+    { slug: ["empty-category"] },
+    { slug: ["no-category-found"] },
   ];
 }
 

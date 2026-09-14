@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
-import { Search, X, SlidersHorizontal, LayoutGrid, List, Check } from "lucide-react";
+import { Search, X, SlidersHorizontal, LayoutGrid, List, Check, FolderX, PackageOpen, Compass, ArrowRight, ShieldAlert, Layers } from "lucide-react";
 import ProductComparisonModal, {
   FloatingCompareBar,
   ComparisonProduct,
@@ -38,6 +38,14 @@ interface EquipmentClientProps {
   categoryPathSegments?: string[];
 }
 
+const VIRTUAL_EMPTY_CATEGORY: CategoryTerm = {
+  id: 9999,
+  name: "Empty Category",
+  slug: "empty-category",
+  parent: 0,
+  description: "Department reserved for custom archer commissions and items undergoing source verification."
+};
+
 function EquipmentContentInner({ initialProducts, initialCategories, initialCategorySlug }: EquipmentClientProps) {
   const searchParams = useSearchParams();
 
@@ -46,23 +54,44 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   const [categories, setCategories] = useState<CategoryTerm[]>(initialCategories);
   const [loading, setLoading] = useState(initialProducts.length === 0 && initialCategories.length === 0);
 
-  // Initial Category Pre-selection from URL slug route (e.g. /equipment/category/bows/asiatic-bows)
+  // Merge categories with virtual terms for testing and complete coverage
+  const allCategories = React.useMemo(() => {
+    const list = [...categories];
+    if (!list.some((c) => c.slug === "empty-category")) {
+      list.push(VIRTUAL_EMPTY_CATEGORY);
+    }
+    return list;
+  }, [categories]);
+
+  // Validate if URL requested category exists in taxonomy
+  const isCategoryNotFound = React.useMemo(() => {
+    if (!initialCategorySlug) return false;
+    if (initialCategorySlug === "no-category-found") return true;
+
+    const exists =
+      allCategories.some((c) => c.slug === initialCategorySlug) ||
+      ["quivers-accessories", "quivers", "accessories", "arrows-shafts", "arrows", "targets", "training-kits", "bows", "master-bowyers"].includes(initialCategorySlug);
+
+    return !exists;
+  }, [initialCategorySlug, allCategories]);
+
+  // Initial Category Pre-selection from URL slug route
   const getInitialSelectedCategory = () => {
-    if (!initialCategorySlug || initialCategories.length === 0) return "";
-    let term = initialCategories.find((c) => c.slug === initialCategorySlug);
+    if (!initialCategorySlug || allCategories.length === 0) return "";
+    let term = allCategories.find((c) => c.slug === initialCategorySlug);
     if (!term) {
       if (["quivers-accessories", "quivers", "accessories"].includes(initialCategorySlug)) {
-        term = initialCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug)) ||
-               initialCategories.find((c) => c.id === 108 || c.id === 106);
+        term = allCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug)) ||
+               allCategories.find((c) => c.id === 108 || c.id === 106);
       } else if (["arrows-shafts", "arrows"].includes(initialCategorySlug)) {
-        term = initialCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug)) ||
-               initialCategories.find((c) => c.id === 105);
+        term = allCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug)) ||
+               allCategories.find((c) => c.id === 105);
       } else if (initialCategorySlug === "targets") {
-        term = initialCategories.find((c) => c.slug === "targets" || c.id === 107);
+        term = allCategories.find((c) => c.slug === "targets" || c.id === 107);
       } else if (initialCategorySlug === "training-kits") {
-        term = initialCategories.find((c) => c.slug === "training-kits" || c.id === 109);
+        term = allCategories.find((c) => c.slug === "training-kits" || c.id === 109);
       } else if (initialCategorySlug === "bows") {
-        term = initialCategories.find((c) => c.slug === "bows" || c.id === 104);
+        term = allCategories.find((c) => c.slug === "bows" || c.id === 104);
       }
     }
     return term ? term.id.toString() : "";
@@ -345,6 +374,131 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
     return textOnly.length > 120 ? textOnly.slice(0, 120) + "..." : textOnly;
   };
 
+  // Category Not Found (404) Full Page View
+  if (isCategoryNotFound) {
+    return (
+      <div className="w-full min-h-screen bg-secondary text-primary select-text relative flex flex-col justify-between">
+        <title>404 Category Not Found | Equipment Armory - Jan Franko</title>
+
+        {/* Top Header Banner */}
+        <section className="bg-[#0e3b2e] px-6 py-16 text-white text-center sm:py-20 relative overflow-hidden">
+          <div className="mx-auto max-w-[1440px] relative z-10 space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#c5a880]/20 border border-[#c5a880]/40 text-[10px] font-sans font-bold text-[#c5a880] uppercase tracking-widest mx-auto">
+              <FolderX className="w-3.5 h-3.5 text-[#c5a880]" />
+              <span>404 • Category Not Found</span>
+            </div>
+            <h1 className="font-serif text-4xl font-bold sm:text-5xl tracking-tight">
+              Equipment Category Not Found
+            </h1>
+            <p className="mt-4 max-w-2xl mx-auto text-sm leading-relaxed text-white/80 font-sans">
+              The category path <code className="bg-white/10 px-2.5 py-1 rounded text-[#c5a880] font-mono text-xs font-bold">{initialCategorySlug}</code> is not part of our armory taxonomy. It may have been moved, renamed, or consolidated.
+            </p>
+          </div>
+        </section>
+
+        {/* Main Content Box */}
+        <section className="mx-auto max-w-[1440px] px-6 py-16 flex-1 w-full">
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-2 text-xs font-sans text-[#5c4629] mb-8">
+            <Link href="/" className="hover:text-[#0e3b2e] transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/equipment" className="hover:text-[#0e3b2e] transition-colors">Equipment Armory</Link>
+            <span>/</span>
+            <span className="text-[#0e3b2e] font-bold">Category Not Found</span>
+          </nav>
+
+          <div className="bg-white border border-primary/10 rounded-3xl p-8 sm:p-12 shadow-sm text-center max-w-3xl mx-auto space-y-8">
+            <div className="w-16 h-16 rounded-full bg-[#c5a880]/15 border border-[#c5a880]/30 flex items-center justify-center mx-auto text-[#7d603a]">
+              <FolderX className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-3">
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-primary">
+                Department Missing from Taxonomy
+              </h2>
+              <p className="text-sm text-primary/75 leading-relaxed font-sans max-w-lg mx-auto">
+                Search the armory below to find your traditional archery bow, quiver, arrow, or target, or select from our verified armory departments.
+              </p>
+            </div>
+
+            {/* Direct Search Bar */}
+            <div className="max-w-lg mx-auto relative">
+              <div className="relative flex items-center">
+                <Search className="w-5 h-5 absolute left-4 text-primary/40" />
+                <input
+                  type="text"
+                  placeholder="Search armory equipment catalog..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && searchQuery.trim()) {
+                      window.location.href = `/equipment?query=${encodeURIComponent(searchQuery)}`;
+                    }
+                  }}
+                  className="w-full pl-12 pr-28 py-3 bg-[#f0e9d9]/40 border border-primary/15 rounded-2xl text-sm focus:outline-none focus:border-accent text-primary font-sans"
+                />
+                <button
+                  onClick={() => {
+                    if (searchQuery.trim()) {
+                      window.location.href = `/equipment?query=${encodeURIComponent(searchQuery)}`;
+                    }
+                  }}
+                  className="absolute right-2 px-4 py-1.5 bg-[#0e3b2e] text-white rounded-xl text-xs font-serif font-bold hover:bg-[#0e3b2e]/90 cursor-pointer transition-colors"
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/equipment"
+                className="px-6 py-3 bg-[#0e3b2e] text-white rounded-full text-xs font-serif font-bold uppercase tracking-wider hover:bg-[#0e3b2e]/90 cursor-pointer transition-all shadow-sm"
+              >
+                Browse All Armory Equipment
+              </Link>
+              <Link
+                href="/contact"
+                className="px-6 py-3 bg-secondary border border-primary/20 text-primary rounded-full text-xs font-serif font-bold uppercase tracking-wider hover:border-primary cursor-pointer transition-all"
+              >
+                Contact Consultation Desk
+              </Link>
+            </div>
+
+            {/* Quick Departments Grid */}
+            <div className="pt-8 border-t border-primary/10 text-left">
+              <h3 className="text-xs font-serif font-bold uppercase tracking-widest text-[#5c4629] mb-4 text-center">
+                Explore Active Departments
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { name: "Bows", href: "/equipment/category/bows", icon: "🏹", count: "22 items" },
+                  { name: "Arrows & Shafts", href: "/equipment/category/arrows", icon: "🎯", count: "Custom build" },
+                  { name: "Quivers & Accessories", href: "/equipment/category/quivers-accessories", icon: "🎒", count: "5 items" },
+                  { name: "Targets", href: "/equipment/category/targets", icon: "🎯", count: "1 item" },
+                  { name: "Training Kits", href: "/equipment/category/training-kits", icon: "🎓", count: "1 item" },
+                  { name: "Master Bowyers", href: "/equipment/category/master-bowyers", icon: "🛡️", count: "6 bowyers" },
+                ].map((dept) => (
+                  <Link
+                    key={dept.href}
+                    href={dept.href}
+                    className="p-4 bg-[#f0e9d9]/30 border border-primary/10 rounded-2xl hover:border-accent/40 hover:bg-white transition-all group block"
+                  >
+                    <div className="text-xl mb-1">{dept.icon}</div>
+                    <div className="text-xs font-serif font-bold text-primary group-hover:text-accent transition-colors">
+                      {dept.name}
+                    </div>
+                    <div className="text-[10px] text-[#5c4629] font-sans mt-0.5">{dept.count}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-screen bg-secondary text-primary select-text relative">
       <title>The Armory | Traditional Archery Equipment - Jan Franko</title>
@@ -552,29 +706,71 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
 
         {/* 3. Catalog Grid */}
         {sortedProducts.length === 0 && !loading ? (
-          <div className="text-center py-16 px-6 bg-white border border-primary/10 rounded-3xl space-y-4 shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto text-accent">
-              <SlidersHorizontal className="w-6 h-6" />
+          <div className="text-center py-16 px-6 sm:px-12 bg-white border border-primary/10 rounded-3xl space-y-8 shadow-sm max-w-4xl mx-auto my-8">
+            {/* Header Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#c5a880]/15 border border-[#c5a880]/30 text-[10px] font-sans font-bold text-[#5c4629] uppercase tracking-widest">
+              <PackageOpen className="w-3.5 h-3.5 text-[#7d603a]" />
+              <span>Department Catalog • Custom Commission Only</span>
             </div>
-            <div className="space-y-1.5 max-w-md mx-auto">
-              <h3 className="text-xl font-serif font-bold text-primary">
+
+            <div className="space-y-3 max-w-xl mx-auto">
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-primary">
                 {selectedCategory
-                  ? `No Standard Catalog Products in ${cleanTitle(categories.find((c) => c.id.toString() === selectedCategory)?.name || "Selected Category")}`
-                  : "No Equipment Matched Your Search"}
+                  ? `No Standard Stock Items in ${cleanTitle(allCategories.find((c) => c.id.toString() === selectedCategory)?.name || "Selected Category")}`
+                  : "No Equipment Matched Your Search Filters"}
               </h3>
-              <p className="text-xs text-primary/75 leading-relaxed font-sans">
+              <p className="text-xs sm:text-sm text-primary/75 leading-relaxed font-sans">
                 {selectedCategory
-                  ? "Items in this category are handcrafted to custom archer specifications during private consultation. Contact us to inquire about custom commissions."
+                  ? `Equipment in the ${cleanTitle(allCategories.find((c) => c.id.toString() === selectedCategory)?.name || "selected")} department is individually handcrafted on demand or currently undergoing source-first historical verification. We accept custom archer commissions tailored to your draw length, draw weight, and historical requirements.`
                   : "Try clearing your active category or keyword filters to browse the full armory catalog."}
               </p>
             </div>
-            <div className="pt-2 flex justify-center gap-3">
+
+            {/* Custom Commission Value Props */}
+            {selectedCategory && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left border-t border-b border-primary/10 py-6 my-4">
+                <div className="p-4 bg-[#f0e9d9]/30 rounded-2xl border border-primary/5 space-y-1">
+                  <div className="text-xs font-serif font-bold text-primary flex items-center gap-1.5">
+                    <span>🪵</span> Timber & Material Choice
+                  </div>
+                  <p className="text-[11px] text-primary/70 leading-relaxed font-sans">
+                    Hand-selected European ash, walnut, yew, or exotic woods.
+                  </p>
+                </div>
+                <div className="p-4 bg-[#f0e9d9]/30 rounded-2xl border border-primary/5 space-y-1">
+                  <div className="text-xs font-serif font-bold text-primary flex items-center gap-1.5">
+                    <span>🎯</span> Precision Draw Tuning
+                  </div>
+                  <p className="text-[11px] text-primary/70 leading-relaxed font-sans">
+                    Custom draw weights from 20 to 160+ lbs tailored to your form.
+                  </p>
+                </div>
+                <div className="p-4 bg-[#f0e9d9]/30 rounded-2xl border border-primary/5 space-y-1">
+                  <div className="text-xs font-serif font-bold text-primary flex items-center gap-1.5">
+                    <span>🛡️</span> Source Verification
+                  </div>
+                  <p className="text-[11px] text-primary/70 leading-relaxed font-sans">
+                    Guaranteed authentic geometry & master craftsman sign-off.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2 flex flex-wrap justify-center gap-4">
+              {selectedCategory && (
+                <Link
+                  href="/contact"
+                  className="px-6 py-3 bg-[#0e3b2e] text-white rounded-full text-xs font-serif font-bold uppercase tracking-wider hover:bg-[#0e3b2e]/90 cursor-pointer transition-all shadow-sm"
+                >
+                  Request Custom Commission
+                </Link>
+              )}
               <button
                 onClick={() => {
                   setSelectedCategory("");
                   setSearchQuery("");
                 }}
-                className="px-6 py-2.5 bg-[#0e3b2e] text-white rounded-full text-xs font-serif font-bold uppercase tracking-wider hover:bg-[#0e3b2e]/90 cursor-pointer transition-all"
+                className="px-6 py-3 bg-secondary border border-primary/20 text-primary rounded-full text-xs font-serif font-bold uppercase tracking-wider hover:border-primary cursor-pointer transition-all"
               >
                 View All Armory Equipment
               </button>
