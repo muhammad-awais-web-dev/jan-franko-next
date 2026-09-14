@@ -83,7 +83,22 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
     const queryParam = searchParams.get("query");
 
     if (catParam) {
-      const term = categories.find((c) => c.slug === catParam);
+      let term = categories.find((c) => c.slug === catParam);
+      if (!term) {
+        if (["quivers-accessories", "quivers", "accessories"].includes(catParam)) {
+          term = categories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug)) ||
+                 categories.find((c) => c.id === 108 || c.id === 106);
+        } else if (["arrows-shafts", "arrows"].includes(catParam)) {
+          term = categories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug)) ||
+                 categories.find((c) => c.id === 105);
+        } else if (catParam === "targets") {
+          term = categories.find((c) => c.slug === "targets" || c.id === 107);
+        } else if (catParam === "training-kits") {
+          term = categories.find((c) => c.slug === "training-kits" || c.id === 109);
+        } else if (catParam === "bows") {
+          term = categories.find((c) => c.slug === "bows" || c.id === 104);
+        }
+      }
       if (term) setSelectedCategory(term.id.toString());
     }
     if (brandParam) {
@@ -116,10 +131,15 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
   // Helper to recursively get all subcategory IDs for deep matching
   const getCategoryDescendants = (catId: number): number[] => {
     const ids = [catId];
+    if (catId === 108 || catId === 106) {
+      [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => {
+        if (!ids.includes(id)) ids.push(id);
+      });
+    }
     const findChildren = (parent: number) => {
       categories.forEach((c) => {
         if (c.parent === parent) {
-          ids.push(c.id);
+          if (!ids.includes(c.id)) ids.push(c.id);
           findChildren(c.id);
         }
       });
@@ -156,11 +176,16 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
   // Filter Logic
   const getFilteredProducts = () => {
     return products.filter((product) => {
-      // 1. Category Filter (deep match children)
+      // 1. Category Filter (deep match children + keyword fallback)
       if (selectedCategory) {
         const catId = parseInt(selectedCategory);
         const allowedIds = getCategoryDescendants(catId);
-        const matchesCategory = product.categories.some((id) => allowedIds.includes(id));
+        const matchesCategory =
+          product.categories.some((id) => allowedIds.includes(id)) ||
+          ((catId === 108 || catId === 106) &&
+            ["quiver", "ring", "glove", "armguard", "thumb", "case"].some((kw) =>
+              product.slug.toLowerCase().includes(kw) || product.title.toLowerCase().includes(kw)
+            ));
         if (!matchesCategory) return false;
       }
 
@@ -372,8 +397,33 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
 
         {/* 3. Catalog Grid */}
         {sortedProducts.length === 0 && !loading ? (
-          <div className="text-center py-24 bg-white border border-primary/5 rounded-3xl text-primary/60 font-sans shadow-sm">
-            No equipment matched your filters. Explore other categories or search options.
+          <div className="text-center py-16 px-6 bg-white border border-primary/10 rounded-3xl space-y-4 shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto text-accent">
+              <SlidersHorizontal className="w-6 h-6" />
+            </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h3 className="text-xl font-serif font-bold text-primary">
+                {selectedCategory
+                  ? `No Standard Catalog Products in ${cleanTitle(categories.find((c) => c.id.toString() === selectedCategory)?.name || "Selected Category")}`
+                  : "No Equipment Matched Your Search"}
+              </h3>
+              <p className="text-xs text-primary/75 leading-relaxed font-sans">
+                {selectedCategory
+                  ? "Items in this category are handcrafted to custom archer specifications during private consultation. Contact us to inquire about custom commissions."
+                  : "Try clearing your active category or keyword filters to browse the full armory catalog."}
+              </p>
+            </div>
+            <div className="pt-2 flex justify-center gap-3">
+              <button
+                onClick={() => {
+                  setSelectedCategory("");
+                  setSearchQuery("");
+                }}
+                className="px-6 py-2.5 bg-[#0e3b2e] text-white rounded-full text-xs font-serif font-bold uppercase tracking-wider hover:bg-[#0e3b2e]/90 cursor-pointer transition-all"
+              >
+                View All Armory Equipment
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -12,6 +12,26 @@ export const metadata: Metadata = constructMetadata({
   canonicalUrl: "https://janfranko.com/equipment",
 });
 
+function getCategoryIdsForSlug(categorySlug: string): number[] {
+  switch (categorySlug) {
+    case "quivers-accessories":
+    case "accessories":
+    case "quivers":
+      return [108, 106, 120, 121, 169, 170, 171, 172, 173];
+    case "training-kits":
+      return [109, 181, 182, 183];
+    case "targets":
+      return [107, 174, 175, 176, 177, 178, 179, 180];
+    case "arrows-shafts":
+    case "arrows":
+      return [105, 118, 119, 167, 168];
+    case "bows":
+      return [104, 110, 111, 112, 138, 139, 140, 162, 163, 164, 165, 166, 185];
+    default:
+      return [];
+  }
+}
+
 async function getEquipmentData(): Promise<{ initialProducts: Product[]; initialCategories: CategoryTerm[] }> {
   try {
     const [prodRes, catRes, mediaRes1, mediaRes2] = await Promise.all([
@@ -30,7 +50,7 @@ async function getEquipmentData(): Promise<{ initialProducts: Product[]; initial
         content: p.content,
         date: p.date,
         image: p.image || "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80",
-        categories: [],
+        categories: getCategoryIdsForSlug(p.category),
         brands: [],
       }));
       return { initialProducts: fallbackProds, initialCategories: [] };
@@ -78,34 +98,25 @@ async function getEquipmentData(): Promise<{ initialProducts: Product[]; initial
         })
       : [];
 
-    const activeIds = new Set<number>();
-    const addCategoryAndAncestors = (catId: number) => {
-      activeIds.add(catId);
-      const cat = Array.isArray(rawCategories) ? rawCategories.find((c: any) => c.id === catId) : null;
-      if (cat && cat.parent !== 0) {
-        addCategoryAndAncestors(cat.parent);
-      }
-    };
+    const allCategories: CategoryTerm[] = Array.isArray(rawCategories)
+      ? rawCategories.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          parent: c.parent,
+          description: c.description,
+        }))
+      : [];
 
-    if (Array.isArray(rawProducts)) {
-      rawProducts.forEach((p: any) => {
-        if (Array.isArray(p.product_cat)) {
-          p.product_cat.forEach((catId: number) => addCategoryAndAncestors(catId));
-        }
+    if (!allCategories.some((c) => c.slug === "quivers-accessories")) {
+      allCategories.push({
+        id: 108,
+        name: "Quivers & Accessories",
+        slug: "quivers-accessories",
+        parent: 0,
+        description: "Quivers, arm guards, thumb rings, and leather accessories",
       });
     }
-
-    const filteredCategories: CategoryTerm[] = Array.isArray(rawCategories)
-      ? rawCategories
-          .filter((c: any) => activeIds.has(c.id))
-          .map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            slug: c.slug,
-            parent: c.parent,
-            description: c.description,
-          }))
-      : [];
 
     return {
       initialProducts: mappedProducts.length > 0 ? mappedProducts : FALLBACK_EQUIPMENT_PRODUCTS.map((p) => ({
@@ -116,10 +127,10 @@ async function getEquipmentData(): Promise<{ initialProducts: Product[]; initial
         content: p.content,
         date: p.date,
         image: p.image || "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80",
-        categories: [],
+        categories: getCategoryIdsForSlug(p.category),
         brands: [],
       })),
-      initialCategories: filteredCategories,
+      initialCategories: allCategories,
     };
   } catch {
     const fallbackProds: Product[] = FALLBACK_EQUIPMENT_PRODUCTS.map((p) => ({
@@ -130,7 +141,7 @@ async function getEquipmentData(): Promise<{ initialProducts: Product[]; initial
       content: p.content,
       date: p.date,
       image: p.image || "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80",
-      categories: [],
+      categories: getCategoryIdsForSlug(p.category),
       brands: [],
     }));
     return { initialProducts: fallbackProds, initialCategories: [] };
