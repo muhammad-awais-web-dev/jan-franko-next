@@ -421,7 +421,7 @@ const BowyerProductContent = () => {
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 pt-4">
         {/* Left Column: Gallery & Images (Sticky) */}
-        <div className="lg:col-span-6 space-y-6">
+        <div className="lg:col-span-6 space-y-6 lg:sticky lg:top-8 lg:self-start">
           <div className="detail-fade-in relative aspect-[4/3] w-full rounded-3xl overflow-hidden border border-primary/10 bg-primary/5 shadow-xl">
             <img src={activeImage} alt={cleanTitle(product.title)} className="w-full h-full object-cover" />
             {product.acf?.base_sku && (
