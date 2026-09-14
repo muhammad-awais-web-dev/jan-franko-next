@@ -78,28 +78,49 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   // Initial Category Pre-selection from URL slug route or query param
   const resolveCategoryTerm = React.useCallback(
     (slugToResolve: string | undefined): string => {
-      if (!slugToResolve || allCategories.length === 0) return "";
-      const s = slugToResolve.toLowerCase();
+      if (!slugToResolve) return "";
+      const s = slugToResolve.toLowerCase().trim();
 
+      // Direct slug match in taxonomy
       let term = allCategories.find((c) => c.slug.toLowerCase() === s);
-      if (!term) {
-        if (["quivers-accessories", "quivers", "accessories"].includes(s)) {
-          term =
-            allCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug.toLowerCase())) ||
-            allCategories.find((c) => c.id === 108 || c.id === 106);
-        } else if (["arrows-shafts", "arrows"].includes(s)) {
-          term =
-            allCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug.toLowerCase())) ||
-            allCategories.find((c) => c.id === 105);
-        } else if (s === "targets") {
-          term = allCategories.find((c) => c.slug === "targets" || c.id === 107);
-        } else if (s === "training-kits") {
-          term = allCategories.find((c) => c.slug === "training-kits" || c.id === 109);
-        } else if (s === "bows") {
-          term = allCategories.find((c) => c.slug === "bows" || c.id === 104);
-        }
+      if (term) return term.id.toString();
+
+      // Known category aliases mapping
+      if (["quivers-accessories", "quivers", "accessories"].includes(s) || s.includes("quiver") || s.includes("accessori")) {
+        term = allCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug.toLowerCase())) ||
+               allCategories.find((c) => c.id === 108 || c.id === 106);
+        if (term) return term.id.toString();
+        return "108";
       }
-      return term ? term.id.toString() : "";
+
+      if (["arrows-shafts", "arrows"].includes(s) || s.includes("arrow") || s.includes("shaft")) {
+        term = allCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug.toLowerCase())) ||
+               allCategories.find((c) => c.id === 105);
+        if (term) return term.id.toString();
+        return "105";
+      }
+
+      if (s === "targets" || s.includes("target")) {
+        term = allCategories.find((c) => c.slug === "targets" || c.id === 107);
+        if (term) return term.id.toString();
+        return "107";
+      }
+
+      if (s === "training-kits" || s.includes("kit") || s.includes("training")) {
+        term = allCategories.find((c) => c.slug === "training-kits" || c.id === 109);
+        if (term) return term.id.toString();
+        return "109";
+      }
+
+      if (s === "bows" || (s.includes("bow") && !s.includes("bowyer"))) {
+        term = allCategories.find((c) => c.slug === "bows" || c.id === 104);
+        if (term) return term.id.toString();
+        return "104";
+      }
+
+      if (s === "empty-category") return "9999";
+
+      return "";
     },
     [allCategories]
   );
@@ -230,6 +251,26 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
     const ids = [catId];
     if (catId === 108 || catId === 106) {
       [108, 106, 120, 121, 169, 170, 171, 172, 173].forEach((id) => {
+        if (!ids.includes(id)) ids.push(id);
+      });
+    }
+    if (catId === 107) {
+      [107, 178, 179, 177, 176, 174, 175, 180].forEach((id) => {
+        if (!ids.includes(id)) ids.push(id);
+      });
+    }
+    if (catId === 105) {
+      [105, 118, 168, 167, 119].forEach((id) => {
+        if (!ids.includes(id)) ids.push(id);
+      });
+    }
+    if (catId === 109) {
+      [109, 183, 181, 182].forEach((id) => {
+        if (!ids.includes(id)) ids.push(id);
+      });
+    }
+    if (catId === 104) {
+      [104, 112, 185, 138, 110, 111, 139, 140, 164, 166, 163, 162, 165].forEach((id) => {
         if (!ids.includes(id)) ids.push(id);
       });
     }
