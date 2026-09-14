@@ -46,7 +46,7 @@ const VIRTUAL_EMPTY_CATEGORY: CategoryTerm = {
   description: "Department reserved for custom archer commissions and items undergoing source verification."
 };
 
-function EquipmentContentInner({ initialProducts, initialCategories, initialCategorySlug }: EquipmentClientProps) {
+function EquipmentContentInner({ initialProducts, initialCategories, initialCategorySlug, categoryPathSegments }: EquipmentClientProps) {
   const searchParams = useSearchParams();
 
   // Shop States - pre-populated from Server Component
@@ -81,12 +81,17 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
       if (!slugToResolve) return "";
       const s = slugToResolve.toLowerCase().trim();
 
-      // Direct slug match in taxonomy
-      let term = allCategories.find((c) => c.slug.toLowerCase() === s);
-      if (term) return term.id.toString();
+      let searchSlug = s;
+      if (s === "quivers-accessories") searchSlug = "accessories";
+      if (s === "arrows-shafts") searchSlug = "arrows";
 
-      // Direct name match in taxonomy
-      term = allCategories.find((c) => c.name.toLowerCase() === s);
+      // Direct slug match in taxonomy
+      let term =
+        allCategories.find((c) => c.slug.toLowerCase() === searchSlug) ||
+        allCategories.find((c) => c.name.toLowerCase() === searchSlug) ||
+        allCategories.find((c) => c.slug.toLowerCase() === s) ||
+        allCategories.find((c) => c.name.toLowerCase() === s);
+
       if (term) return term.id.toString();
 
       if (s === "empty-category") return "9999";
@@ -367,19 +372,55 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   };
 
   const activeCategoryObj = React.useMemo(() => {
-    if (initialCategorySlug) {
-      const s = initialCategorySlug.toLowerCase().trim();
+    // 1. First try matching selectedCategory ID if present
+    if (selectedCategory) {
+      const match = allCategories.find((c) => c.id.toString() === selectedCategory);
+      if (match) return match;
+    }
+
+    // 2. Try initialCategorySlug or last segment of categoryPathSegments
+    const slugToMatch =
+      initialCategorySlug ||
+      (categoryPathSegments && categoryPathSegments.length > 0
+        ? categoryPathSegments[categoryPathSegments.length - 1]
+        : "");
+
+    if (slugToMatch) {
+      const s = slugToMatch.toLowerCase().trim();
+      let searchSlug = s;
+      if (s === "quivers-accessories") searchSlug = "accessories";
+      if (s === "arrows-shafts") searchSlug = "arrows";
+
       const match =
+        allCategories.find((c) => c.slug.toLowerCase() === searchSlug) ||
+        allCategories.find((c) => c.name.toLowerCase() === searchSlug) ||
         allCategories.find((c) => c.slug.toLowerCase() === s) ||
         allCategories.find((c) => c.name.toLowerCase() === s);
       if (match) return match;
     }
-    if (!selectedCategory) return null;
-    return allCategories.find((c) => c.id.toString() === selectedCategory) || null;
-  }, [initialCategorySlug, selectedCategory, allCategories]);
+
+    // 3. Try any segment in categoryPathSegments from last to first
+    if (categoryPathSegments && categoryPathSegments.length > 0) {
+      for (let i = categoryPathSegments.length - 1; i >= 0; i--) {
+        const seg = categoryPathSegments[i].toLowerCase().trim();
+        let searchSeg = seg;
+        if (seg === "quivers-accessories") searchSeg = "accessories";
+        if (seg === "arrows-shafts") searchSeg = "arrows";
+
+        const match =
+          allCategories.find((c) => c.slug.toLowerCase() === searchSeg) ||
+          allCategories.find((c) => c.name.toLowerCase() === searchSeg) ||
+          allCategories.find((c) => c.slug.toLowerCase() === seg) ||
+          allCategories.find((c) => c.name.toLowerCase() === seg);
+        if (match) return match;
+      }
+    }
+
+    return null;
+  }, [initialCategorySlug, categoryPathSegments, selectedCategory, allCategories]);
 
   const heroTitle = activeCategoryObj
-    ? cleanTitle(activeCategoryObj.name)
+    ? cleanTitle(activeCategoryObj.name.toLowerCase() === "accessories" ? "Quivers & Accessories" : activeCategoryObj.name)
     : "Equipment & Bowyer Gear";
 
   const heroDescription = activeCategoryObj && activeCategoryObj.description
@@ -960,10 +1001,10 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   );
 }
 
-export default function EquipmentClient({ initialProducts, initialCategories }: EquipmentClientProps) {
+export default function EquipmentClient(props: EquipmentClientProps) {
   return (
     <Suspense fallback={null}>
-      <EquipmentContentInner initialProducts={initialProducts} initialCategories={initialCategories} />
+      <EquipmentContentInner {...props} />
     </Suspense>
   );
 }
