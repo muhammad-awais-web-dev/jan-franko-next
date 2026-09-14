@@ -1080,9 +1080,14 @@ const MACRO_REGIONS = {
                       </div>
                     )}
                     {/* Status Badge */}
-                    {statusName && (
-                      <div className="absolute top-4 right-4 z-10 px-3.5 py-1.5 bg-secondary/95 border border-primary/15 rounded-full text-xs font-serif font-bold text-primary shadow-sm">
-                        {cleanTitle(statusName)}
+                    {(statusName || program.acf?.event_status_label) && (
+                      <div className="absolute top-4 right-4 z-10 px-3.5 py-1.5 bg-secondary/95 border border-primary/15 rounded-full text-xs font-serif font-bold text-primary shadow-sm flex items-center gap-1.5">
+                        <span>{cleanTitle(program.acf?.event_status_label || statusName)}</span>
+                        {program.acf?.event_date && (
+                          <span className="text-[10px] text-[#5c4629] font-sans font-medium pl-1 border-l border-primary/20">
+                            {cleanTitle(program.acf.event_date)}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1250,12 +1255,19 @@ const MACRO_REGIONS = {
                         {cleanTitle(activeModalProgram.acf?.five_elements_connection || "None")}
                       </span>
                     </div>
-                    {activeModalProgram.acf?.event_status_label && (
+                    {(activeModalProgram.acf?.event_status_label || activeModalProgram.acf?.event_date || activeModalProgram.program_status) && (
                       <div className="flex flex-col items-start col-span-2">
                         <span className="block text-white/70 uppercase font-serif tracking-widest text-[10px] mb-0.5 font-bold">Status &amp; Schedule</span>
                         <span className="font-semibold text-accent">
-                          {cleanTitle(activeModalProgram.acf.event_status_label)}
-                          {activeModalProgram.acf.event_date ? ` (${cleanTitle(activeModalProgram.acf.event_date)})` : ""}
+                          {cleanTitle(
+                            activeModalProgram.acf?.event_status_label ||
+                            activeModalProgram.program_status
+                              ?.map((id) => statuses.find((s) => s.id === id)?.name)
+                              .filter(Boolean)
+                              .join(" • ") ||
+                            "Upcoming"
+                          )}
+                          {activeModalProgram.acf?.event_date ? ` (${cleanTitle(activeModalProgram.acf.event_date)})` : ""}
                         </span>
                       </div>
                     )}
