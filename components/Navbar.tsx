@@ -379,21 +379,22 @@ function EquipmentDepartmentsGroup({
   } | null>(null);
 
   const getSubcategoriesForRoot = (catId: number, catSlug: string): MenuLink[] => {
+    const parentSegment = catSlug === "accessories" ? "quivers-accessories" : catSlug;
     if (categories.length === 0) {
       if (catSlug === "bows") {
         return [
-          { label: "Asiatic Bows", href: "/equipment?category=asiatic-bows", icon: Target, hasSubcategories: false },
-          { label: "European Archery", href: "/equipment?category=european-archery", icon: Target, hasSubcategories: false },
-          { label: "Explorer Core Line", href: "/equipment?category=explorer-core-line", icon: Target, hasSubcategories: false },
-          { label: "Explorer Limited Editions", href: "/equipment?category=explorer-limited-editions", icon: Target, hasSubcategories: false },
-          { label: "Himalayan Archery", href: "/equipment?category=himalayan-archery", icon: Target, hasSubcategories: false },
-          { label: "Indigenous Archery Traditions", href: "/equipment?category=indigenous-archery-traditions", icon: Target, hasSubcategories: false },
+          { label: "Asiatic Bows", href: "/equipment/category/bows/asiatic-bows", icon: Target, hasSubcategories: false },
+          { label: "European Archery", href: "/equipment/category/bows/european-archery", icon: Target, hasSubcategories: false },
+          { label: "Explorer Core Line", href: "/equipment/category/bows/explorer-core-line", icon: Target, hasSubcategories: false },
+          { label: "Explorer Limited Editions", href: "/equipment/category/bows/explorer-limited-editions", icon: Target, hasSubcategories: false },
+          { label: "Himalayan Archery", href: "/equipment/category/bows/himalayan-archery", icon: Target, hasSubcategories: false },
+          { label: "Indigenous Archery Traditions", href: "/equipment/category/bows/indigenous-archery-traditions", icon: Target, hasSubcategories: false },
         ];
       }
       if (catSlug === "quivers-accessories" || catSlug === "accessories") {
         return [
-          { label: "Field Quivers", href: "/equipment?category=field-quivers", icon: SlidersHorizontal, hasSubcategories: false },
-          { label: "Horse Archery Quivers", href: "/equipment?category=horse-archery-quivers", icon: SlidersHorizontal, hasSubcategories: false },
+          { label: "Field Quivers", href: "/equipment/category/quivers-accessories/field-quivers", icon: SlidersHorizontal, hasSubcategories: false },
+          { label: "Horse Archery Quivers", href: "/equipment/category/quivers-accessories/horse-archery-quivers", icon: SlidersHorizontal, hasSubcategories: false },
         ];
       }
       return [];
@@ -416,7 +417,7 @@ function EquipmentDepartmentsGroup({
     const descendants = findDescendants(catId);
     return descendants.map((sub) => ({
       label: sub.name,
-      href: `/equipment?category=${sub.slug}`,
+      href: `/equipment/category/${parentSegment}/${sub.slug}`,
       icon: catSlug === "bows" ? Target : SlidersHorizontal,
       hasSubcategories: false,
     }));
@@ -427,7 +428,7 @@ function EquipmentDepartmentsGroup({
       return { ...item, hasSubcategories: false };
     }
 
-    const slugMatch = item.href.match(/category=([^&]+)/);
+    const slugMatch = item.href.match(/category\/([^/]+)/);
     const slug = slugMatch ? slugMatch[1] : "";
     let catObj = categories.find((c) => c.slug === slug);
     if (!catObj && (slug === "quivers-accessories" || slug === "accessories")) {
@@ -861,16 +862,19 @@ export default function Navbar() {
     : [];
 
   const dynamicCategoryLinks: MenuLink[] = activeRootCats.length > 0
-    ? activeRootCats.map((cat) => ({
-        label: cat.slug === "accessories" ? "Quivers & Accessories" : cat.name,
-        href: `/equipment?category=${cat.slug === "accessories" ? "quivers-accessories" : cat.slug}`,
-        icon: cat.slug === "bows" ? Target : cat.slug === "training-kits" ? GraduationCap : cat.slug === "targets" ? ShieldCheck : SlidersHorizontal,
-      }))
+    ? activeRootCats.map((cat) => {
+        const mainSlug = cat.slug === "accessories" ? "quivers-accessories" : cat.slug;
+        return {
+          label: cat.slug === "accessories" ? "Quivers & Accessories" : cat.name,
+          href: `/equipment/category/${mainSlug}`,
+          icon: cat.slug === "bows" ? Target : cat.slug === "training-kits" ? GraduationCap : cat.slug === "targets" ? ShieldCheck : SlidersHorizontal,
+        };
+      })
     : EQUIPMENT_CATEGORIES
         .filter((category) => category.slug !== "master-bowyers" && category.slug !== "arrows-shafts")
         .map((category) => ({
           label: category.name,
-          href: `/equipment?category=${category.slug}`,
+          href: `/equipment/category/${category.slug}`,
           icon: category.slug === "bows" ? Target : category.slug === "training-kits" ? GraduationCap : category.slug === "targets" ? ShieldCheck : SlidersHorizontal,
         }));
 

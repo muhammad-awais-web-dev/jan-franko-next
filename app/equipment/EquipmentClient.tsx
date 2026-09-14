@@ -34,9 +34,11 @@ export interface CategoryTerm {
 interface EquipmentClientProps {
   initialProducts: Product[];
   initialCategories: CategoryTerm[];
+  initialCategorySlug?: string;
+  categoryPathSegments?: string[];
 }
 
-function EquipmentContentInner({ initialProducts, initialCategories }: EquipmentClientProps) {
+function EquipmentContentInner({ initialProducts, initialCategories, initialCategorySlug }: EquipmentClientProps) {
   const searchParams = useSearchParams();
 
   // Shop States - pre-populated from Server Component
@@ -44,9 +46,31 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
   const [categories, setCategories] = useState<CategoryTerm[]>(initialCategories);
   const [loading, setLoading] = useState(initialProducts.length === 0 && initialCategories.length === 0);
 
+  // Initial Category Pre-selection from URL slug route (e.g. /equipment/category/bows/asiatic-bows)
+  const getInitialSelectedCategory = () => {
+    if (!initialCategorySlug || initialCategories.length === 0) return "";
+    let term = initialCategories.find((c) => c.slug === initialCategorySlug);
+    if (!term) {
+      if (["quivers-accessories", "quivers", "accessories"].includes(initialCategorySlug)) {
+        term = initialCategories.find((c) => ["accessories", "quivers", "quivers-accessories"].includes(c.slug)) ||
+               initialCategories.find((c) => c.id === 108 || c.id === 106);
+      } else if (["arrows-shafts", "arrows"].includes(initialCategorySlug)) {
+        term = initialCategories.find((c) => ["arrows", "arrows-shafts"].includes(c.slug)) ||
+               initialCategories.find((c) => c.id === 105);
+      } else if (initialCategorySlug === "targets") {
+        term = initialCategories.find((c) => c.slug === "targets" || c.id === 107);
+      } else if (initialCategorySlug === "training-kits") {
+        term = initialCategories.find((c) => c.slug === "training-kits" || c.id === 109);
+      } else if (initialCategorySlug === "bows") {
+        term = initialCategories.find((c) => c.slug === "bows" || c.id === 104);
+      }
+    }
+    return term ? term.id.toString() : "";
+  };
+
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(getInitialSelectedCategory);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
 
@@ -224,6 +248,40 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
     return list;
   };
 
+  // Breadcrumb Trail Computation
+  const getBreadcrumbItems = (): { name: string; slug: string; path: string }[] => {
+    if (!selectedCategory || categories.length === 0) return [];
+
+    const catId = parseInt(selectedCategory);
+    const targetCat = categories.find((c) => c.id === catId);
+    if (!targetCat) return [];
+
+    const items: { name: string; slug: string; path: string }[] = [];
+    
+    let current: CategoryTerm | undefined = targetCat;
+    const hierarchy: CategoryTerm[] = [];
+    while (current) {
+      hierarchy.unshift(current);
+      if (current.parent === 0) break;
+      current = categories.find((c) => c.id === current?.parent);
+    }
+
+    let cumulativePath = "";
+    hierarchy.forEach((cat) => {
+      const slugSegment = cat.slug === "accessories" ? "quivers-accessories" : cat.slug;
+      cumulativePath = cumulativePath ? `${cumulativePath}/${slugSegment}` : slugSegment;
+      items.push({
+        name: cat.name === "accessories" ? "Quivers & Accessories" : cat.name,
+        slug: cat.slug,
+        path: cumulativePath,
+      });
+    });
+
+    return items;
+  };
+
+  const breadcrumbs = getBreadcrumbItems();
+
   // Filter Logic
   const getFilteredProducts = () => {
     return products.filter((product) => {
@@ -318,6 +376,25 @@ function EquipmentContentInner({ initialProducts, initialCategories }: Equipment
       {/* 2. Main Shop Directory Container */}
       <div className="max-w-7xl mx-auto p-6 md:p-12 space-y-8">
         
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center flex-wrap gap-2 text-xs font-serif text-[#5c4629] pb-3 border-b border-primary/10" aria-label="Category Breadcrumb">
+          <Link href="/equipment" className="hover:text-accent font-semibold transition-colors flex items-center gap-1">
+            <span>Shop (Equipment)</span>
+          </Link>
+          {breadcrumbs.map((item, idx) => (
+            <React.Fragment key={item.path + idx}>
+              <span className="text-primary/30 font-sans">/</span>
+              {idx === breadcrumbs.length - 1 ? (
+                <span className="font-bold text-primary">{cleanTitle(item.name)}</span>
+              ) : (
+                <Link href={`/equipment/category/${item.path}`} className="hover:text-accent transition-colors">
+                  {cleanTitle(item.name)}
+                </Link>
+              )}
+            </React.Fragment>
+          ))}
+        </nav>
+
         {/* Controls Bar */}
         <div className="flex flex-col gap-6 border-b border-primary/10 pb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

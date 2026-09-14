@@ -86,7 +86,7 @@ const Footer = () => {
             </li>
             {EQUIPMENT_CATEGORIES.filter((c) => c.slug !== "master-bowyers" && c.slug !== "arrows-shafts").map((category) => (
               <li key={category.slug}>
-                <Link href={`/equipment?category=${category.slug}`} className="hover:text-accent transition-colors block py-0.5">
+                <Link href={`/equipment/category/${category.slug}`} className="hover:text-accent transition-colors block py-0.5">
                   {category.name}
                 </Link>
               </li>
