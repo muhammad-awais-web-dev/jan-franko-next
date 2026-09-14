@@ -52,17 +52,136 @@ interface ProductDetails {
   };
 }
 
+const MASTER_BOWYER_FALLBACKS: Record<string, ProductDetails> = {
+  "raptor": {
+    id: 1980,
+    slug: "raptor",
+    title: "The Raptor",
+    excerpt: "57-inch super-hybrid built for hunting and 3D target shooting, with aggressive reflex-deflex geometry by Warrick Harvey (Harvey Archery).",
+    content: "Crafted on the Tuli Circle family farm in South Africa by Warrick Harvey.",
+    date: "2026-03-01",
+    image: "https://janfranko.com/wp-content/uploads/2026/04/raptor_3-1024x1024.jpg",
+    gallery: [
+      "https://janfranko.com/wp-content/uploads/2026/04/raptor_3-1024x1024.jpg",
+      "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg"
+    ],
+    bowyerIds: [240],
+    acf: {
+      product_subtitle: "57-inch Super-Hybrid Hunting & 3D Longbow",
+      product_overview: "Aggressive reflex-deflex geometry engineered for lightning-fast arrow speed and minimal hand shock.",
+      delivery_time: "4–6 Weeks (Handcrafted to Order)",
+      bowyer_name: "Warrick Harvey",
+      base_sku: "HA-RAPTOR-57",
+      key_features: "Spalted bamboo core\nStabilized exotic burl risers\nKudu/gemsbok horn tip overlays",
+      specifications: [
+        { label: "Bow Length", value: '57"' },
+        { label: "Draw Weights", value: "27 lbs – 60 lbs @ 28\"" },
+        { label: "Core Material", value: "Spalted Bamboo Core" },
+        { label: "Overlays", value: "Natural Kudu / Gemsbok Horn" },
+        { label: "Craftsmanship", value: "50+ Hours Handcrafted" }
+      ],
+      configurator_fields: [
+        {
+          field_id: "draw_weight",
+          field_label: "Draw Weight @ 28\"",
+          field_type: "select",
+          field_options: [
+            { option_label: "35 lbs", option_value: "35lbs" },
+            { option_label: "40 lbs", option_value: "40lbs" },
+            { option_label: "45 lbs", option_value: "45lbs" },
+            { option_label: "50 lbs", option_value: "50lbs" },
+            { option_label: "55 lbs", option_value: "55lbs" }
+          ]
+        },
+        {
+          field_id: "dexterity",
+          field_label: "Hand Orientation",
+          field_type: "radio",
+          field_options: [
+            { option_label: "Right Hand (RH)", option_value: "RH" },
+            { option_label: "Left Hand (LH)", option_value: "LH" }
+          ]
+        }
+      ]
+    }
+  },
+  "crowned-eagle": {
+    id: 1981,
+    slug: "crowned-eagle",
+    title: "The Crowned Eagle",
+    excerpt: "60-inch hybrid longbow, classic forgiving model, smooth draw to 32 inches, quiet shot cycle by Warrick Harvey (Harvey Archery).",
+    content: "Crafted on the Tuli Circle family farm in South Africa by Warrick Harvey.",
+    date: "2026-03-01",
+    image: "https://janfranko.com/wp-content/uploads/2026/04/crowned-eagle_1-1024x768.jpg",
+    gallery: [
+      "https://janfranko.com/wp-content/uploads/2026/04/crowned-eagle_1-1024x768.jpg",
+      "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg"
+    ],
+    bowyerIds: [240],
+    acf: {
+      product_subtitle: "60-inch Forgiving Hybrid Longbow",
+      product_overview: "Classic forgiving longbow profile smooth to 32 inches with a whisper-quiet release cycle.",
+      delivery_time: "4–6 Weeks (Handcrafted to Order)",
+      bowyer_name: "Warrick Harvey",
+      base_sku: "HA-CEAGLE-60",
+      key_features: "Spalted bamboo core\nStabilized exotic hardwoods\nQuiet shot profile",
+      specifications: [
+        { label: "Bow Length", value: '60"' },
+        { label: "Max Draw Length", value: '32"' },
+        { label: "Core Material", value: "Spalted Bamboo Core" },
+        { label: "Craftsmanship", value: "50+ Hours Handcrafted" }
+      ],
+      configurator_fields: [
+        {
+          field_id: "draw_weight",
+          field_label: "Draw Weight @ 28\"",
+          field_type: "select",
+          field_options: [
+            { option_label: "35 lbs", option_value: "35lbs" },
+            { option_label: "40 lbs", option_value: "40lbs" },
+            { option_label: "45 lbs", option_value: "45lbs" },
+            { option_label: "50 lbs", option_value: "50lbs" }
+          ]
+        }
+      ]
+    }
+  }
+};
+
+function findDefaultBowyerProduct(slugParam: string | string[] | undefined): ProductDetails | null {
+  if (!slugParam) return null;
+  const s = Array.isArray(slugParam) ? slugParam[0] : slugParam;
+  const normalized = String(s).toLowerCase();
+  return MASTER_BOWYER_FALLBACKS[normalized] || null;
+}
+
 const BowyerProductContent = () => {
   const { slug } = useParams();
+  const initialFallback = findDefaultBowyerProduct(slug as string);
 
   // Detail States
-  const [product, setProduct] = useState<ProductDetails | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<ProductDetails | null>(initialFallback);
+  const [loading, setLoading] = useState(!initialFallback);
   const [error, setError] = useState("");
-  const [activeImage, setActiveImage] = useState("");
+  const [activeImage, setActiveImage] = useState(initialFallback?.image || "");
 
   // Configurator selections state (handles multiple choices for checkboxes, files, texts)
-  const [selections, setSelections] = useState<Record<string, any>>({});
+  const [selections, setSelections] = useState<Record<string, any>>(() => {
+    if (!initialFallback?.acf?.configurator_fields) return {};
+    const defaults: Record<string, any> = {};
+    initialFallback.acf.configurator_fields.forEach((field) => {
+      if (field.field_type === "select" && field.field_options?.length) {
+        defaults[field.field_id] = field.field_options[0].option_label;
+      } else if (field.field_type === "radio" && field.field_options?.length) {
+        defaults[field.field_id] = field.field_options[0].option_label;
+      } else if (field.field_type === "checkbox") {
+        defaults[field.field_id] = [];
+      } else {
+        defaults[field.field_id] = "";
+      }
+    });
+    return defaults;
+  });
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
 
   // Inquiry Form States
@@ -106,13 +225,15 @@ const BowyerProductContent = () => {
         setSelections(defaults);
       } catch (err: any) {
         console.error("Error loading product details:", err);
-        setError(err.message || "Product not found");
+        if (!initialFallback) {
+          setError(err.message || "Product not found");
+        }
       } finally {
         setLoading(false);
       }
     };
     fetchProduct();
-  }, [slug]);
+  }, [slug, initialFallback]);
 
   // GSAP Entrance Stagger when product loads
   useEffect(() => {

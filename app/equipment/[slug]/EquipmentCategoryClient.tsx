@@ -8,6 +8,8 @@ import gsap from "gsap";
 import { Compass, Shield, ChevronLeft, ArrowRight, CheckCircle2, Maximize2, X } from "lucide-react";
 import { Button } from "@/components/Button";
 
+import { BOW_REVIEW_RECORDS, FALLBACK_EQUIPMENT_PRODUCTS } from "@/data/equipment";
+
 interface Product {
   id: number;
   slug: string;
@@ -33,17 +35,122 @@ interface SpecRow {
   value: string;
 }
 
+const KNOWN_FALLBACK_PRODUCTS: Record<string, Product> = {
+  "slavic-bow": {
+    id: 1992,
+    slug: "slavic-bow",
+    title: "Slavic / Ancient Rus Composite Bow",
+    excerpt: "Based on published archaeological research from Ancient Rus (9th–13th century), defining the authentic East Slavic composite bow standard.",
+    content: `<h3>Archaeological Reference Standard</h3>
+<p>Sourced from published archaeological research across 15 complexes (Gnezdovo, Shestovitsa, Timerevo, 10th c. onward). Ancient Rus composite bows represent a fusion of steppe technology adapted for East Slavic warrior culture.</p>
+<h4>Key Historical Specifications</h4>
+<ul>
+  <li><strong>Construction:</strong> Wooden core (kibit') reinforced with bone/antler laths at grip and tips, bound with sinew and wrapped in protective birch bark.</li>
+  <li><strong>Strung Profile:</strong> Forms a smoothed 'M' shape rather than deep, sharply hooked siyah tip curvature.</li>
+  <li><strong>Provenance:</strong> Associated with the elite Rus warrior druzhina and early medieval urban garrisons.</li>
+</ul>`,
+    date: "2026-03-01",
+    image: "https://janfranko.com/wp-content/uploads/2026/03/spartak-scaled-1-1024x768.jpg",
+    gallery: [
+      "https://janfranko.com/wp-content/uploads/2026/03/spartak-scaled-1-1024x768.jpg",
+      "https://janfranko.com/wp-content/uploads/2026/03/tiron-scaled-1-1024x768.jpg"
+    ],
+    categories: [114],
+    brands: [114]
+  },
+  "english-yew-warbow": {
+    id: 1991,
+    slug: "english-yew-warbow",
+    title: "English Yew Warbow",
+    excerpt: "Single-piece yew self-bow reference standard sourced directly from the Mary Rose Trust (1545 wreck of Henry VIII's warship).",
+    content: `<h3>Mary Rose Trust (1545) Fact Sheet</h3>
+<p>Sourced directly from the Mary Rose Trust—the museum that recovered and studies the 172 complete longbows from Henry VIII's warship (sunk 1545).</p>
+<h4>Key Historical Specifications</h4>
+<ul>
+  <li><strong>Crafting Method:</strong> Single-piece yew self-bow, preserving flexible sapwood (back) and compression-resistant heartwood (belly). NOT a composite or laminated bow.</li>
+  <li><strong>Dimensions:</strong> Length 1,839–2,113 mm (6 ft to 6 ft 11 in); D-shaped cross-section (~35 mm wide × 33 mm deep at centre).</li>
+  <li><strong>Draw Weight Range:</strong> 65–175 lbs, with peak draw weight around 110 lbs.</li>
+  <li><strong>Profile:</strong> Straight profile with simple horn nocks; zero recurve, reflex, or hooked tips.</li>
+</ul>`,
+    date: "2026-03-01",
+    image: "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg",
+    gallery: [
+      "https://janfranko.com/wp-content/uploads/2026/04/Harvey-Archery-Taking-Shot.jpg",
+      "https://janfranko.com/wp-content/uploads/2026/04/crowned-eagle_1-1024x768.jpg"
+    ],
+    categories: [114],
+    brands: [114]
+  },
+  "mongolian-sur-target": {
+    id: 140,
+    slug: "mongolian-sur-target",
+    title: "Mongolian Sur Target",
+    excerpt: "A traditional handmade Sur target photographed in the existing Jan Franko catalog and kept in the dedicated Targets category.",
+    content: `<p>Handmade traditional leather and woven fiber Sur target cylinders designed for traditional field and range archery practice.</p>`,
+    date: "2026-03-01",
+    image: "https://janfranko.com/wp-content/uploads/2026/03/IMG-20260320-WA0015.jpg",
+    gallery: ["https://janfranko.com/wp-content/uploads/2026/03/IMG-20260320-WA0015.jpg"],
+    categories: [115],
+    brands: [114]
+  }
+};
+
+function findFallbackProduct(slugParam: string | string[] | undefined): Product | null {
+  if (!slugParam) return null;
+  const rawSlug = Array.isArray(slugParam) ? slugParam[0] : slugParam;
+  const normalized = String(rawSlug).toLowerCase();
+
+  if (KNOWN_FALLBACK_PRODUCTS[normalized]) {
+    return KNOWN_FALLBACK_PRODUCTS[normalized];
+  }
+
+  const fallbackMatch = FALLBACK_EQUIPMENT_PRODUCTS.find((p) => p.slug === normalized);
+  if (fallbackMatch) {
+    return {
+      id: fallbackMatch.id,
+      slug: fallbackMatch.slug,
+      title: fallbackMatch.title,
+      excerpt: fallbackMatch.excerpt,
+      content: fallbackMatch.content || `<p>${fallbackMatch.excerpt}</p>`,
+      date: fallbackMatch.date,
+      image: fallbackMatch.image || "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80",
+      gallery: fallbackMatch.image ? [fallbackMatch.image] : [],
+      categories: [114],
+      brands: [114]
+    };
+  }
+
+  const reviewMatch = BOW_REVIEW_RECORDS.find((r) => r.slug === normalized);
+  if (reviewMatch) {
+    return {
+      id: 9900 + reviewMatch.slug.length,
+      slug: reviewMatch.slug,
+      title: reviewMatch.title,
+      excerpt: reviewMatch.summary,
+      content: `<h3>${reviewMatch.title} — Reference Document</h3><p>${reviewMatch.summary}</p>${reviewMatch.facts ? `<ul>${reviewMatch.facts.map(f => `<li>${f}</li>`).join('')}</ul>` : ''}`,
+      date: "2026-03-01",
+      image: "https://janfranko.com/wp-content/uploads/2026/03/spartak-scaled-1-1024x768.jpg",
+      gallery: ["https://janfranko.com/wp-content/uploads/2026/03/spartak-scaled-1-1024x768.jpg"],
+      categories: [114],
+      brands: [114]
+    };
+  }
+
+  return null;
+}
+
 const ProductDetailPage = () => {
   const { slug } = useParams();
+  const initialFallback = findFallbackProduct(slug as string);
 
   // Detail States
-  const [product, setProduct] = useState<Product | null>(null);
-  const [activeImage, setActiveImage] = useState<string>("");
+  const [product, setProduct] = useState<Product | null>(initialFallback);
+  const [activeImage, setActiveImage] = useState<string>(initialFallback?.gallery?.[0] || initialFallback?.image || "");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryTerm[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [parsedContent, setParsedContent] = useState("");
+  const [loading, setLoading] = useState(!initialFallback);
+  const [parsedContent, setParsedContent] = useState(initialFallback?.content || "");
   const [specifications, setSpecifications] = useState<SpecRow[]>([]);
 
   // Inquiry Form States
@@ -174,8 +281,20 @@ const ProductDetailPage = () => {
     }
   };
 
-  if (loading) {
-    return null;
+  if (loading && !product) {
+    return (
+      <div className="w-full min-h-screen bg-secondary flex flex-col items-center justify-center space-y-4 py-24">
+        <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-1 text-center">
+          <h3 className="font-serif text-sm font-bold uppercase tracking-widest text-primary/80">
+            Loading Equipment Specifications...
+          </h3>
+          <p className="text-xs font-sans text-primary/60">
+            Fetching authentic craft details from the Jan Franko Armory catalog.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (!product) {
