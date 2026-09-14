@@ -248,10 +248,6 @@ export default function ProgramsClient({
     medicalConsentChecked: "No"
   });
 
-  const currentIndex = activeModalProgram
-    ? programs.findIndex((p) => p.id === activeModalProgram.id)
-    : -1;
-
   const difficulty = activeModalProgram?.acf?.difficulty_level 
     ? Number(activeModalProgram.acf.difficulty_level) 
     : 0;
@@ -374,6 +370,11 @@ export default function ProgramsClient({
     }
     return sorted;
   };
+
+  const visiblePrograms = getSortedPrograms();
+  const currentIndex = activeModalProgram
+    ? visiblePrograms.findIndex((p) => p.id === activeModalProgram.id)
+    : -1;
 
   const getDifficultyIndex = (prog: Program) => {
     const diffVal = prog.acf?.difficulty_level ? Number(prog.acf.difficulty_level) : 0;
@@ -1110,10 +1111,12 @@ export default function ProgramsClient({
             {/* Left Chevron Button */}
             {!isApplying && (
               <button
-                disabled={currentIndex === 0}
+                disabled={currentIndex <= 0}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleSelectProgram(programs[currentIndex - 1]);
+                  if (currentIndex > 0) {
+                    handleSelectProgram(visiblePrograms[currentIndex - 1]);
+                  }
                 }}
                 className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-secondary/90 border border-primary/10 flex items-center justify-center text-primary hover:text-[#7d603a] hover:border-accent/40 shadow-lg cursor-pointer transition-all duration-300 disabled:opacity-20 disabled:pointer-events-none z-30"
               >
@@ -1705,10 +1708,12 @@ export default function ProgramsClient({
             {/* Right Chevron Button */}
             {!isApplying && (
               <button
-                disabled={currentIndex === programs.length - 1}
+                disabled={currentIndex === -1 || currentIndex >= visiblePrograms.length - 1}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleSelectProgram(programs[currentIndex + 1]);
+                  if (currentIndex !== -1 && currentIndex < visiblePrograms.length - 1) {
+                    handleSelectProgram(visiblePrograms[currentIndex + 1]);
+                  }
                 }}
                 className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-secondary/90 border border-primary/10 flex items-center justify-center text-primary hover:text-[#7d603a] hover:border-accent/40 shadow-lg cursor-pointer transition-all duration-300 disabled:opacity-20 disabled:pointer-events-none z-30"
               >
