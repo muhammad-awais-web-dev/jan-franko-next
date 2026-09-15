@@ -37,8 +37,10 @@ interface Product {
   content: string;
   date: string;
   image: string;
+  gallery?: string[];
   categories: number[];
 }
+
 
 interface CategoryTerm {
   id: number;
@@ -153,7 +155,12 @@ function findDefaultBowyer(slug: string): BowyerDetails {
   return DEFAULT_BOWYERS[0];
 }
 
-const BowyerProfileContent = () => {
+interface BowyerClientProps {
+  initialProducts?: Product[];
+  initialCategories?: CategoryTerm[];
+}
+
+const BowyerProfileContent = ({ initialProducts, initialCategories }: BowyerClientProps) => {
   const params = useParams();
   const slug = (params.slug as string) || "warrick-harvey";
   const masterBowyerData = findMasterBowyer(slug);
@@ -162,12 +169,34 @@ const BowyerProfileContent = () => {
   const [bowyer, setBowyer] = useState<BowyerDetails>(() =>
     findDefaultBowyer(slug),
   );
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<CategoryTerm[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
+  const [categories, setCategories] = useState<CategoryTerm[]>(initialCategories || []);
+  const [productsLoading, setProductsLoading] = useState(!initialProducts || initialProducts.length === 0);
   const [galleryExpanded, setGalleryExpanded] = useState(false);
 
+  // Lightbox state for product images & galleries
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string } | null>(null);
+
+  const openLightbox = (images: string[], index: number, title: string) => {
+    setLightbox({ images, index, title });
+  };
+  const closeLightbox = () => setLightbox(null);
+  const lbPrev = () => setLightbox(lb => lb ? { ...lb, index: (lb.index - 1 + lb.images.length) % lb.images.length } : null);
+  const lbNext = () => setLightbox(lb => lb ? { ...lb, index: (lb.index + 1) % lb.images.length } : null);
+
+  React.useEffect(() => {
+    if (!lightbox) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") lbPrev();
+      else if (e.key === "ArrowRight") lbNext();
+      else if (e.key === "Escape") closeLightbox();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightbox]);
+
   // Commission Modal States
+
   const [commissionModalOpen, setCommissionModalOpen] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
@@ -185,6 +214,11 @@ const BowyerProfileContent = () => {
     // Keep initial bowyer in sync if slug parameter changes
     setBowyer(findDefaultBowyer(slug));
 
+    if (initialProducts && initialProducts.length > 0 && initialCategories && initialCategories.length > 0) {
+      setProductsLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [bowyersList, categoriesList] = await Promise.all([
@@ -199,7 +233,7 @@ const BowyerProfileContent = () => {
         if (matched) {
           setBowyer(matched);
         }
-        setCategories(categoriesList || []);
+        if (categoriesList) setCategories(categoriesList);
 
         const targetId = matched?.id || findDefaultBowyer(slug).id;
         const productsRes = await fetch(
@@ -217,7 +251,8 @@ const BowyerProfileContent = () => {
     };
 
     fetchData();
-  }, [slug]);
+  }, [slug, initialProducts, initialCategories]);
+
 
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -938,29 +973,36 @@ const BowyerProfileContent = () => {
                 : "Equipment";
 
               return (
-                <Link
+                <div
                   key={product.slug}
-                  href={`/master-bower-product/${product.slug}`}
-                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[560px] cursor-pointer"
+                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[560px]"
                 >
                   <div className="relative w-full min-h-[380px] bg-primary/10 overflow-hidden">
                     <img
                       src={product.image}
                       alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openLightbox(product.gallery?.length ? product.gallery : [product.image], 0, cleanTitle(product.title));
+                      }}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out cursor-zoom-in"
                     />
-                    <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest">
+                    <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest pointer-events-none">
                       Consultation Only
                     </div>
                   </div>
 
-                  <div className="p-5 flex-1 flex flex-col justify-between">
+                  <Link
+                    href={`/master-bower-product/${product.slug}`}
+                    className="p-5 flex-1 flex flex-col justify-between block cursor-pointer group/card"
+                  >
                     <div className="space-y-2">
                       <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
                         {cleanTitle(parentLabel)}
                       </div>
                       <h3
-                        className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover:text-accent transition-colors duration-300 line-clamp-1"
+                        className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover/card:text-accent transition-colors duration-300 line-clamp-1"
                         translate="no"
                       >
                         {cleanTitle(product.title)}
@@ -970,17 +1012,96 @@ const BowyerProfileContent = () => {
                       </p>
                     </div>
 
-                    <div className="border-t border-primary/5 pt-4 flex items-center justify-between text-[10px] font-serif uppercase tracking-widest font-bold text-accent group-hover:translate-x-1 transition-transform duration-300">
+                    <div className="border-t border-primary/5 pt-4 flex items-center justify-between text-[10px] font-serif uppercase tracking-widest font-bold text-accent group-hover/card:translate-x-1 transition-transform duration-300">
                       <span>Inspect Specs</span>
                       <span>→</span>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+
+                </div>
               );
             })}
           </div>
         )}
       </div>
+
+      {/* ── Lightbox Overlay ── */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/92 backdrop-blur-sm flex flex-col items-center justify-center"
+          onClick={closeLightbox}
+        >
+          <button
+            type="button"
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white bg-white/10 rounded-full transition-colors cursor-pointer"
+            aria-label="Close lightbox"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-xs font-sans">
+            {lightbox.index + 1} / {lightbox.images.length}
+          </div>
+
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 text-white/80 text-sm font-serif font-bold tracking-wide notranslate text-center max-w-xs truncate" translate="no">
+            {lightbox.title}
+          </div>
+
+          <div
+            className="relative flex items-center justify-center w-full h-full px-16 py-20"
+            onClick={e => e.stopPropagation()}
+          >
+            <img
+              src={lightbox.images[lightbox.index]}
+              alt={`${lightbox.title} — photo ${lightbox.index + 1}`}
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none"
+              draggable={false}
+            />
+          </div>
+
+          {lightbox.images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); lbPrev(); }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-colors cursor-pointer"
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); lbNext(); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-colors cursor-pointer"
+                aria-label="Next image"
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          {lightbox.images.length > 1 && (
+            <div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2"
+              onClick={e => e.stopPropagation()}
+            >
+              {lightbox.images.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setLightbox(lb => lb ? { ...lb, index: idx } : null)}
+                  className={`w-14 h-14 shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                    idx === lightbox.index ? "border-white scale-110" : "border-white/30 hover:border-white/60 opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Interactive Bowyer Commission & Consultation Request Modal */}
       {commissionModalOpen && (
@@ -1236,10 +1357,11 @@ const BowyerProfileContent = () => {
   );
 };
 
-export default function BowyerClient() {
+export default function BowyerClient(props: BowyerClientProps) {
   return (
     <Suspense fallback={null}>
-      <BowyerProfileContent />
+      <BowyerProfileContent {...props} />
     </Suspense>
   );
 }
+

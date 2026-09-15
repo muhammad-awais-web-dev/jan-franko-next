@@ -2,6 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import { constructMetadata } from "@/lib/seo";
 import KadysBowsClient from "./KadysBowsClient";
+import { fetchServerMasterBowyerProducts } from "@/lib/serverBowyerData";
 
 export const revalidate = 3600;
 
@@ -13,6 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function KadysBowsPage() {
-  return <KadysBowsClient />;
+export default async function KadysBowsPage() {
+  const products = await fetchServerMasterBowyerProducts({ bowyerId: 238 });
+
+  return <KadysBowsClient initialProducts={products} />;
 }
+

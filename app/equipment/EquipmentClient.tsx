@@ -20,9 +20,11 @@ export interface Product {
   content: string;
   date: string;
   image: string;
+  gallery?: string[];
   categories: number[];
   brands: number[];
 }
+
 
 export interface CategoryTerm {
   id: number;
@@ -55,7 +57,31 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
   const [categories, setCategories] = useState<CategoryTerm[]>(initialCategories);
   const [loading, setLoading] = useState(initialProducts.length === 0 && initialCategories.length === 0);
 
+
+  // Lightbox state for product images
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string } | null>(null);
+
+
+  const openLightbox = (images: string[], index: number, title: string) => {
+    setLightbox({ images, index, title });
+  };
+  const closeLightbox = () => setLightbox(null);
+  const lbPrev = () => setLightbox(lb => lb ? { ...lb, index: (lb.index - 1 + lb.images.length) % lb.images.length } : null);
+  const lbNext = () => setLightbox(lb => lb ? { ...lb, index: (lb.index + 1) % lb.images.length } : null);
+
+  React.useEffect(() => {
+    if (!lightbox) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") lbPrev();
+      else if (e.key === "ArrowRight") lbNext();
+      else if (e.key === "Escape") closeLightbox();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightbox]);
+
   // Merge categories with virtual terms for testing and complete coverage
+
   const allCategories = React.useMemo(() => {
     const list = [...categories];
     if (!list.some((c) => c.slug === "empty-category")) {
@@ -813,7 +839,10 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
                   className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[420px] relative"
                 >
                   {/* Image Banner */}
-                  <Link href={`/equipment/${product.slug}`} className="relative w-full h-[200px] bg-primary/10 overflow-hidden block">
+                  <div
+                    onClick={() => openLightbox(product.gallery?.length ? product.gallery : [product.image], 0, cleanTitle(product.title))}
+                    className="relative w-full h-[200px] bg-primary/10 overflow-hidden block cursor-zoom-in"
+                  >
                     <Image
                       src={product.image}
                       alt={product.title}
@@ -821,10 +850,10 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
                     />
-                    <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest">
+                    <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest pointer-events-none">
                       Consultation Only
                     </div>
-                  </Link>
+                  </div>
 
                   {/* Body Details */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
@@ -911,7 +940,10 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
                   className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-accent/40 transition-all duration-300 flex flex-col md:flex-row items-stretch p-4 md:p-5 gap-6"
                 >
                   {/* Thumbnail Image */}
-                  <Link href={`/equipment/${product.slug}`} className="relative w-full md:w-56 h-48 md:h-auto rounded-xl overflow-hidden bg-primary/10 shrink-0 block">
+                  <div
+                    onClick={() => openLightbox(product.gallery?.length ? product.gallery : [product.image], 0, cleanTitle(product.title))}
+                    className="relative w-full md:w-56 h-48 md:h-auto rounded-xl overflow-hidden bg-primary/10 shrink-0 block cursor-zoom-in"
+                  >
                     <Image
                       src={product.image}
                       alt={product.title}
@@ -919,10 +951,10 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
                       sizes="(max-width: 768px) 100vw, 224px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
-                    <div className="absolute top-3 left-3 z-10 px-2.5 py-0.5 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest">
+                    <div className="absolute top-3 left-3 z-10 px-2.5 py-0.5 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest pointer-events-none">
                       Consultation Only
                     </div>
-                  </Link>
+                  </div>
 
                   {/* Product Information */}
                   <div className="flex-1 flex flex-col justify-between space-y-3 py-1">
@@ -960,7 +992,7 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
                         }`}
                       >
                         <div
-                          className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                          className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors ${
                             isCompared
                               ? "bg-accent border-accent text-white"
                               : "border-primary/30 bg-white"
@@ -1004,6 +1036,85 @@ function EquipmentContentInner({ initialProducts, initialCategories, initialCate
         isOpen={isCompareModalOpen}
         onClose={() => setIsCompareModalOpen(false)}
       />
+
+      {/* ── Lightbox Overlay ── */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/92 backdrop-blur-sm flex flex-col items-center justify-center"
+          onClick={closeLightbox}
+        >
+          <button
+            type="button"
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white bg-white/10 rounded-full transition-colors cursor-pointer"
+            aria-label="Close lightbox"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-xs font-sans">
+            {lightbox.index + 1} / {lightbox.images.length}
+          </div>
+
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 text-white/80 text-sm font-serif font-bold tracking-wide notranslate text-center max-w-xs truncate" translate="no">
+            {lightbox.title}
+          </div>
+
+          <div
+            className="relative flex items-center justify-center w-full h-full px-16 py-20"
+            onClick={e => e.stopPropagation()}
+          >
+            <img
+              src={lightbox.images[lightbox.index]}
+              alt={`${lightbox.title} — photo ${lightbox.index + 1}`}
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none"
+              draggable={false}
+            />
+          </div>
+
+          {lightbox.images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); lbPrev(); }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-colors cursor-pointer"
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); lbNext(); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-colors cursor-pointer"
+                aria-label="Next image"
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          {lightbox.images.length > 1 && (
+            <div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2"
+              onClick={e => e.stopPropagation()}
+            >
+              {lightbox.images.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setLightbox(lb => lb ? { ...lb, index: idx } : null)}
+                  className={`w-14 h-14 shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                    idx === lightbox.index ? "border-white scale-110" : "border-white/30 hover:border-white/60 opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }

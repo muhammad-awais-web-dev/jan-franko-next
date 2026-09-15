@@ -155,21 +155,26 @@ function findDefaultBowyerProduct(slugParam: string | string[] | undefined): Pro
   return MASTER_BOWYER_FALLBACKS[normalized] || null;
 }
 
-const BowyerProductContent = () => {
+interface MasterBowyerProductClientProps {
+  initialProduct?: ProductDetails | null;
+}
+
+const BowyerProductContent = ({ initialProduct }: MasterBowyerProductClientProps) => {
   const { slug } = useParams();
   const initialFallback = findDefaultBowyerProduct(slug as string);
+  const initialData = initialProduct || initialFallback;
 
   // Detail States
-  const [product, setProduct] = useState<ProductDetails | null>(initialFallback);
-  const [loading, setLoading] = useState(!initialFallback);
+  const [product, setProduct] = useState<ProductDetails | null>(initialData);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState("");
-  const [activeImage, setActiveImage] = useState(initialFallback?.image || "");
+  const [activeImage, setActiveImage] = useState(initialData?.image || "");
 
   // Configurator selections state (handles multiple choices for checkboxes, files, texts)
   const [selections, setSelections] = useState<Record<string, any>>(() => {
-    if (!Array.isArray(initialFallback?.acf?.configurator_fields)) return {};
+    if (!Array.isArray(initialData?.acf?.configurator_fields)) return {};
     const defaults: Record<string, any> = {};
-    initialFallback.acf.configurator_fields.forEach((field) => {
+    initialData.acf.configurator_fields.forEach((field) => {
       if (field.field_type === "select" && field.field_options?.length) {
         defaults[field.field_id] = field.field_options[0].option_label;
       } else if (field.field_type === "radio" && field.field_options?.length) {
@@ -193,8 +198,15 @@ const BowyerProductContent = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch product on mount
+  // Fetch product on mount if server data not provided
   useEffect(() => {
+    if (initialProduct) {
+      setProduct(initialProduct);
+      setActiveImage(initialProduct.image);
+      setLoading(false);
+      return;
+    }
+
     const fetchProduct = async () => {
       try {
         const res = await fetch(`/api/equipment/master-bowyer-products?slug=${slug}`);
@@ -235,7 +247,8 @@ const BowyerProductContent = () => {
       }
     };
     fetchProduct();
-  }, [slug, initialFallback]);
+  }, [slug, initialProduct, initialFallback]);
+
 
   // GSAP Entrance Stagger when product loads
   useEffect(() => {
@@ -935,10 +948,11 @@ const BowyerProductContent = () => {
   );
 };
 
-export default function MasterBowyerProductClient() {
+export default function MasterBowyerProductClient(props: MasterBowyerProductClientProps) {
   return (
     <Suspense fallback={null}>
-      <BowyerProductContent />
+      <BowyerProductContent {...props} />
     </Suspense>
   );
 }
+

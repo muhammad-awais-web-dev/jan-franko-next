@@ -31,14 +31,19 @@ interface Product {
   content: string;
   date: string;
   image: string;
+  gallery: string[];
   categories: number[];
+  bowyerIds: number[];
   acf?: {
     sub_category?: string;
     product_subtitle?: string;
     delivery_time?: string;
     base_sku?: string;
+    specifications?: { label: string; value: string }[];
+    key_features?: string;
   };
 }
+
 
 interface BowyerInfo {
   brand: string;
@@ -170,15 +175,26 @@ const SUB_CATEGORIES = [
   "Exclusive Bows"
 ];
 
+// Exact WP slugs of the 6 products listed on kadysbows.com/shop/cat/eksklyuzivni-luki
+const EXCLUSIVE_BOW_SLUGS = new Set([
+  "dovgij-luk-nail-2-1",
+  "hunting-bow-leon",
+  "long-bow-bb-1536",
+  "longbow-mlb-forest",
+  "longbow-richard",
+  "rekursivnij-luk-hoder-basic-ugorskij-1",
+]);
+
 export function getKadysSubCategory(rawTitle: string, rawSlug: string): string {
   const t = (rawTitle || "").toLowerCase();
   const s = (rawSlug || "").toLowerCase();
 
+  // Exclusive first — exact slug match against Kadys' curated exclusive list
+  if (EXCLUSIVE_BOW_SLUGS.has(s)) {
+    return "Exclusive Bows";
+  }
   if (t.includes("hunting") || t.includes("leon") || t.includes("lynx")) {
     return "Hunting Bows";
-  }
-  if (t.includes("amaranth") || t.includes("puzzle") || t.includes("exclusive")) {
-    return "Exclusive Bows";
   }
   if (
     t.includes("longbow") ||
@@ -197,11 +213,17 @@ export function getKadysSubCategory(rawTitle: string, rawSlug: string): string {
   return "Recurve Bows";
 }
 
-export default function KadysBowsClient() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+
+interface KadysBowsClientProps {
+  initialProducts?: Product[];
+}
+
+export default function KadysBowsClient({ initialProducts }: KadysBowsClientProps) {
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
+  const [loading, setLoading] = useState(!initialProducts || initialProducts.length === 0);
   const [activeCategory, setActiveCategory] = useState("All Models");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isPending, startTransition] = React.useTransition();
   
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -217,7 +239,31 @@ export default function KadysBowsClient() {
     customNotes: ""
   });
 
+  // Lightbox state
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; title: string } | null>(null);
+
+  const openLightbox = (images: string[], index: number, title: string) => {
+    setLightbox({ images, index, title });
+  };
+  const closeLightbox = () => setLightbox(null);
+  const lbPrev = () => setLightbox(lb => lb ? { ...lb, index: (lb.index - 1 + lb.images.length) % lb.images.length } : null);
+  const lbNext = () => setLightbox(lb => lb ? { ...lb, index: (lb.index + 1) % lb.images.length } : null);
+
+  // Keyboard navigation for lightbox
+  React.useEffect(() => {
+    if (!lightbox) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") lbPrev();
+      else if (e.key === "ArrowRight") lbNext();
+      else if (e.key === "Escape") closeLightbox();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightbox]);
+
   useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) return;
+
     const fetchKadysProducts = async () => {
       try {
         const res = await fetch("/api/equipment/master-bowyer-products?bowyer=238");
@@ -232,7 +278,8 @@ export default function KadysBowsClient() {
       }
     };
     fetchKadysProducts();
-  }, []);
+  }, [initialProducts]);
+
 
   const cleanTitle = (raw: string | undefined) => {
     if (!raw) return "";
@@ -325,6 +372,12 @@ export default function KadysBowsClient() {
     result = result.replace(/\bRecurve\s+Bow\s+Bow\b/gi, "Recurve Bow");
 
     return result || raw;
+  };
+
+  const cleanExcerpt = (rawHtml: string) => {
+    if (!rawHtml) return "";
+    const textOnly = rawHtml.replace(/<[^>]*>/g, "");
+    return textOnly.length > 140 ? textOnly.slice(0, 140) + "..." : textOnly;
   };
 
   const filteredProducts = products.filter((p) => {
@@ -685,51 +738,155 @@ export default function KadysBowsClient() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white border border-primary/10 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-accent/40 transition-all duration-300 flex flex-col group"
-              >
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/5">
-                  <img
-                    src={product.image}
-                    alt={cleanTitle(product.title)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <span className="absolute top-3 left-3 px-3 py-1 bg-[#0e3b2e] text-white text-[10px] font-serif font-bold uppercase tracking-widest rounded-full shadow-sm">
-                    {product.acf?.sub_category || getKadysSubCategory(product.title, product.slug)}
-                  </span>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-t border-primary/5 pt-8">
+            {filteredProducts.map((product) => {
+              const gallery = product.gallery || (product.image ? [product.image] : []);
+              const subCat = product.acf?.sub_category || getKadysSubCategory(product.title, product.slug);
+              const displayTitle = cleanTitle(product.title);
+              const excerptText = cleanExcerpt(product.excerpt || product.content || "");
 
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="notranslate font-serif text-xl font-bold text-primary group-hover:text-accent transition-colors" translate="no">
-                      {cleanTitle(product.title)}
-                    </h3>
-                    <p className="text-xs text-primary/75 font-sans leading-relaxed line-clamp-2">
-                      {cleanTitle(product.excerpt || product.content)}
-                    </p>
-                  </div>
-
-                  <div className="pt-2 border-t border-primary/5 flex items-center justify-between">
-                    <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold">
-                      Handcrafted Commission
-                    </span>
-                    <Link
-                      href={`/master-bower-product/${product.slug}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-serif font-bold text-primary group-hover:text-accent transition-colors uppercase tracking-widest"
+              return (
+                <div
+                  key={product.id}
+                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[560px] cursor-pointer"
+                >
+                  {/* Image Container (Matching BowyerClient 1:1) */}
+                  <div className="relative w-full min-h-[380px] bg-primary/10 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => openLightbox(gallery, 0, displayTitle)}
+                      className="w-full h-full block cursor-zoom-in"
+                      aria-label={`View photo gallery for ${displayTitle}`}
                     >
-                      <span>Inspect Specifications</span>
-                      <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                      <img
+                        src={gallery[0] || product.image}
+                        alt={displayTitle}
+                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
+                        loading="lazy"
+                      />
+                    </button>
+                    <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest pointer-events-none">
+                      Consultation Only
+                    </div>
                   </div>
+
+                  {/* Body Content (Entire section is a link) */}
+                  <Link
+                    href={`/master-bower-product/${product.slug}`}
+                    className="p-5 flex-1 flex flex-col justify-between block cursor-pointer group/card"
+                  >
+                    <div className="space-y-2">
+                      <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
+                        {subCat}
+                      </div>
+                      <h3
+                        className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover/card:text-accent transition-colors duration-300 line-clamp-1"
+                        translate="no"
+                      >
+                        {displayTitle}
+                      </h3>
+                      <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-3">
+                        {excerptText}
+                      </p>
+                    </div>
+
+                    <div className="border-t border-primary/5 pt-4 flex items-center justify-between text-[10px] font-serif uppercase tracking-widest font-bold text-accent group-hover/card:translate-x-1 transition-transform duration-300">
+                      <span>Inspect Specs</span>
+                      <span>→</span>
+                    </div>
+                  </Link>
+
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
+
+      {/* ── Lightbox ── */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/92 backdrop-blur-sm flex flex-col items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white bg-white/10 rounded-full transition-colors cursor-pointer"
+            aria-label="Close lightbox"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Counter */}
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-xs font-sans">
+            {lightbox.index + 1} / {lightbox.images.length}
+          </div>
+
+          {/* Title */}
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 text-white/80 text-sm font-serif font-bold tracking-wide notranslate text-center max-w-xs truncate" translate="no">
+            {lightbox.title}
+          </div>
+
+          {/* Main image */}
+          <div
+            className="relative flex items-center justify-center w-full h-full px-16 py-20"
+            onClick={e => e.stopPropagation()}
+          >
+            <img
+              src={lightbox.images[lightbox.index]}
+              alt={`${lightbox.title} — photo ${lightbox.index + 1}`}
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none"
+              draggable={false}
+            />
+          </div>
+
+          {/* Prev / Next */}
+          {lightbox.images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); lbPrev(); }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-colors cursor-pointer"
+                aria-label="Previous image"
+              >
+                <ChevronRight className="w-5 h-5 rotate-180" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); lbNext(); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/25 text-white rounded-full transition-colors cursor-pointer"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {/* Thumbnail strip at bottom */}
+          {lightbox.images.length > 1 && (
+            <div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2"
+              onClick={e => e.stopPropagation()}
+            >
+              {lightbox.images.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setLightbox(lb => lb ? { ...lb, index: idx } : null)}
+                  className={`w-14 h-14 shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                    idx === lightbox.index ? "border-white scale-110" : "border-white/30 hover:border-white/60 opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
 
       {/* Consultation Modal */}
       {modalOpen && (
