@@ -51,6 +51,7 @@ export interface Program {
   program_type: number[];
   program_status: number[];
   skill_level?: number[];
+  duration_category?: number[];
   region?: number[];
   date: string;
   acf: {
@@ -143,6 +144,50 @@ export interface ProgramsClientProps {
   initialStatuses: Term[];
   initialSkills: Term[];
   initialRegions: Term[];
+  initialDurations?: Term[];
+}
+
+export const DURATION_TERM_MAP: Record<number, string> = {
+  199: "1 Day",
+  200: "3 Days",
+  201: "7 Days",
+  202: "14 Days",
+  203: "21 Days",
+  204: "30+ Days",
+};
+
+export function getDurationLabel(program?: Program | null, durationTerms?: Term[]): string {
+  if (!program) return "";
+  if (program.acf?.enable_duration_override && program.acf.duration_overide?.trim()) {
+    return program.acf.duration_overide.trim();
+  }
+
+  const acfDur = Number(program.acf?.duration);
+  if (acfDur && DURATION_TERM_MAP[acfDur]) {
+    return DURATION_TERM_MAP[acfDur];
+  }
+
+  if (durationTerms && durationTerms.length > 0 && acfDur) {
+    const match = durationTerms.find((t) => t.id === acfDur);
+    if (match?.name) return match.name;
+  }
+
+  if (program.duration_category && program.duration_category.length > 0) {
+    const firstTermId = program.duration_category[0];
+    if (DURATION_TERM_MAP[firstTermId]) {
+      return DURATION_TERM_MAP[firstTermId];
+    }
+    if (durationTerms) {
+      const match = durationTerms.find((t) => t.id === firstTermId);
+      if (match?.name) return match.name;
+    }
+  }
+
+  if (acfDur > 0 && acfDur < 100) {
+    return `${acfDur} ${acfDur === 1 ? "Day" : "Days"}`;
+  }
+
+  return "";
 }
 
 const MACRO_REGIONS = {
@@ -587,8 +632,8 @@ export default function ProgramsClient({
     if (activeModalProgram) {
       setFormData((prev) => ({
         ...prev,
-        programInterest: activeModalProgram.acf?.enable_duration_override
-          ? activeModalProgram.acf.duration_overide || activeModalProgram.title.rendered
+        programInterest: getDurationLabel(activeModalProgram)
+          ? `${activeModalProgram.title.rendered} (${getDurationLabel(activeModalProgram)})`
           : activeModalProgram.title.rendered
       }));
     }
@@ -703,9 +748,7 @@ export default function ProgramsClient({
     activeModalProgram?.acf?.closest_arrival_city && activeModalProgram.acf.closest_arrival_city.trim() !== ""
   );
   const hasDuration = Boolean(
-    activeModalProgram?.acf?.enable_duration_override
-      ? activeModalProgram?.acf?.duration_overide && activeModalProgram.acf.duration_overide.trim() !== ""
-      : activeModalProgram?.acf?.duration && Number(activeModalProgram.acf.duration) > 0
+    activeModalProgram ? getDurationLabel(activeModalProgram).trim() !== "" : false
   );
   const hasSeason = Boolean(
     activeModalProgram?.acf?.recommended_season && activeModalProgram.acf.recommended_season.trim() !== ""
@@ -1305,13 +1348,7 @@ export default function ProgramsClient({
                                   Duration
                                 </span>
                                 <span className="text-xs font-semibold text-primary block leading-tight">
-                                  {cleanTitle(
-                                    activeModalProgram.acf?.enable_duration_override
-                                      ? activeModalProgram.acf.duration_overide || ""
-                                      : activeModalProgram.acf?.duration
-                                      ? `${activeModalProgram.acf.duration} Days`
-                                      : ""
-                                  )}
+                                  {cleanTitle(getDurationLabel(activeModalProgram))}
                                 </span>
                               </div>
                             </div>

@@ -18,14 +18,16 @@ async function getProgramsData(): Promise<{
   initialStatuses: Term[];
   initialSkills: Term[];
   initialRegions: Term[];
+  initialDurations: Term[];
 }> {
   try {
-    const [progRes, typeRes, statusRes, skillRes, regionRes] = await Promise.all([
+    const [progRes, typeRes, statusRes, skillRes, regionRes, durationRes] = await Promise.all([
       fetch("https://janfranko.com/wp-json/wp/v2/program?per_page=100", { next: { revalidate: 600 } }),
       fetch("https://janfranko.com/wp-json/wp/v2/program_type?per_page=100", { next: { revalidate: 86400 } }).catch(() => null),
       fetch("https://janfranko.com/wp-json/wp/v2/program_status?per_page=100", { next: { revalidate: 86400 } }).catch(() => null),
       fetch("https://janfranko.com/wp-json/wp/v2/skill_level?per_page=100", { next: { revalidate: 86400 } }).catch(() => null),
       fetch("https://janfranko.com/wp-json/wp/v2/region?per_page=100", { next: { revalidate: 86400 } }).catch(() => null),
+      fetch("https://janfranko.com/wp-json/wp/v2/duration_category?per_page=100", { next: { revalidate: 86400 } }).catch(() => null),
     ]);
 
     let initialPrograms: Program[] = [];
@@ -45,6 +47,7 @@ async function getProgramsData(): Promise<{
     const initialStatuses = statusRes && statusRes.ok ? await statusRes.json() : [];
     const initialSkills = skillRes && skillRes.ok ? await skillRes.json() : [];
     const initialRegions = regionRes && regionRes.ok ? await regionRes.json() : [];
+    const initialDurations = durationRes && durationRes.ok ? await durationRes.json() : [];
 
     const mediaIdsToFetch = new Set<number>();
     initialPrograms.forEach((prog) => {
@@ -83,6 +86,7 @@ async function getProgramsData(): Promise<{
       initialStatuses,
       initialSkills,
       initialRegions,
+      initialDurations,
     };
   } catch (err) {
     console.error("Error pre-fetching programs:", err);
@@ -93,6 +97,7 @@ async function getProgramsData(): Promise<{
       initialStatuses: [],
       initialSkills: [],
       initialRegions: [],
+      initialDurations: [],
     };
   }
 }
