@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
     let queryUrl = "https://janfranko.com/wp-json/wp/v2/master-bower-product?acf_format=standard&per_page=100";
     if (bowyerId) {
-      queryUrl += `&bowyer_bower=${bowyerId}&bowyer=${bowyerId}`;
+      queryUrl += `&bowyer=${bowyerId}`;
     } else if (slug) {
       queryUrl += `&slug=${slug}`;
     } else {
