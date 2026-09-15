@@ -155,21 +155,26 @@ function findDefaultBowyerProduct(slugParam: string | string[] | undefined): Pro
   return MASTER_BOWYER_FALLBACKS[normalized] || null;
 }
 
-const BowyerProductContent = () => {
+interface MasterBowyerProductClientProps {
+  initialProduct?: ProductDetails | null;
+}
+
+const BowyerProductContent = ({ initialProduct }: MasterBowyerProductClientProps) => {
   const { slug } = useParams();
   const initialFallback = findDefaultBowyerProduct(slug as string);
+  const initialData = initialProduct || initialFallback;
 
   // Detail States
-  const [product, setProduct] = useState<ProductDetails | null>(initialFallback);
-  const [loading, setLoading] = useState(!initialFallback);
+  const [product, setProduct] = useState<ProductDetails | null>(initialData);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState("");
-  const [activeImage, setActiveImage] = useState(initialFallback?.image || "");
+  const [activeImage, setActiveImage] = useState(initialData?.image || "");
 
   // Configurator selections state (handles multiple choices for checkboxes, files, texts)
   const [selections, setSelections] = useState<Record<string, any>>(() => {
-    if (!initialFallback?.acf?.configurator_fields) return {};
+    if (!Array.isArray(initialData?.acf?.configurator_fields)) return {};
     const defaults: Record<string, any> = {};
-    initialFallback.acf.configurator_fields.forEach((field) => {
+    initialData.acf.configurator_fields.forEach((field) => {
       if (field.field_type === "select" && field.field_options?.length) {
         defaults[field.field_id] = field.field_options[0].option_label;
       } else if (field.field_type === "radio" && field.field_options?.length) {
@@ -193,8 +198,15 @@ const BowyerProductContent = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch product on mount
+  // Fetch product on mount if server data not provided
   useEffect(() => {
+    if (initialProduct) {
+      setProduct(initialProduct);
+      setActiveImage(initialProduct.image);
+      setLoading(false);
+      return;
+    }
+
     const fetchProduct = async () => {
       try {
         const res = await fetch(`/api/equipment/master-bowyer-products?slug=${slug}`);
@@ -207,21 +219,23 @@ const BowyerProductContent = () => {
 
         // Prepopulate default selections
         const defaults: Record<string, any> = {};
-        data.acf?.configurator_fields?.forEach((field) => {
-          if (field.field_type === "select" && field.field_options?.length) {
-            defaults[field.field_id] = field.field_options[0].option_label;
-          } else if (field.field_type === "radio" && field.field_options?.length) {
-            defaults[field.field_id] = field.field_options[0].option_label;
-          } else if (field.field_type === "checkbox") {
-            defaults[field.field_id] = [];
-          } else if (field.field_type === "range" && field.constraints?.min_val) {
-            defaults[field.field_id] = Number(field.constraints.min_val);
-          } else if (field.field_type === "number" && field.constraints?.min_val) {
-            defaults[field.field_id] = Number(field.constraints.min_val);
-          } else {
-            defaults[field.field_id] = "";
-          }
-        });
+        if (Array.isArray(data.acf?.configurator_fields)) {
+          data.acf.configurator_fields.forEach((field) => {
+            if (field.field_type === "select" && field.field_options?.length) {
+              defaults[field.field_id] = field.field_options[0].option_label;
+            } else if (field.field_type === "radio" && field.field_options?.length) {
+              defaults[field.field_id] = field.field_options[0].option_label;
+            } else if (field.field_type === "checkbox") {
+              defaults[field.field_id] = [];
+            } else if (field.field_type === "range" && field.constraints?.min_val) {
+              defaults[field.field_id] = Number(field.constraints.min_val);
+            } else if (field.field_type === "number" && field.constraints?.min_val) {
+              defaults[field.field_id] = Number(field.constraints.min_val);
+            } else {
+              defaults[field.field_id] = "";
+            }
+          });
+        }
         setSelections(defaults);
       } catch (err: any) {
         console.error("Error loading product details:", err);
@@ -233,7 +247,8 @@ const BowyerProductContent = () => {
       }
     };
     fetchProduct();
-  }, [slug, initialFallback]);
+  }, [slug, initialProduct, initialFallback]);
+
 
   // GSAP Entrance Stagger when product loads
   useEffect(() => {
@@ -283,20 +298,22 @@ const BowyerProductContent = () => {
     const formattedSelections: Record<string, any> = {};
     const selectionSummaryLines: string[] = [];
 
-    product?.acf?.configurator_fields?.forEach((configField) => {
-      const val = selections[configField.field_id];
-      if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
-        const label = configField.field_label || configField.field_id;
-        const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
-        formattedSelections[label] = formattedVal;
-        selectionSummaryLines.push(`${label}: ${formattedVal}`);
-      }
-    });
+    if (Array.isArray(product?.acf?.configurator_fields)) {
+      product.acf.configurator_fields.forEach((configField) => {
+        const val = selections[configField.field_id];
+        if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
+          const label = configField.field_label || configField.field_id;
+          const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
+          formattedSelections[label] = formattedVal;
+          selectionSummaryLines.push(`${label}: ${formattedVal}`);
+        }
+      });
+    }
 
     // Capture any additional custom selection keys
     Object.entries(selections).forEach(([key, val]) => {
       if (val !== undefined && val !== "" && (!Array.isArray(val) || val.length > 0)) {
-        const isKnownField = product?.acf?.configurator_fields?.some((f) => f.field_id === key);
+        const isKnownField = Array.isArray(product?.acf?.configurator_fields) && product.acf.configurator_fields.some((f) => f.field_id === key);
         if (!isKnownField) {
           const formattedVal = Array.isArray(val) ? val.join(", ") : String(val);
           if (!formattedSelections[key]) {
@@ -362,19 +379,95 @@ const BowyerProductContent = () => {
 
   const cleanTitle = (raw: string | undefined) => {
     if (!raw) return "";
-    return raw
+    let str = raw
       .replace(/<[^>]*>/g, "")
-      .replace(/&#8220;/g, "“")
-      .replace(/&#8221;/g, "”")
-      .replace(/&#8216;/g, "‘")
-      .replace(/&#8217;/g, "’")
-      .replace(/&#8211;/g, "–")
-      .replace(/&#8212;/g, "—")
+      .replace(/&#8220;/g, '"')
+      .replace(/&#8221;/g, '"')
+      .replace(/&#8216;/g, "'")
+      .replace(/&#8217;/g, "'")
+      .replace(/&#8211;/g, "-")
+      .replace(/&#8212;/g, "-")
       .replace(/&amp;/g, "&")
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
       .replace(/&nbsp;/g, " ")
       .trim();
+
+    if (str.includes("-") || str === str.toLowerCase() || str.toLowerCase().includes("luk")) {
+      str = str.replace(/-/g, " ");
+    }
+
+    const translations: Record<string, string> = {
+      rekursivnij: "Recurve",
+      recurve: "Recurve",
+      recursive: "Recurve",
+      dovgij: "Longbow",
+      longbow: "Longbow",
+      longbows: "Longbow",
+      long: "Longbow",
+      mislivskij: "Hunting",
+      hunting: "Hunting",
+      luk: "Bow",
+      ugorskij: "(Hungarian)",
+      hungarian: "(Hungarian)",
+      tureckij: "(Turkish)",
+      turkish: "(Turkish)",
+      krimsko: "Crimean",
+      tatarskij: "Tatar",
+      crimean: "Crimean",
+      tatar: "Tatar",
+      mongolskij: "(Mongolian)",
+      mongolian: "(Mongolian)",
+      manchzhurskij: "(Manchu)",
+      manchurian: "(Manchu)",
+      manchu: "(Manchu)",
+      amarant: "Amaranth",
+      amaranth: "Amaranth",
+      vv: "BB",
+      bb: "BB",
+      mlb: "MLB",
+      orhanturkish: "Orhan (Turkish)",
+      orhan: "Orhan",
+      hoder: "Hoder",
+      aspid: "Aspid",
+      khan: "Khan",
+      pioneer: "Pioneer",
+      richard: "Richard",
+      nail: "Nail",
+      leon: "Leon",
+      lynx: "Lynx",
+      mongol: "Mongol",
+      ashur: "Ashur",
+      assyrian: "Assyrian",
+      childrens: "Children's",
+      mamba: "Mamba",
+      black: "Black",
+      basic: "Basic",
+      puzzle: "Puzzle"
+    };
+
+    const tokens = str.match(/[a-zA-Z0-9#']+/g) || [];
+    const cleaned: string[] = [];
+
+    for (const token of tokens) {
+      const lower = token.toLowerCase();
+      if (translations[lower]) {
+        cleaned.push(translations[lower]);
+      } else if (/^\d+$/.test(token) && token.length === 4 && parseInt(token, 10) > 1000) {
+        cleaned.push(`#${token}`);
+      } else if (/^\d+$/.test(token)) {
+        cleaned.push(`#${token}`);
+      } else {
+        cleaned.push(token.charAt(0).toUpperCase() + token.slice(1).toLowerCase());
+      }
+    }
+
+    let result = cleaned.join(" ");
+    result = result.replace(/\b(Longbow|Recurve|Hunting|Bow)\s+\1\b/gi, "$1");
+    result = result.replace(/\bLongbow\s+Bow\b/gi, "Longbow");
+    result = result.replace(/\bRecurve\s+Bow\s+Bow\b/gi, "Recurve Bow");
+
+    return result || raw;
   };
 
   if (loading) {
@@ -511,7 +604,7 @@ const BowyerProductContent = () => {
           </div>
 
           {/* Fixed Static Specifications (If present in ACF) */}
-          {product.acf?.specifications && product.acf.specifications.length > 0 && (
+          {Array.isArray(product.acf?.specifications) && product.acf.specifications.length > 0 && (
             <div className="detail-fade-in space-y-3">
               <h3 className="text-xs font-serif uppercase tracking-widest text-[#5c4629] font-bold flex items-center gap-1.5">
                 <List className="w-4 h-4 text-accent" />
@@ -529,17 +622,17 @@ const BowyerProductContent = () => {
           )}
 
           {/* DYNAMIC CONFIGURATOR FIELDS SECTION (ACF Repeater) */}
-          <div className="detail-fade-in space-y-6 pt-4">
-            <div className="flex items-center justify-between border-b border-primary/10 pb-3">
-              <h3 className="text-sm font-serif font-bold uppercase tracking-widest text-[#7d603a] flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-accent" />
-                Custom Options Configurator
-              </h3>
-              <span className="text-[10px] font-sans text-primary/50">Tailor your bow build</span>
-            </div>
+          {Array.isArray(product.acf?.configurator_fields) && product.acf.configurator_fields.length > 0 && (
+            <div className="detail-fade-in space-y-6 pt-4">
+              <div className="flex items-center justify-between border-b border-primary/10 pb-3">
+                <h3 className="text-sm font-serif font-bold uppercase tracking-widest text-[#7d603a] flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-accent" />
+                  Custom Options Configurator
+                </h3>
+                <span className="text-[10px] font-sans text-primary/50">Tailor your bow build</span>
+              </div>
 
-            {/* Render List of Dynamic Configurator Fields */}
-            {product.acf?.configurator_fields && product.acf.configurator_fields.length > 0 ? (
+              {/* Render List of Dynamic Configurator Fields */}
               <div className="space-y-5 bg-white/80 border border-primary/10 p-6 rounded-2xl shadow-sm">
                 {product.acf.configurator_fields.map((field) => {
                   const fieldId = field.field_id;
@@ -676,12 +769,8 @@ const BowyerProductContent = () => {
                   );
                 })}
               </div>
-            ) : (
-              <div className="text-xs font-sans italic text-primary/60 bg-white/40 p-4 rounded-xl border border-primary/5">
-                Standard baseline configurator active. Submit your inquiry to discuss custom specifications directly with the Master Bowyer.
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Action Callouts */}
           <div className="detail-fade-in pt-4 space-y-4">
@@ -859,10 +948,11 @@ const BowyerProductContent = () => {
   );
 };
 
-export default function MasterBowyerProductClient() {
+export default function MasterBowyerProductClient(props: MasterBowyerProductClientProps) {
   return (
     <Suspense fallback={null}>
-      <BowyerProductContent />
+      <BowyerProductContent {...props} />
     </Suspense>
   );
 }
+

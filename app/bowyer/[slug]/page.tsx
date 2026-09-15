@@ -45,6 +45,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function BowyerProfilePage() {
-  return <BowyerClient />;
+import KadysBowsClient from "../kadys-bows/KadysBowsClient";
+import { fetchServerMasterBowyerProducts, fetchServerCategories } from "@/lib/serverBowyerData";
+
+export default async function BowyerProfilePage({ params }: PageProps) {
+  const { slug } = await params;
+  const s = slug.toLowerCase();
+
+  let targetBowyerId = 240; // Default: Harvey Archery
+  if (s.includes("mr-bows") || s.includes("misko") || s.includes("rovcanin")) {
+    targetBowyerId = 241;
+  } else if (s.includes("kadys") || s.includes("sergey") || s.includes("tolochko")) {
+    targetBowyerId = 238;
+  }
+
+  const [products, categories] = await Promise.all([
+    fetchServerMasterBowyerProducts({ bowyerId: targetBowyerId }),
+    fetchServerCategories(),
+  ]);
+
+  if (s === "kadys-bows" || s === "sergey-tolochko") {
+    return <KadysBowsClient initialProducts={products} />;
+  }
+
+  return <BowyerClient initialProducts={products} initialCategories={categories} />;
 }
+

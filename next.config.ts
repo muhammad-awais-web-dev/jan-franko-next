@@ -41,12 +41,14 @@ const nextConfig: NextConfig = {
       { source: "/scrolls/category/:path*", destination: "/knowledge", permanent: true },
       { source: "/scrolls/region/:path*", destination: "/knowledge", permanent: true },
       { source: "/scrolls/:slug*", destination: "/knowledge/:slug*", permanent: true },
-      // 3. Equipment Categories -> Canonical /equipment
+      // 3. Equipment Categories & Bowyer Root -> Canonical /about/partners
+      { source: "/bowyer", destination: "/about/partners", permanent: true },
       { source: "/equipment/categories", destination: "/equipment", permanent: true },
       { source: "/equipment/category", destination: "/equipment", permanent: true },
       { source: "/categories", destination: "/equipment", permanent: true },
     ];
   },
 };
+
 
 export default nextConfig;

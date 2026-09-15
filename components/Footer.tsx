@@ -6,6 +6,7 @@ import { Mail, Phone, MapPin, Compass, ExternalLink, Settings2 } from "lucide-re
 import { SITE, TRAINING_LOCATIONS, ACADEMY_LINKS, PROGRAM_LINKS, EQUIPMENT_CATEGORIES } from "@/data/site";
 
 const legalLinks = [
+  { label: "Master Bowyer Partners", href: "/about/partners" },
   { label: "Privacy Policy (GDPR)", href: "/privacy-policy" },
   { label: "Terms & Conditions", href: "/terms" },
   { label: "Refund Policy", href: "/refund-policy" },
@@ -14,6 +15,7 @@ const legalLinks = [
   { label: "Legal Notice / Impressum", href: "/impressum" },
   { label: "Safety & Legal Overview", href: "/safety-legal-overview" },
 ] as const;
+
 
 const Footer = () => {
   return (
@@ -92,12 +94,18 @@ const Footer = () => {
               </li>
             ))}
             <li>
-              <Link href="/equipment/arrow-configurator" className="font-semibold text-accent hover:text-white transition-colors block py-0.5">
+              <Link href="/about/partners" className="font-semibold text-accent hover:text-white transition-colors block py-0.5">
+                Master Bowyer Partners
+              </Link>
+            </li>
+            <li>
+              <Link href="/equipment/arrow-configurator" className="font-semibold text-white/90 hover:text-accent transition-colors block py-0.5">
                 Custom Arrow Configurator
               </Link>
             </li>
           </ul>
         </div>
+
 
         {/* Column 5: Official Contact */}
         <div className="space-y-4">

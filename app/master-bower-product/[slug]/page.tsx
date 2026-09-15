@@ -85,6 +85,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function MasterBowyerProductPage() {
-  return <MasterBowyerProductClient />;
+import { fetchServerMasterBowyerProducts } from "@/lib/serverBowyerData";
+
+export default async function MasterBowyerProductPage({ params }: PageProps) {
+  const { slug } = await params;
+  const products = await fetchServerMasterBowyerProducts({ slug });
+  const initialProduct = products.length > 0 ? (products[0] as any) : null;
+
+  return <MasterBowyerProductClient initialProduct={initialProduct} />;
 }
+
