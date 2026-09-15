@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
     let queryUrl = "https://janfranko.com/wp-json/wp/v2/master-bower-product?acf_format=standard&per_page=100";
     if (bowyerId) {
-      queryUrl += `&bowyer=${bowyerId}`;
+      queryUrl += `&bowyer_bower=${bowyerId}&bowyer=${bowyerId}`;
     } else if (slug) {
       queryUrl += `&slug=${slug}`;
     } else {
@@ -31,18 +31,29 @@ export async function GET(request: Request) {
 
     // Map CPT items to uniform schema
     const mapped = products.map((p: any) => {
-      // Resolve image from acf.hero_gallery using standard format fields
-      const heroGallery = p.acf?.hero_gallery;
-      const firstImage = Array.isArray(heroGallery) && heroGallery.length > 0 ? heroGallery[0] : null;
-      
-      const acfImage = firstImage?.sizes?.large || firstImage?.url;
-      const fallbackImage = "https://images.unsplash.com/photo-1511140595276-3d9d0c367cd5?auto=format&fit=crop&w=800&q=80";
-      const image = acfImage || fallbackImage;
+      const extractUrl = (img: any): string => {
+        if (!img) return "";
+        if (typeof img === "string") return img;
+        return img.sizes?.large || img.url || img.image_url || img.source_url || "";
+      };
 
-      // Extract all gallery images for detail slider
-      const gallery = Array.isArray(heroGallery)
-        ? heroGallery.map((img: any) => img.sizes?.large || img.url).filter(Boolean)
-        : [image];
+      let gallery: string[] = [];
+      const productGallery = p.acf?.product_gallery;
+      const heroGallery = p.acf?.hero_gallery;
+
+      if (Array.isArray(productGallery) && productGallery.length > 0) {
+        gallery = productGallery.map(extractUrl).filter(Boolean);
+      } else if (Array.isArray(heroGallery) && heroGallery.length > 0) {
+        gallery = heroGallery.map(extractUrl).filter(Boolean);
+      }
+
+      const acfImg = extractUrl(p.acf?.product_image) || gallery[0];
+      const fallbackImage = "https://images.unsplash.com/photo-1511140595276-3d9d0c367cd5?auto=format&fit=crop&w=800&q=80";
+      const image = acfImg || fallbackImage;
+
+      if (gallery.length === 0) {
+        gallery = [image];
+      }
 
       return {
         id: p.id,
