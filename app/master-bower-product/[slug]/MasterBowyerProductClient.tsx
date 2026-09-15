@@ -366,19 +366,95 @@ const BowyerProductContent = () => {
 
   const cleanTitle = (raw: string | undefined) => {
     if (!raw) return "";
-    return raw
+    let str = raw
       .replace(/<[^>]*>/g, "")
-      .replace(/&#8220;/g, "“")
-      .replace(/&#8221;/g, "”")
-      .replace(/&#8216;/g, "‘")
-      .replace(/&#8217;/g, "’")
-      .replace(/&#8211;/g, "–")
-      .replace(/&#8212;/g, "—")
+      .replace(/&#8220;/g, '"')
+      .replace(/&#8221;/g, '"')
+      .replace(/&#8216;/g, "'")
+      .replace(/&#8217;/g, "'")
+      .replace(/&#8211;/g, "-")
+      .replace(/&#8212;/g, "-")
       .replace(/&amp;/g, "&")
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
       .replace(/&nbsp;/g, " ")
       .trim();
+
+    if (str.includes("-") || str === str.toLowerCase() || str.toLowerCase().includes("luk")) {
+      str = str.replace(/-/g, " ");
+    }
+
+    const translations: Record<string, string> = {
+      rekursivnij: "Recurve",
+      recurve: "Recurve",
+      recursive: "Recurve",
+      dovgij: "Longbow",
+      longbow: "Longbow",
+      longbows: "Longbow",
+      long: "Longbow",
+      mislivskij: "Hunting",
+      hunting: "Hunting",
+      luk: "Bow",
+      ugorskij: "(Hungarian)",
+      hungarian: "(Hungarian)",
+      tureckij: "(Turkish)",
+      turkish: "(Turkish)",
+      krimsko: "Crimean",
+      tatarskij: "Tatar",
+      crimean: "Crimean",
+      tatar: "Tatar",
+      mongolskij: "(Mongolian)",
+      mongolian: "(Mongolian)",
+      manchzhurskij: "(Manchu)",
+      manchurian: "(Manchu)",
+      manchu: "(Manchu)",
+      amarant: "Amaranth",
+      amaranth: "Amaranth",
+      vv: "BB",
+      bb: "BB",
+      mlb: "MLB",
+      orhanturkish: "Orhan (Turkish)",
+      orhan: "Orhan",
+      hoder: "Hoder",
+      aspid: "Aspid",
+      khan: "Khan",
+      pioneer: "Pioneer",
+      richard: "Richard",
+      nail: "Nail",
+      leon: "Leon",
+      lynx: "Lynx",
+      mongol: "Mongol",
+      ashur: "Ashur",
+      assyrian: "Assyrian",
+      childrens: "Children's",
+      mamba: "Mamba",
+      black: "Black",
+      basic: "Basic",
+      puzzle: "Puzzle"
+    };
+
+    const tokens = str.match(/[a-zA-Z0-9#']+/g) || [];
+    const cleaned: string[] = [];
+
+    for (const token of tokens) {
+      const lower = token.toLowerCase();
+      if (translations[lower]) {
+        cleaned.push(translations[lower]);
+      } else if (/^\d+$/.test(token) && token.length === 4 && parseInt(token, 10) > 1000) {
+        cleaned.push(`#${token}`);
+      } else if (/^\d+$/.test(token)) {
+        cleaned.push(`#${token}`);
+      } else {
+        cleaned.push(token.charAt(0).toUpperCase() + token.slice(1).toLowerCase());
+      }
+    }
+
+    let result = cleaned.join(" ");
+    result = result.replace(/\b(Longbow|Recurve|Hunting|Bow)\s+\1\b/gi, "$1");
+    result = result.replace(/\bLongbow\s+Bow\b/gi, "Longbow");
+    result = result.replace(/\bRecurve\s+Bow\s+Bow\b/gi, "Recurve Bow");
+
+    return result || raw;
   };
 
   if (loading) {
