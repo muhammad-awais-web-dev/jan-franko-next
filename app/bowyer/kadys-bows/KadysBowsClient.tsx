@@ -71,87 +71,126 @@ export interface KadysComponent {
 
 export const KADYS_COMPONENTS: KadysComponent[] = [
   {
+    id: "gorih-amerikanskij",
+    name: "American Walnut Timber Block",
+    category: "Timber & Risers",
+    priceEUR: 141,
+    spec: "45 × 50 × 500 mm hand-selected dense walnut riser timber block",
+    sourceUrl: "https://en.kadysbows.com/shop/gorih-amerikanskij",
+    sourceUsdPrice: "$50.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/5b384d1f-e893-4dfa-9a93-e955d0b87253/original"
+  },
+  {
+    id: "paduk",
+    name: "Padauk Exotic Hardwood Block",
+    category: "Timber & Risers",
+    priceEUR: 141,
+    spec: "45 × 50 × 500 mm dense African Padauk timber block for risers",
+    sourceUrl: "https://en.kadysbows.com/shop/paduk",
+    sourceUsdPrice: "$50.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/f7c19c51-c78d-406b-97af-bef411420bd8/original"
+  },
+  {
     id: "zebrano",
     name: "Zebrano / Zebrawood Timber Block",
     category: "Timber & Risers",
-    priceEUR: 114,
-    spec: "45 × 50 × 500 mm dense exotic zebrawood timber block",
-    sourceUrl: "https://en.kadysbows.com/shop/zebrano",
-    sourceUsdPrice: "$40.00 USD",
-    image: "https://e-c.storage.googleapis.com/res/1a1b21ce-d09b-4a40-b7a3-2f72b23fb4a8/original"
-  },
-  {
-    id: "walnut",
-    name: "American Walnut (Riser Timber)",
-    category: "Timber & Risers",
     priceEUR: 141,
-    spec: "45 × 50 × 500 mm hand-selected timber block",
+    spec: "45 × 50 × 500 mm exotic zebrawood riser block",
     sourceUrl: "https://en.kadysbows.com/shop/zebrano",
     sourceUsdPrice: "$50.00 USD",
     image: "https://e-c.storage.googleapis.com/res/1a1b21ce-d09b-4a40-b7a3-2f72b23fb4a8/original"
   },
   {
-    id: "wenge",
-    name: "Wenge (Exotic Hardwood Riser Block)",
-    category: "Timber & Risers",
-    priceEUR: 114,
-    spec: "45 × 50 × 500 mm dense exotic timber block",
-    sourceUrl: "https://en.kadysbows.com/shop/venge",
-    sourceUsdPrice: "$40.00 USD",
-    image: "https://e-c.storage.googleapis.com/res/5363fb41-0a06-47e3-8d03-67eb0714b631/original"
-  },
-  {
-    id: "colored-fiberglass",
-    name: "Colored Fiberglass Lamination",
-    category: "Fiberglass Laminates",
-    priceEUR: 57,
-    spec: "High-strength limb protective lamination fiberglass",
-    sizes: ["1500 / 40 / 1 mm", "1500 / 45 / 1 mm", "1840 / 40 / 1 mm", "1840 / 45 / 1 mm"],
-    sourceUrl: "https://en.kadysbows.com/shop/skloplastik-prozorij-1",
-    sourceUsdPrice: "$20.00 USD",
-    image: "https://e-c.storage.googleapis.com/res/85036f49-fb6f-4fd7-b006-bc47ce9f603c/original"
-  },
-  {
-    id: "amaranth",
+    id: "amarant",
     name: "Amaranth / Purpleheart Timber Block",
     category: "Timber & Risers",
     priceEUR: 141,
-    spec: "45 × 50 × 500 mm premium dense exotic timber block",
-    sourceUrl: "https://en.kadysbows.com/shop/derevyani-strili-kolorovi",
+    spec: "45 × 50 × 500 mm dense purpleheart timber block",
+    sourceUrl: "https://en.kadysbows.com/shop/amarant",
     sourceUsdPrice: "$50.00 USD",
-    image: "https://e-c.storage.googleapis.com/res/cc30af97-1196-4c8e-b22c-25898713db93/original"
+    image: "https://e-c.storage.googleapis.com/res/e772fe65-23c6-4cf2-925d-2bc52fccf121/original"
   },
   {
-    id: "transparent-fiberglass",
+    id: "venge",
+    name: "Wenge Exotic Hardwood Block",
+    category: "Timber & Risers",
+    priceEUR: 141,
+    spec: "45 × 50 × 500 mm dark dense wenge timber block",
+    sourceUrl: "https://en.kadysbows.com/shop/venge",
+    sourceUsdPrice: "$50.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/5363fb41-0a06-47e3-8d03-67eb0714b631/original"
+  },
+  {
+    id: "skloplastik-prozorij",
     name: "Transparent Fiberglass Lamination",
     category: "Fiberglass Laminates",
-    priceEUR: 42,
-    spec: "High-transparency limb protective lamination fiberglass",
+    priceEUR: 41,
+    spec: "High-transparency protective limb lamination fiberglass",
     sizes: ["1500 / 40 / 1 mm", "1500 / 45 / 1 mm", "1840 / 40 / 1 mm", "1840 / 45 / 1 mm"],
     sourceUrl: "https://en.kadysbows.com/shop/skloplastik-prozorij",
     sourceUsdPrice: "$14.50 USD",
     image: "https://e-c.storage.googleapis.com/res/997b0413-baec-4775-9a2c-fc2ab7e0c2f9/original"
   },
   {
-    id: "colored-arrows",
+    id: "skloplastik-prozorij-1",
+    name: "Colored Fiberglass Lamination",
+    category: "Fiberglass Laminates",
+    priceEUR: 42,
+    spec: "High-strength colored limb protective lamination fiberglass",
+    sizes: ["1500 / 40 / 1 mm", "1500 / 45 / 1 mm", "1840 / 40 / 1 mm", "1840 / 45 / 1 mm"],
+    sourceUrl: "https://en.kadysbows.com/shop/skloplastik-prozorij-1",
+    sourceUsdPrice: "$15.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/85036f49-fb6f-4fd7-b006-bc47ce9f603c/original"
+  },
+  {
+    id: "derevyani-strili",
+    name: "Traditional Wooden Arrows (Natural)",
+    category: "Arrows & Accessories",
+    priceEUR: 28,
+    spec: "Shaft diameter 5/16″ (7.9 mm), spine 35#–45#, pine shaft with feather fletching",
+    sourceUrl: "https://en.kadysbows.com/shop/derevyani-strili",
+    sourceUsdPrice: "$10.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/c8a21e48-6326-4f36-b807-e2826871f4d4/original"
+  },
+  {
+    id: "derevyani-strili-kolorovi",
     name: "Colored Traditional Wooden Arrows",
     category: "Arrows & Accessories",
     priceEUR: 28,
-    spec: "Shaft diameter 5/16″ (7.9 mm), spine 35#–45#, pine shaft material with feather fletching",
-    sourceUrl: "https://en.kadysbows.com/shop/derevyani-strili",
+    spec: "Shaft diameter 5/16″ (7.9 mm), spine 35#–45#, custom stained pine shaft",
+    sourceUrl: "https://en.kadysbows.com/shop/derevyani-strili-kolorovi",
     sourceUsdPrice: "$10.00 USD",
     image: "https://e-c.storage.googleapis.com/res/7a65d531-e085-43d8-9051-183bf9b6ebef/original"
   },
   {
-    id: "flemish-string",
-    name: "Flemish / Endless Loop Bowstring",
+    id: "tyativa-flamandska",
+    name: "Flemish Twist Bowstring",
     category: "Strings",
-    priceEUR: 25,
-    isCapped: true,
+    priceEUR: 28,
+    spec: "Hand-spliced FastFlight (FF+) material, length range 58″ – 68″",
+    sourceUrl: "https://en.kadysbows.com/shop/tyativa-flamandska",
+    sourceUsdPrice: "$10.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/c8a21e48-6326-4f36-b807-e2826871f4d4/original"
+  },
+  {
+    id: "tyativa-neskinchenna-petlya-1",
+    name: "Endless Loop Bowstring (Long)",
+    category: "Strings",
+    priceEUR: 42,
     spec: "FastFlight (FF+) material matrix, length range 58″ – 68″",
     sourceUrl: "https://en.kadysbows.com/shop/tyativa-neskinchenna-petlya-1",
-    sourceUsdPrice: "$15.00 USD (Capped Rate)",
+    sourceUsdPrice: "$15.00 USD",
     image: "https://e-c.storage.googleapis.com/res/a0883cd1-7ae8-48ca-9896-08905e923f75/original"
+  },
+  {
+    id: "tyativa-neskinchenna-petlya",
+    name: "Endless Loop Bowstring (Short)",
+    category: "Strings",
+    priceEUR: 42,
+    spec: "FastFlight (FF+) material matrix, length range 51″ – 61″",
+    sourceUrl: "https://en.kadysbows.com/shop/tyativa-neskinchenna-petlya",
+    sourceUsdPrice: "$15.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/506341d2-4dff-4bd5-91e6-7a3423addfcd/original"
   }
 ];
 
