@@ -71,6 +71,16 @@ export interface KadysComponent {
 
 export const KADYS_COMPONENTS: KadysComponent[] = [
   {
+    id: "zebrano",
+    name: "Zebrano / Zebrawood Timber Block",
+    category: "Timber & Risers",
+    priceEUR: 114,
+    spec: "45 × 50 × 500 mm dense exotic zebrawood timber block",
+    sourceUrl: "https://en.kadysbows.com/shop/zebrano",
+    sourceUsdPrice: "$40.00 USD",
+    image: "https://e-c.storage.googleapis.com/res/1a1b21ce-d09b-4a40-b7a3-2f72b23fb4a8/original"
+  },
+  {
     id: "walnut",
     name: "American Walnut (Riser Timber)",
     category: "Timber & Risers",
@@ -144,6 +154,15 @@ export const KADYS_COMPONENTS: KadysComponent[] = [
     image: "https://e-c.storage.googleapis.com/res/a0883cd1-7ae8-48ca-9896-08905e923f75/original"
   }
 ];
+
+const COMPONENT_CATEGORIES = [
+  "All Components",
+  "Timber & Risers",
+  "Fiberglass Laminates",
+  "Arrows & Accessories",
+  "Strings"
+];
+
 
 const kadysMaster = MASTER_BOWYERS.find((b) => b.slug === "kadys-bows");
 
@@ -221,9 +240,12 @@ interface KadysBowsClientProps {
 export default function KadysBowsClient({ initialProducts }: KadysBowsClientProps) {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [loading, setLoading] = useState(!initialProducts || initialProducts.length === 0);
+  const [catalogMode, setCatalogMode] = useState<"bows" | "components">("bows");
   const [activeCategory, setActiveCategory] = useState("All Models");
+  const [activeComponentCategory, setActiveComponentCategory] = useState("All Components");
   const [searchQuery, setSearchQuery] = useState("");
   const [isPending, startTransition] = React.useTransition();
+
   
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -396,6 +418,19 @@ export default function KadysBowsClient({ initialProducts }: KadysBowsClientProp
     }).length;
   };
 
+  const filteredComponents = KADYS_COMPONENTS.filter((c) => {
+    const q = searchQuery.toLowerCase();
+    const nameMatch = c.name.toLowerCase().includes(q) || c.spec.toLowerCase().includes(q);
+    if (activeComponentCategory === "All Components") return nameMatch;
+    return nameMatch && c.category.toLowerCase() === activeComponentCategory.toLowerCase();
+  });
+
+  const getCompCatCount = (catName: string) => {
+    if (catName === "All Components") return KADYS_COMPONENTS.length;
+    return KADYS_COMPONENTS.filter((c) => c.category.toLowerCase() === catName.toLowerCase()).length;
+  };
+
+
   const handleCommissionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -567,42 +602,255 @@ export default function KadysBowsClient({ initialProducts }: KadysBowsClientProp
               ))}
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* ── WORKSHOP MATERIALS & COMPONENTS PRICING ── */}
-          <div className="space-y-6 border-t border-primary/10 pt-10">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-serif uppercase tracking-widest text-[#7d603a] font-bold block flex items-center gap-1.5">
-                  <Package className="w-3.5 h-3.5 text-accent" />
-                  Workshop Component Pricing
-                </span>
-                <h3 className="text-xl md:text-2xl font-serif font-bold text-primary">
-                  Raw Materials &amp; Workshop Component Supplies
-                </h3>
-                <p className="text-xs text-primary/70 font-sans leading-relaxed max-w-3xl">
-                  Verified raw materials, timber blocks, limb lamination fiberglass, arrows, and bowstrings sourced directly from Sergey Tolochko&apos;s workshop. Prices reflect calculated base rate (excluding standard insured shipping).
-                </p>
+      {/* ── KADYS BOWS & COMPONENTS CATALOG SECTION ── */}
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-14 md:py-20 space-y-10">
+        <div className="text-center space-y-3">
+          <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
+            Catalog Collections
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-primary tracking-tight">
+            Kadys Bows Equipment &amp; Workshop Catalog
+          </h2>
+          <p className="text-xs md:text-sm text-primary/70 font-sans leading-relaxed max-w-xl mx-auto">
+            Browse handcrafted traditional bows and workshop components by Sergey Tolochko.
+          </p>
+          <div className="w-12 h-[1px] bg-[#c5a880]/30 mx-auto mt-2" />
+        </div>
+
+        {/* Primary Catalog Mode Selector: Bows vs Components */}
+        <div className="flex justify-center">
+          <div className="inline-flex p-1.5 bg-white border border-primary/10 rounded-2xl shadow-xs gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setCatalogMode("bows");
+                setSearchQuery("");
+              }}
+              className={`px-6 py-3 rounded-xl text-xs md:text-sm font-serif font-bold transition-all cursor-pointer inline-flex items-center gap-2 ${
+                catalogMode === "bows"
+                  ? "bg-[#0e3b2e] text-white shadow-md"
+                  : "bg-transparent text-primary/70 hover:text-primary hover:bg-primary/5"
+              }`}
+            >
+              <span>🏹 Traditional Bows</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${catalogMode === "bows" ? "bg-accent text-primary" : "bg-primary/10 text-primary/60"}`}>
+                {products.length || 69}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setCatalogMode("components");
+                setSearchQuery("");
+              }}
+              className={`px-6 py-3 rounded-xl text-xs md:text-sm font-serif font-bold transition-all cursor-pointer inline-flex items-center gap-2 ${
+                catalogMode === "components"
+                  ? "bg-[#0e3b2e] text-white shadow-md"
+                  : "bg-transparent text-primary/70 hover:text-primary hover:bg-primary/5"
+              }`}
+            >
+              <span>🪵 Workshop Components</span>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${catalogMode === "components" ? "bg-accent text-primary" : "bg-primary/10 text-primary/60"}`}>
+                {KADYS_COMPONENTS.length}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Search & Sub-Category Tab Controls */}
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-primary/10 shadow-xs">
+            {/* Sub-Category Tabs depending on catalogMode */}
+            {catalogMode === "bows" ? (
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+                {SUB_CATEGORIES.map((cat) => {
+                  const count = getSubCatCount(cat);
+                  const isActive = activeCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all cursor-pointer shrink-0 inline-flex items-center gap-1.5 ${
+                        isActive
+                          ? "bg-[#0e3b2e] text-white shadow-sm"
+                          : "bg-primary/5 text-primary/70 hover:bg-primary/10 hover:text-primary"
+                      }`}
+                    >
+                      <span>{cat}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? "bg-accent text-primary" : "bg-primary/10 text-primary/60"}`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#f0e9d9]/60 border border-primary/10 rounded-xl text-xs font-sans text-primary/80 shrink-0 shadow-xs">
-                <Truck className="w-4 h-4 text-[#0e3b2e]" />
-                <span className="font-semibold">+ Standard Insured Shipping</span>
+            ) : (
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+                {COMPONENT_CATEGORIES.map((cat) => {
+                  const count = getCompCatCount(cat);
+                  const isActive = activeComponentCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveComponentCategory(cat)}
+                      className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all cursor-pointer shrink-0 inline-flex items-center gap-1.5 ${
+                        isActive
+                          ? "bg-[#0e3b2e] text-white shadow-sm"
+                          : "bg-primary/5 text-primary/70 hover:bg-primary/10 hover:text-primary"
+                      }`}
+                    >
+                      <span>{cat}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? "bg-accent text-primary" : "bg-primary/10 text-primary/60"}`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
+            )}
+
+            {/* Live Search Input */}
+            <div className="relative w-full md:w-72">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary/40" />
+              <input
+                type="text"
+                placeholder={catalogMode === "bows" ? "Search bow models (e.g. Orhan, Leon, Aspid)..." : "Search components (e.g. Zebrano, Fiberglass, Arrows)..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-secondary border border-primary/10 rounded-xl text-xs font-sans focus:outline-none focus:border-accent text-primary placeholder:text-primary/40"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
+          </div>
+        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {KADYS_COMPONENTS.map((comp) => (
+        {/* Grid Content */}
+        {catalogMode === "bows" ? (
+          loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[440px] animate-pulse" />
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-16 bg-white border border-primary/5 rounded-3xl text-primary/60 font-sans shadow-sm max-w-xl mx-auto text-xs leading-relaxed p-8 space-y-3">
+              <Layers className="w-8 h-8 mx-auto text-primary/30" />
+              <p className="font-serif font-bold text-primary text-sm">No Bow Models Found</p>
+              <p>No bow products match your current search or sub-category filter.</p>
+              <button
+                onClick={() => { setActiveCategory("All Models"); setSearchQuery(""); }}
+                className="px-4 py-2 bg-primary text-secondary font-serif text-xs uppercase tracking-widest rounded-xl hover:bg-accent hover:text-primary transition-colors font-bold"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-t border-primary/5 pt-8">
+              {filteredProducts.map((product) => {
+                const gallery = product.gallery || (product.image ? [product.image] : []);
+                const subCat = product.acf?.sub_category || getKadysSubCategory(product.title, product.slug);
+                const displayTitle = cleanTitle(product.title);
+                const excerptText = cleanExcerpt(product.excerpt || product.content || "");
+
+                return (
+                  <div
+                    key={product.id}
+                    className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[560px] cursor-pointer"
+                  >
+                    {/* Image Container */}
+                    <div className="relative w-full min-h-[380px] bg-primary/10 overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => openLightbox(gallery, 0, displayTitle)}
+                        className="w-full h-full block cursor-zoom-in"
+                        aria-label={`View photo gallery for ${displayTitle}`}
+                      >
+                        <img
+                          src={gallery[0] || product.image}
+                          alt={displayTitle}
+                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
+                          loading="lazy"
+                        />
+                      </button>
+                      <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest pointer-events-none">
+                        Consultation Only
+                      </div>
+                    </div>
+
+                    {/* Body Content (Entire section is a link) */}
+                    <Link
+                      href={`/master-bower-product/${product.slug}`}
+                      className="p-5 flex-1 flex flex-col justify-between block cursor-pointer group/card"
+                    >
+                      <div className="space-y-2">
+                        <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
+                          {subCat}
+                        </div>
+                        <h3
+                          className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover/card:text-accent transition-colors duration-300 line-clamp-1"
+                          translate="no"
+                        >
+                          {displayTitle}
+                        </h3>
+                        <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-3">
+                          {excerptText}
+                        </p>
+                      </div>
+
+                      <div className="border-t border-primary/5 pt-4 flex items-center justify-between text-[10px] font-serif uppercase tracking-widest font-bold text-accent group-hover/card:translate-x-1 transition-transform duration-300">
+                        <span>Inspect Specs</span>
+                        <span>→</span>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          )
+        ) : (
+          /* Components Grid */
+          filteredComponents.length === 0 ? (
+            <div className="text-center py-16 bg-white border border-primary/5 rounded-3xl text-primary/60 font-sans shadow-sm max-w-xl mx-auto text-xs leading-relaxed p-8 space-y-3">
+              <Package className="w-8 h-8 mx-auto text-primary/30" />
+              <p className="font-serif font-bold text-primary text-sm">No Workshop Components Found</p>
+              <p>No component items match your current search or category filter.</p>
+              <button
+                onClick={() => { setActiveComponentCategory("All Components"); setSearchQuery(""); }}
+                className="px-4 py-2 bg-primary text-secondary font-serif text-xs uppercase tracking-widest rounded-xl hover:bg-accent hover:text-primary transition-colors font-bold"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 border-t border-primary/5 pt-8">
+              {filteredComponents.map((comp) => (
                 <div
                   key={comp.id}
                   className="bg-white border border-primary/10 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-accent/40 transition-all duration-300 flex flex-col justify-between group"
                 >
                   <div className="space-y-3">
                     <div className="relative aspect-[4/3] w-full overflow-hidden bg-primary/5">
-                      <img
-                        src={comp.image}
-                        alt={comp.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-[#0e3b2e] text-white text-[9px] font-serif font-bold uppercase tracking-wider rounded-full shadow-xs">
+                      <button
+                        type="button"
+                        onClick={() => openLightbox([comp.image], 0, comp.name)}
+                        className="w-full h-full block cursor-zoom-in"
+                        aria-label={`View photo for ${comp.name}`}
+                      >
+                        <img
+                          src={comp.image}
+                          alt={comp.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </button>
+                      <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-[#0e3b2e] text-white text-[9px] font-serif font-bold uppercase tracking-wider rounded-full shadow-xs pointer-events-none">
                         {comp.category}
                       </span>
                     </div>
@@ -653,153 +901,7 @@ export default function KadysBowsClient({ initialProducts }: KadysBowsClientProp
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── KADYS BOWS CATALOG SECTION WITH SUB-CATEGORY TABS ── */}
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-14 md:py-20 space-y-10">
-        <div className="text-center space-y-3">
-          <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
-            Catalog Collections
-          </span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-primary tracking-tight">
-            Kadys Bows Equipment Catalog
-          </h2>
-          <p className="text-xs md:text-sm text-primary/70 font-sans leading-relaxed max-w-xl mx-auto">
-            Browse handcrafted traditional bows by Sergey Tolochko, categorized into Recurve Bows, Longbows, Hunting Bows, and Exclusive Models.
-          </p>
-          <div className="w-12 h-[1px] bg-[#c5a880]/30 mx-auto mt-2" />
-        </div>
-
-        {/* Search & Sub-Category Tab Controls */}
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-primary/10 shadow-xs">
-            {/* Interactive Sub-Category Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
-              {SUB_CATEGORIES.map((cat) => {
-                const count = getSubCatCount(cat);
-                const isActive = activeCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all cursor-pointer shrink-0 inline-flex items-center gap-1.5 ${
-                      isActive
-                        ? "bg-[#0e3b2e] text-white shadow-sm"
-                        : "bg-primary/5 text-primary/70 hover:bg-primary/10 hover:text-primary"
-                    }`}
-                  >
-                    <span>{cat}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? "bg-accent text-primary" : "bg-primary/10 text-primary/60"}`}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Live Search Input */}
-            <div className="relative w-full md:w-72">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-primary/40" />
-              <input
-                type="text"
-                placeholder="Search models (e.g. Orhan, Leon, Aspid)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-secondary border border-primary/10 rounded-xl text-xs font-sans focus:outline-none focus:border-accent text-primary placeholder:text-primary/40"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Product Cards Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="bg-white border border-primary/5 rounded-2xl h-[440px] animate-pulse" />
-            ))}
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-16 bg-white border border-primary/5 rounded-3xl text-primary/60 font-sans shadow-sm max-w-xl mx-auto text-xs leading-relaxed p-8 space-y-3">
-            <Layers className="w-8 h-8 mx-auto text-primary/30" />
-            <p className="font-serif font-bold text-primary text-sm">No Bow Models Found</p>
-            <p>No products match your current search or sub-category filter. Try switching tabs or clearing the search query.</p>
-            <button
-              onClick={() => { setActiveCategory("All Models"); setSearchQuery(""); }}
-              className="px-4 py-2 bg-primary text-secondary font-serif text-xs uppercase tracking-widest rounded-xl hover:bg-accent hover:text-primary transition-colors font-bold"
-            >
-              Reset Filters
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-t border-primary/5 pt-8">
-            {filteredProducts.map((product) => {
-              const gallery = product.gallery || (product.image ? [product.image] : []);
-              const subCat = product.acf?.sub_category || getKadysSubCategory(product.title, product.slug);
-              const displayTitle = cleanTitle(product.title);
-              const excerptText = cleanExcerpt(product.excerpt || product.content || "");
-
-              return (
-                <div
-                  key={product.id}
-                  className="product-card group bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:border-accent/40 transition-all duration-300 flex flex-col h-[560px] cursor-pointer"
-                >
-                  {/* Image Container (Matching BowyerClient 1:1) */}
-                  <div className="relative w-full min-h-[380px] bg-primary/10 overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => openLightbox(gallery, 0, displayTitle)}
-                      className="w-full h-full block cursor-zoom-in"
-                      aria-label={`View photo gallery for ${displayTitle}`}
-                    >
-                      <img
-                        src={gallery[0] || product.image}
-                        alt={displayTitle}
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
-                        loading="lazy"
-                      />
-                    </button>
-                    <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest pointer-events-none">
-                      Consultation Only
-                    </div>
-                  </div>
-
-                  {/* Body Content (Entire section is a link) */}
-                  <Link
-                    href={`/master-bower-product/${product.slug}`}
-                    className="p-5 flex-1 flex flex-col justify-between block cursor-pointer group/card"
-                  >
-                    <div className="space-y-2">
-                      <div className="text-[9px] text-[#5c4629] font-serif uppercase tracking-widest font-bold">
-                        {subCat}
-                      </div>
-                      <h3
-                        className="notranslate text-lg font-serif font-bold text-primary leading-snug group-hover/card:text-accent transition-colors duration-300 line-clamp-1"
-                        translate="no"
-                      >
-                        {displayTitle}
-                      </h3>
-                      <p className="text-xs text-primary/75 leading-relaxed font-sans line-clamp-3">
-                        {excerptText}
-                      </p>
-                    </div>
-
-                    <div className="border-t border-primary/5 pt-4 flex items-center justify-between text-[10px] font-serif uppercase tracking-widest font-bold text-accent group-hover/card:translate-x-1 transition-transform duration-300">
-                      <span>Inspect Specs</span>
-                      <span>→</span>
-                    </div>
-                  </Link>
-
-                </div>
-              );
-            })}
-          </div>
+          )
         )}
       </div>
 
