@@ -894,11 +894,14 @@ export default function KadysBowsClient({ initialProducts }: KadysBowsClientProp
                       </span>
                     </div>
 
-                    <div className="px-4 space-y-2">
-                      <h4 className="font-serif font-bold text-sm text-primary group-hover:text-accent transition-colors leading-snug">
+                    <Link
+                      href={`/master-bower-product/${comp.id}`}
+                      className="px-4 space-y-2 block group/card"
+                    >
+                      <h4 className="font-serif font-bold text-sm text-primary group-hover/card:text-accent transition-colors leading-snug">
                         {comp.name}
                       </h4>
-                      <p className="text-xs font-sans text-primary/75 leading-relaxed">
+                      <p className="text-xs font-sans text-primary/75 leading-relaxed line-clamp-2">
                         {comp.spec}
                       </p>
 
@@ -916,27 +919,27 @@ export default function KadysBowsClient({ initialProducts }: KadysBowsClientProp
                           </div>
                         </div>
                       )}
-                    </div>
+                    </Link>
                   </div>
 
-                  <div className="p-4 pt-3 mt-3 border-t border-primary/5 flex items-center justify-between bg-[#fbf9f5]/50">
+                  <Link
+                    href={`/master-bower-product/${comp.id}`}
+                    className="p-4 pt-3 mt-3 border-t border-primary/5 flex items-center justify-between bg-[#fbf9f5]/50 group/btn"
+                  >
                     <div>
                       <div className="flex items-baseline gap-1">
                         <span className="font-serif font-bold text-lg text-primary">€{comp.priceEUR}</span>
                         <span className="text-[10px] font-sans text-primary/60 font-medium">+ shipping</span>
                       </div>
-                      <span className="text-[9px] font-sans text-primary/40 block">Catalog Source: {comp.sourceUsdPrice}</span>
+                      <span className="text-[9px] font-sans text-primary/40 block">Handcrafted by Sergey Tolochko</span>
                     </div>
-                    <a
-                      href={comp.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 rounded-xl bg-primary/5 hover:bg-[#0e3b2e] text-primary hover:text-white transition-all cursor-pointer inline-flex items-center justify-center"
-                      title="View on Sergey's official workshop website"
+                    <div
+                      className="px-3 py-1.5 rounded-xl bg-primary/5 group-hover/btn:bg-[#0e3b2e] text-primary group-hover/btn:text-white transition-all cursor-pointer inline-flex items-center gap-1 text-[10px] font-serif font-bold uppercase tracking-wider"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
+                      <span>Order</span>
+                      <span>→</span>
+                    </div>
+                  </Link>
                 </div>
               ))}
             </div>

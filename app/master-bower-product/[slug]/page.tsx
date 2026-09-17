@@ -57,10 +57,21 @@ const MASTER_BOWYER_PRODUCT_SLUGS = [
   "hunting-bow-lynx-1",
   "recurve-bow-mongol-mongolian",
   "recursive-bow-manchu-manchurian-1",
-  "recursive-bow-khan-crimean-tatar-2",
   "recurve-bow-hoder-hungarian",
   "recurve-bow-hoder-basic-hungarian",
-  "recursive-bow-hoder-hungarian-3"
+  "recursive-bow-hoder-hungarian-3",
+  "gorih-amerikanskij",
+  "paduk",
+  "zebrano",
+  "amarant",
+  "venge",
+  "skloplastik-prozorij",
+  "skloplastik-prozorij-1",
+  "derevyani-strili",
+  "derevyani-strili-kolorovi",
+  "tyativa-flamandska",
+  "tyativa-neskinchenna-petlya-1",
+  "tyativa-neskinchenna-petlya"
 ];
 
 export async function generateStaticParams() {
