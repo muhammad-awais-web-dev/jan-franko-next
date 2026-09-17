@@ -635,7 +635,7 @@ export default function KadysBowsClient({ initialProducts }: KadysBowsClientProp
                   : "bg-transparent text-primary/70 hover:text-primary hover:bg-primary/5"
               }`}
             >
-              <span>🏹 Traditional Bows</span>
+              <span>Traditional Bows</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full ${catalogMode === "bows" ? "bg-accent text-primary" : "bg-primary/10 text-primary/60"}`}>
                 {products.length || 69}
               </span>
@@ -653,7 +653,7 @@ export default function KadysBowsClient({ initialProducts }: KadysBowsClientProp
                   : "bg-transparent text-primary/70 hover:text-primary hover:bg-primary/5"
               }`}
             >
-              <span>🪵 Workshop Components</span>
+              <span>Workshop Components</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full ${catalogMode === "components" ? "bg-accent text-primary" : "bg-primary/10 text-primary/60"}`}>
                 {KADYS_COMPONENTS.length}
               </span>
