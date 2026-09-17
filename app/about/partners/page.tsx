@@ -7,8 +7,8 @@ import { constructMetadata } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = constructMetadata({
-  title: "Vetted Bowyers & Partners | Traditional Archery - Jan Franko",
-  description: "Vetting elite master bowyers and traditional craftsmen globally. Explore our artisan network dedicated to historical bow construction standards.",
+  title: "Master Bowyers & Partners | Traditional Archery - Jan Franko",
+  description: "Partnering with independent master bowyers and traditional archery craftsmen globally. Discover our artisan network dedicated to authentic bowmaking.",
   canonicalUrl: "https://janfranko.com/about/partners",
 });
 
@@ -64,13 +64,13 @@ export default function PartnersPage() {
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4">
           <span className="inline-block px-4 py-1.5 bg-[#c5a880]/10 border border-[#c5a880]/30 rounded-full text-[10px] md:text-xs font-serif font-semibold tracking-widest uppercase text-accent">
-            Master Craftsmanship &amp; Alliances
+            Master Craftsmanship &amp; Partnerships
           </span>
           <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-white leading-tight">
-            Partners &amp; Vetted Bowyers
+            Partners &amp; Master Bowyers
           </h1>
-          <p className="text-sm md:text-base text-white/80 font-normal max-w-2xl mx-auto leading-relaxed">
-            Vetting traditional archery craftsmen through real field trials in extreme terrains.
+          <p className="text-sm md:text-base text-white/80 font-normal max-w-2xl mx-auto leading-relaxed font-sans">
+            Collaborating directly with independent master craftsmen to connect traditional archers with authentic, handcrafted equipment.
           </p>
           <div className="pt-2 flex justify-center">
             <div className="w-12 h-[1px] bg-[#c5a880]/30" />
@@ -80,17 +80,17 @@ export default function PartnersPage() {
 
       {/* Main Grid Container */}
       <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 space-y-16 md:space-y-24">
-        {/* Vetting Protocols Block */}
+        {/* Selection Criteria & Craft Standards */}
         <div className="space-y-8">
           <div className="text-center space-y-2">
             <span className="text-[10px] font-serif uppercase tracking-widest text-[#5c4629] font-bold">
-              Archery Standards
+              Craftsmanship Standards
             </span>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-primary tracking-tight">
-              Vetting Protocols (Tier I - III)
+              Our Partner Selection Criteria
             </h2>
             <p className="text-sm text-primary/80 max-w-xl mx-auto font-sans">
-              "Each bow and partnership is selected through real-world use in demanding landscapes—from Carpathian forests to Alpine ridgelines."
+              "We partner exclusively with dedicated artisans who honor traditional woodworking, meticulous tillering, and honest material sourcing."
             </p>
             <div className="w-10 h-[1px] bg-[#c5a880]/30 mx-auto mt-3" />
           </div>
@@ -99,28 +99,28 @@ export default function PartnersPage() {
             <div className="bg-white border border-primary/5 p-6 rounded-2xl shadow-xs space-y-3">
               <Shield className="w-6 h-6 text-accent" />
               <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-primary">
-                1. Expedition Reliability
+                1. Proven Field Performance
               </h4>
               <p className="text-xs md:text-sm text-primary/75 font-sans leading-relaxed">
-                Bows are subjected to real field trials, ensuring performance under shifting weather, moisture, and rugged terrains.
+                Bows are evaluated for clean arrow flight, structural stability under varying humidity and temperature, and long-term durability.
               </p>
             </div>
             <div className="bg-white border border-primary/5 p-6 rounded-2xl shadow-xs space-y-3">
               <Star className="w-6 h-6 text-accent" />
               <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-primary">
-                2. Martial Philosophy
+                2. Material Integrity
               </h4>
               <p className="text-xs md:text-sm text-primary/75 font-sans leading-relaxed">
-                Partnerships centered on respect, discipline, and the preservation of traditional archery heritage as a dō (way).
+                Utilizing high-grade natural timber, bamboo cores, horn overlays, and durable clear or black fiberglass laminations.
               </p>
             </div>
             <div className="bg-white border border-primary/5 p-6 rounded-2xl shadow-xs space-y-3">
               <Award className="w-6 h-6 text-accent" />
               <h4 className="font-serif text-xs font-bold uppercase tracking-wider text-primary">
-                3. Heritage Craft
+                3. Direct Artisan Collaboration
               </h4>
               <p className="text-xs md:text-sm text-primary/75 font-sans leading-relaxed">
-                Ensuring durability and responsible production through manufacturers committed to quality and technical authenticity.
+                Working directly with the bowmakers themselves, ensuring custom draw weight tillering, authentic specs, and transparent pricing.
               </p>
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function PartnersPage() {
               The Creators
             </span>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-primary tracking-tight">
-              The Bowyers Behind the System
+              Featured Master Bowyers
             </h2>
             <div className="w-10 h-[1px] bg-[#c5a880]/30 mx-auto mt-3" />
           </div>
@@ -153,7 +153,7 @@ export default function PartnersPage() {
                     className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
                   />
                   <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/90 border border-[#c5a880]/30 rounded-full text-[9px] font-sans font-bold text-secondary uppercase tracking-widest">
-                    Vetted Bowyer
+                    Partner Bowyer
                   </div>
                 </div>
 
@@ -190,35 +190,25 @@ export default function PartnersPage() {
           </div>
         </div>
 
-        {/* Institutional Affiliations Block */}
-        <div className="bg-[#0e3b2e]/5 border border-primary/5 rounded-3xl p-8 md:p-12 space-y-8">
+        {/* International Events & Heritage Block */}
+        <div className="bg-[#0e3b2e]/5 border border-primary/5 rounded-3xl p-8 md:p-12 space-y-6">
           <div className="space-y-2">
             <span className="text-[9px] uppercase tracking-widest text-[#5c4629] font-serif font-bold">
-              Affiliations
+              Global Recognition
             </span>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-primary tracking-tight">
-              Institutional Affiliations
+              International Archery Gatherings
             </h2>
             <div className="w-10 h-[1px] bg-[#c5a880]/30" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <h4 className="font-serif text-sm font-bold text-primary tracking-wide">
-                World Nomad Games
-              </h4>
-              <p className="text-sm text-primary/85 font-sans leading-relaxed">
-                Aligning Tier III training with global standards for dynamic, culturally significant historical competitions.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-serif text-sm font-bold text-primary tracking-wide">
-                Historical Archery Federation (HAF)
-              </h4>
-              <p className="text-sm text-primary/85 font-sans leading-relaxed">
-                Recognized for maintaining technical integrity regarding bow construction and traditional long-distance field shooting.
-              </p>
-            </div>
+          <div className="space-y-3">
+            <h4 className="font-serif text-base font-bold text-primary tracking-wide">
+              World Nomad Games &amp; Traditional Archery Competitions
+            </h4>
+            <p className="text-sm text-primary/85 font-sans leading-relaxed max-w-3xl">
+              Traditional bows crafted by our partner bowyers are used and trusted by archers competing at major international historical events, including the World Nomad Games and regional traditional archery tournaments worldwide.
+            </p>
           </div>
         </div>
       </div>
