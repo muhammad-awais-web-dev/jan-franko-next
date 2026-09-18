@@ -139,18 +139,57 @@ function findFallbackProduct(slugParam: string | string[] | undefined): Product 
   return null;
 }
 
-const ProductDetailPage = () => {
+interface EquipmentCategoryClientProps {
+  initialProduct?: Product | null;
+  initialCategories?: CategoryTerm[];
+}
+
+const parseProductData = (prod: Product) => {
+  let parsed = prod.content;
+  const specs: SpecRow[] = [];
+  if (typeof window !== "undefined") {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(prod.content, "text/html");
+    const table = doc.querySelector("table");
+
+    if (table) {
+      table.querySelectorAll("tbody tr").forEach((row) => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length >= 2) {
+          specs.push({
+            label: cells[0].textContent?.trim() || "",
+            value: cells[1].textContent?.trim() || ""
+          });
+        }
+      });
+      table.remove();
+
+      const specHeader = Array.from(doc.querySelectorAll("h3, h4")).find((h) =>
+        h.textContent?.includes("Specification")
+      );
+      if (specHeader) specHeader.remove();
+    }
+    parsed = doc.body.innerHTML;
+  }
+  return { parsed, specs };
+};
+
+const ProductDetailPage = ({ initialProduct, initialCategories }: EquipmentCategoryClientProps = {}) => {
   const { slug } = useParams();
 
+  const initialParsed = initialProduct ? parseProductData(initialProduct) : { parsed: "", specs: [] };
+
   // Detail States
-  const [product, setProduct] = useState<Product | null>(null);
-  const [activeImage, setActiveImage] = useState<string>("");
+  const [product, setProduct] = useState<Product | null>(initialProduct || null);
+  const [activeImage, setActiveImage] = useState<string>(
+    initialProduct?.gallery?.[0] || initialProduct?.image || ""
+  );
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-  const [categories, setCategories] = useState<CategoryTerm[]>([]);
+  const [categories, setCategories] = useState<CategoryTerm[]>(initialCategories || []);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [parsedContent, setParsedContent] = useState("");
-  const [specifications, setSpecifications] = useState<SpecRow[]>([]);
+  const [loading, setLoading] = useState(!initialProduct);
+  const [parsedContent, setParsedContent] = useState(initialParsed.parsed);
+  const [specifications, setSpecifications] = useState<SpecRow[]>(initialParsed.specs);
 
   // Inquiry Form States
   const [showInquiryForm, setShowInquiryForm] = useState(false);
@@ -164,13 +203,17 @@ const ProductDetailPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch product on mount or slug change
+  // Fetch product and categories if not prefetched server-side, or update allProducts catalog
   useEffect(() => {
-    setLoading(true);
-    setProduct(null);
-    setActiveImage("");
-    setParsedContent("");
-    setSpecifications([]);
+    let isMounted = true;
+
+    if (!product || product.slug !== slug) {
+      setLoading(true);
+      setProduct(null);
+      setActiveImage("");
+      setParsedContent("");
+      setSpecifications([]);
+    }
 
     const fetchProductDetails = async () => {
       try {
@@ -179,13 +222,17 @@ const ProductDetailPage = () => {
           fetch("/api/equipment/categories")
         ]);
 
+        if (!isMounted) return;
+
         let targetProduct: Product | null = null;
 
         if (prodRes.ok && catRes.ok) {
           const prods: Product[] = await prodRes.json();
           const cats: CategoryTerm[] = await catRes.json();
-          setCategories(cats);
-          setAllProducts(prods);
+          if (isMounted) {
+            setCategories(cats);
+            setAllProducts(prods);
+          }
 
           const found = prods.find((p) => p.slug === slug);
           if (found) {
@@ -197,53 +244,38 @@ const ProductDetailPage = () => {
           targetProduct = findFallbackProduct(slug as string);
         }
 
-        if (targetProduct) {
+        if (targetProduct && isMounted) {
           setProduct(targetProduct);
           setActiveImage(targetProduct.gallery?.[0] || targetProduct.image);
 
-          if (typeof window !== "undefined") {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(targetProduct.content, "text/html");
-            const table = doc.querySelector("table");
-            const specs: SpecRow[] = [];
-
-            if (table) {
-              table.querySelectorAll("tbody tr").forEach((row) => {
-                const cells = row.querySelectorAll("td");
-                if (cells.length >= 2) {
-                  specs.push({
-                    label: cells[0].textContent?.trim() || "",
-                    value: cells[1].textContent?.trim() || ""
-                  });
-                }
-              });
-              table.remove();
-
-              const specHeader = Array.from(doc.querySelectorAll("h3, h4")).find(
-                (h) => h.textContent?.includes("Specification")
-              );
-              if (specHeader) specHeader.remove();
-            }
-
-            setSpecifications(specs);
-            setParsedContent(doc.body.innerHTML);
-          } else {
-            setParsedContent(targetProduct.content);
-          }
+          const { parsed, specs } = parseProductData(targetProduct);
+          setSpecifications(specs);
+          setParsedContent(parsed);
         }
       } catch (err) {
         console.error("Failed to load product details:", err);
-        const fallback = findFallbackProduct(slug as string);
-        if (fallback) {
-          setProduct(fallback);
-          setActiveImage(fallback.gallery?.[0] || fallback.image);
-          setParsedContent(fallback.content);
+        if (isMounted) {
+          const fallback = findFallbackProduct(slug as string);
+          if (fallback) {
+            setProduct(fallback);
+            setActiveImage(fallback.gallery?.[0] || fallback.image);
+            const { parsed, specs } = parseProductData(fallback);
+            setSpecifications(specs);
+            setParsedContent(parsed);
+          }
         }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
+
     fetchProductDetails();
+
+    return () => {
+      isMounted = false;
+    };
   }, [slug]);
 
   // GSAP Entrance Stagger when product loads
@@ -819,6 +851,6 @@ const ProductDetailPage = () => {
   );
 };
 
-export default function EquipmentCategoryClient() {
-  return <ProductDetailPage />;
+export default function EquipmentCategoryClient(props: EquipmentCategoryClientProps) {
+  return <ProductDetailPage {...props} />;
 }
