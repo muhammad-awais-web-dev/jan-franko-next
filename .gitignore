@@ -49,3 +49,6 @@ scratch/
 scraper/
 scraping/
 
+
+# Aurelion product images workspace
+/aurelion-product-images/

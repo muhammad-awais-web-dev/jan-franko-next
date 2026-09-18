@@ -14,15 +14,19 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    // Collect all featured_media IDs to query specific media attachments directly
+    // Collect all product IDs and featured_media IDs to query specific media attachments directly
+    const productIds = products.map((p: any) => p.id).filter(Boolean);
     const featuredMediaIds = Array.from(
       new Set(products.map((p: any) => p.featured_media).filter(Boolean))
     );
 
-    // 2. Fetch media items across pages + targeted media IDs include query
-    const [mediaRes1, mediaRes2, targetedMediaRes] = await Promise.all([
+    // 2. Fetch media items across pages + targeted media parent & include queries
+    const [mediaRes1, mediaRes2, parentMediaRes, targetedMediaRes] = await Promise.all([
       fetch("https://janfranko.com/wp-json/wp/v2/media?per_page=100&page=1", { next: { revalidate: 600 } }),
       fetch("https://janfranko.com/wp-json/wp/v2/media?per_page=100&page=2", { next: { revalidate: 600 } }).catch(() => null),
+      productIds.length > 0
+        ? fetch(`https://janfranko.com/wp-json/wp/v2/media?parent=${productIds.join(",")}&per_page=100`, { next: { revalidate: 600 } }).catch(() => null)
+        : null,
       featuredMediaIds.length > 0
         ? fetch(`https://janfranko.com/wp-json/wp/v2/media?include=${featuredMediaIds.join(",")}&per_page=100`, { next: { revalidate: 600 } }).catch(() => null)
         : null
@@ -37,24 +41,29 @@ export async function GET() {
       const items2 = await mediaRes2.json();
       if (Array.isArray(items2)) mediaItems.push(...items2);
     }
+    if (parentMediaRes && parentMediaRes.ok) {
+      const itemsParent = await parentMediaRes.json();
+      if (Array.isArray(itemsParent)) mediaItems.push(...itemsParent);
+    }
     if (targetedMediaRes && targetedMediaRes.ok) {
       const itemsTargeted = await targetedMediaRes.json();
       if (Array.isArray(itemsTargeted)) mediaItems.push(...itemsTargeted);
     }
 
     let mediaMap: Record<number, string> = {};
-    let mediaByParentMap: Record<number, string[]> = {};
+    let mediaByParentMap: Record<number, { id: number; url: string }[]> = {};
 
     mediaItems.forEach((item: any) => {
       if (item.id && item.source_url) {
         mediaMap[item.id] = item.source_url;
       }
-      if (item.parent && item.source_url) {
-        if (!mediaByParentMap[item.parent]) {
-          mediaByParentMap[item.parent] = [];
+      const parentId = item.post || item.parent;
+      if (parentId && item.source_url) {
+        if (!mediaByParentMap[parentId]) {
+          mediaByParentMap[parentId] = [];
         }
-        if (!mediaByParentMap[item.parent].includes(item.source_url)) {
-          mediaByParentMap[item.parent].push(item.source_url);
+        if (!mediaByParentMap[parentId].some((m) => m.url === item.source_url)) {
+          mediaByParentMap[parentId].push({ id: item.id, url: item.source_url });
         }
       }
     });
@@ -81,8 +90,10 @@ export async function GET() {
         contentImgs[0] ||
         "https://images.unsplash.com/photo-1547989453-11e67ffb3885?auto=format&fit=crop&w=1200&q=80";
 
-      // Attached media gallery
-      const attached = mediaByParentMap[p.id] || [];
+      // Attached media gallery sorted by media ID ascending
+      const attached = (mediaByParentMap[p.id] || [])
+        .sort((a, b) => a.id - b.id)
+        .map((m) => m.url);
 
       // Combine into a deduplicated gallery array
       const gallery = Array.from(
