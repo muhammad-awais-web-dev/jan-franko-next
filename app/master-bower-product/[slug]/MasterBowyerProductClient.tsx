@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
-import { ChevronLeft, Compass, Shield, Award, CheckCircle2, Sliders, Calendar, FileText, List, UploadCloud } from "lucide-react";
+import { ChevronLeft, ChevronRight, Compass, Shield, Award, CheckCircle2, Sliders, Calendar, FileText, List, UploadCloud, Maximize2 } from "lucide-react";
 import { Button } from "@/components/Button";
 
 interface Specification {
@@ -169,6 +169,40 @@ const BowyerProductContent = ({ initialProduct }: MasterBowyerProductClientProps
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState("");
   const [activeImage, setActiveImage] = useState(initialData?.image || "");
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Auto-switch gallery slider effect for products with multiple gallery images
+  useEffect(() => {
+    if (!product?.gallery || product.gallery.length <= 1 || isPaused || lightboxImage) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setActiveImage((current) => {
+        const gallery = product.gallery || [];
+        const currentIndex = gallery.indexOf(current);
+        const nextIndex = (currentIndex + 1) % gallery.length;
+        return gallery[nextIndex];
+      });
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [product, isPaused, lightboxImage]);
+
+  const handlePrevImage = () => {
+    if (!product?.gallery || product.gallery.length <= 1) return;
+    const currentIndex = product.gallery.indexOf(activeImage);
+    const prevIndex = (currentIndex - 1 + product.gallery.length) % product.gallery.length;
+    setActiveImage(product.gallery[prevIndex]);
+  };
+
+  const handleNextImage = () => {
+    if (!product?.gallery || product.gallery.length <= 1) return;
+    const currentIndex = product.gallery.indexOf(activeImage);
+    const nextIndex = (currentIndex + 1) % product.gallery.length;
+    setActiveImage(product.gallery[nextIndex]);
+  };
 
   // Configurator selections state (handles multiple choices for checkboxes, files, texts)
   const [selections, setSelections] = useState<Record<string, any>>(() => {
@@ -515,13 +549,61 @@ const BowyerProductContent = ({ initialProduct }: MasterBowyerProductClientProps
       <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 pt-4 lg:items-start">
         {/* Left Column: Gallery & Images (Sticky) */}
         <div className="lg:col-span-6 space-y-6 lg:sticky lg:top-[88px] lg:self-start">
-          <div className="detail-fade-in relative aspect-[4/3] w-full rounded-3xl overflow-hidden border border-primary/10 bg-primary/5 shadow-xl">
-            <img src={activeImage} alt={cleanTitle(product.title)} className="w-full h-full object-cover" />
+          <div
+            className="detail-fade-in relative aspect-[4/3] w-full rounded-3xl overflow-hidden border border-primary/10 bg-primary/5 shadow-xl group"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <img src={activeImage} alt={cleanTitle(product.title)} className="w-full h-full object-cover transition-opacity duration-500" />
+            
             {product.acf?.base_sku && (
-              <span className="absolute top-4 left-4 px-3 py-1 bg-primary/90 text-secondary text-[10px] font-sans font-bold uppercase tracking-widest rounded-full backdrop-blur-md">
+              <span className="absolute top-4 left-4 px-3 py-1 bg-primary/90 text-secondary text-[10px] font-sans font-bold uppercase tracking-widest rounded-full backdrop-blur-md z-10">
                 SKU: {product.acf.base_sku}
               </span>
             )}
+
+            {/* Prev / Next Overlay Controls for Multi-Image Galleries */}
+            {product.gallery && product.gallery.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrevImage}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-primary/70 hover:bg-primary text-secondary rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md cursor-pointer z-10"
+                  title="Previous Image"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleNextImage}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-primary/70 hover:bg-primary text-secondary rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md cursor-pointer z-10"
+                  title="Next Image"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                {/* Slide Indicator Dots */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 bg-primary/60 backdrop-blur-md rounded-full z-10">
+                  {product.gallery.map((imgUrl, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImage(imgUrl)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        activeImage === imgUrl ? "w-6 bg-accent" : "w-1.5 bg-secondary/50 hover:bg-secondary"
+                      }`}
+                      title={`Slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Expand / Lightbox Trigger Button */}
+            <button
+              onClick={() => setLightboxImage(activeImage)}
+              className="absolute top-4 right-4 p-2.5 bg-primary/80 hover:bg-primary text-secondary rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md cursor-pointer z-10"
+              title="Expand Image"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Thumbnails */}
