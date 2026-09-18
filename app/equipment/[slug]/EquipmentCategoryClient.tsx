@@ -141,16 +141,15 @@ function findFallbackProduct(slugParam: string | string[] | undefined): Product 
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
-  const initialFallback = findFallbackProduct(slug as string);
 
   // Detail States
-  const [product, setProduct] = useState<Product | null>(initialFallback);
-  const [activeImage, setActiveImage] = useState<string>(initialFallback?.gallery?.[0] || initialFallback?.image || "");
+  const [product, setProduct] = useState<Product | null>(null);
+  const [activeImage, setActiveImage] = useState<string>("");
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryTerm[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(!initialFallback);
-  const [parsedContent, setParsedContent] = useState(initialFallback?.content || "");
+  const [loading, setLoading] = useState(true);
+  const [parsedContent, setParsedContent] = useState("");
   const [specifications, setSpecifications] = useState<SpecRow[]>([]);
 
   // Inquiry Form States
@@ -165,14 +164,23 @@ const ProductDetailPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch product on mount
+  // Fetch product on mount or slug change
   useEffect(() => {
+    setLoading(true);
+    setProduct(null);
+    setActiveImage("");
+    setParsedContent("");
+    setSpecifications([]);
+
     const fetchProductDetails = async () => {
       try {
         const [prodRes, catRes] = await Promise.all([
           fetch("/api/equipment/products"),
           fetch("/api/equipment/categories")
         ]);
+
+        let targetProduct: Product | null = null;
+
         if (prodRes.ok && catRes.ok) {
           const prods: Product[] = await prodRes.json();
           const cats: CategoryTerm[] = await catRes.json();
@@ -181,44 +189,56 @@ const ProductDetailPage = () => {
 
           const found = prods.find((p) => p.slug === slug);
           if (found) {
-            setProduct(found);
-            setActiveImage(found.gallery?.[0] || found.image);
-            
-            // Parse content to extract specifications table
-            if (typeof window !== "undefined") {
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(found.content, "text/html");
-              const table = doc.querySelector("table");
-              const specs: SpecRow[] = [];
-              
-              if (table) {
-                table.querySelectorAll("tbody tr").forEach((row) => {
-                  const cells = row.querySelectorAll("td");
-                  if (cells.length >= 2) {
-                    specs.push({
-                      label: cells[0].textContent?.trim() || "",
-                      value: cells[1].textContent?.trim() || ""
-                    });
-                  }
-                });
-                table.remove();
-                
-                // Also remove specification headers
-                const specHeader = Array.from(doc.querySelectorAll("h3, h4")).find(
-                  (h) => h.textContent?.includes("Specification")
-                );
-                if (specHeader) specHeader.remove();
-              }
-              
-              setSpecifications(specs);
-              setParsedContent(doc.body.innerHTML);
-            } else {
-              setParsedContent(found.content);
+            targetProduct = found;
+          }
+        }
+
+        if (!targetProduct) {
+          targetProduct = findFallbackProduct(slug as string);
+        }
+
+        if (targetProduct) {
+          setProduct(targetProduct);
+          setActiveImage(targetProduct.gallery?.[0] || targetProduct.image);
+
+          if (typeof window !== "undefined") {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(targetProduct.content, "text/html");
+            const table = doc.querySelector("table");
+            const specs: SpecRow[] = [];
+
+            if (table) {
+              table.querySelectorAll("tbody tr").forEach((row) => {
+                const cells = row.querySelectorAll("td");
+                if (cells.length >= 2) {
+                  specs.push({
+                    label: cells[0].textContent?.trim() || "",
+                    value: cells[1].textContent?.trim() || ""
+                  });
+                }
+              });
+              table.remove();
+
+              const specHeader = Array.from(doc.querySelectorAll("h3, h4")).find(
+                (h) => h.textContent?.includes("Specification")
+              );
+              if (specHeader) specHeader.remove();
             }
+
+            setSpecifications(specs);
+            setParsedContent(doc.body.innerHTML);
+          } else {
+            setParsedContent(targetProduct.content);
           }
         }
       } catch (err) {
         console.error("Failed to load product details:", err);
+        const fallback = findFallbackProduct(slug as string);
+        if (fallback) {
+          setProduct(fallback);
+          setActiveImage(fallback.gallery?.[0] || fallback.image);
+          setParsedContent(fallback.content);
+        }
       } finally {
         setLoading(false);
       }
