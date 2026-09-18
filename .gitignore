@@ -50,5 +50,7 @@ scraper/
 scraping/
 
 
-# Aurelion product images workspace
+# Product image workspaces
 /aurelion-product-images/
+/silverion-product-images/
+/samsara-product-images/
